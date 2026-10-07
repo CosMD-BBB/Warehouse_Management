@@ -36,6 +36,10 @@ TLS ต้องสิ้นสุดที่ HTTPS proxy ของผู้ใ
 
 `npm test` ควรรันในขั้น CI/build ก่อนตั้งค่า public-origin ของแอป; fixture เดิมใช้ loopback และ tests ใหม่ตรวจ origin ที่กำหนดโดยตรง ไม่ใช้ผลทดสอบภายในแทนการตรวจ HTTPS URL จริง
 
+## เปิดตัวอย่างผ่านเบราว์เซอร์
+
+ใช้ปุ่มใน [README.md](README.md) และขั้นตอน [CODESPACES.md](CODESPACES.md) เพื่อสร้างพื้นที่ทดลองบน GitHub ที่เริ่ม backend จริงอัตโนมัติ ใช้ฐานข้อมูลสาธิตแยกและพอร์ต Private โดยยังต้องเข้าสู่ GitHub และสร้าง Codespace ครั้งแรก นี่เป็นทางทดลองผ่านเบราว์เซอร์ ไม่ใช่การยืนยัน deployment สาธารณะหรือถาวร
+
 ## สถานะการส่งขึ้น GitHub และเว็บไซต์
 
 ดู [GITHUB_DELIVERY.md](GITHUB_DELIVERY.md) สำหรับผล upload และข้อจำกัดปัจจุบัน การ push repository หรือผ่าน CI ไม่ได้ยืนยันว่าเว็บไซต์ deploy สำเร็จ และลิงก์ repository ไม่ใช่ลิงก์ระบบ Order Hub

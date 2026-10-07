@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server/index.mjs",
-    "test": "node --test qa/auth.test.mjs qa/workflow.test.mjs qa/tenancy.test.mjs qa/order-entry.test.mjs qa/hosting.test.mjs"
+    "test": "node --test qa/auth.test.mjs qa/workflow.test.mjs qa/tenancy.test.mjs qa/order-entry.test.mjs qa/hosting.test.mjs qa/codespaces.test.mjs"
   },
   "engines": {
     "node": ">=24"

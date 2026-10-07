@@ -1,0 +1,14 @@
+{
+  "name": "Order Hub demo",
+  "image": "node:24-bookworm",
+  "remoteUser": "node",
+  "forwardPorts": [4180],
+  "portsAttributes": {
+    "4180": {
+      "label": "Order Hub",
+      "onAutoForward": "openBrowser",
+      "protocol": "http"
+    }
+  },
+  "postStartCommand": "node scripts/start-codespaces.mjs"
+}

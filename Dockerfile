@@ -7,6 +7,8 @@ COPY --chown=node:node package.json ./
 COPY --chown=node:node server/ ./server/
 COPY --chown=node:node dist/ ./dist/
 COPY --chown=node:node qa/ ./qa/
+COPY --chown=node:node scripts/ ./scripts/
+COPY --chown=node:node .devcontainer/ ./.devcontainer/
 
 ENV NODE_ENV=production \
     ORDER_HUB_HOST=0.0.0.0 \

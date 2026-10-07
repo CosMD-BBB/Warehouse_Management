@@ -1,5 +1,11 @@
 # Order Hub 0.3
 
+**เปิดตัวอย่างในเบราว์เซอร์โดยไม่ต้องติดตั้งบนเครื่อง:**
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/CosMD-BBB/Warehouse_Management/tree/main?quickstart=1)
+
+เข้าสู่ GitHub แล้วกด **Create codespace** (ครั้งต่อไปใช้ **Resume codespace**) ระบบจะเริ่ม backend จริงและเปิดหน้าเว็บให้สร้าง Admin ของคุณเอง หากแท็บเว็บไม่เปิด ให้ไปที่ **Ports → 4180 → Open in Browser** อ่าน [CODESPACES.md](CODESPACES.md) สำหรับขั้นตอนและข้อจำกัด ลิงก์นี้เริ่มพื้นที่ทดลองส่วนตัว ใช้โควต้าบัญชี GitHub ของคุณ ยังไม่ใช่เว็บไซต์ที่เผยแพร่ถาวร
+
 ซอร์สเตรียมสำหรับ GitHub repository `CosMD-BBB/Warehouse_Management` พร้อม Docker และ CI สำหรับ backend จริง อ่าน [HOSTING.md](HOSTING.md) สำหรับการเปิดเว็บไซต์ผ่าน Node/SQLite และ [GITHUB_DELIVERY.md](GITHUB_DELIVERY.md) สำหรับสถานะ upload/deploy GitHub Pages ใช้รันระบบนี้ไม่ได้
 
 ผลตรวจ Cloud วันที่ 7 ตุลาคม 2026 และภาพหน้าจอจากข้อมูลสาธิตอยู่ใน [CLOUD_QA_RESULTS.md](CLOUD_QA_RESULTS.md) รันผ่าน backend จริงและ API ล่าสุดผ่าน 17/17 กรณี แต่ runtime ของแชตนี้ยังไม่มีลิงก์ Preview ที่เปิดจากภายนอกได้
@@ -8,7 +14,7 @@
 
 ## เริ่มใช้งาน
 
-1. ดับเบิลคลิก `Start Order Hub.command` และเปิดหน้าต่างที่ปรากฏค้างไว้
+1. ในโฟลเดอร์โปรเจกต์ รัน `npm start` แล้วเปิด Terminal ค้างไว้ (ชุดบน Mac เดิมมี `Start Order Hub.command` ให้ดับเบิลคลิกได้ แต่ตัวช่วยนี้ไม่ได้รวมใน repository)
 2. เปิด http://127.0.0.1:4180/ แล้วระบุชื่อร้าน รหัสร้าน และสร้างบัญชี Admin ครั้งแรกด้วยชื่อผู้ใช้และรหัสผ่านของคุณเอง
 3. เข้าเมนู **ผู้ใช้และสิทธิ์** เพื่อเพิ่มสมาชิก Warehouse และ Finance
 
