@@ -11,7 +11,7 @@ GitHub repository เก็บซอร์สและรันชุดทด�
 
 ## ตั้งค่าบนบริการโฮสต์
 
-เชื่อม repository `CosMD-BBB/warehouse` สาขา `main` กับบริการโฮสต์ที่เจ้าของร้านเลือก ใช้ instance เดียวสำหรับ SQLite และติดตั้งดิสก์ถาวรที่ `/data` อย่าติดตั้งบน filesystem ชั่วคราวแล้วอ้างว่าข้อมูลคงอยู่หลัง redeploy
+เชื่อม repository `CosMD-BBB/Warehouse_Management` สาขา `main` กับบริการโฮสต์ที่เจ้าของร้านเลือก ใช้ instance เดียวสำหรับ SQLite และติดตั้งดิสก์ถาวรที่ `/data` อย่าติดตั้งบน filesystem ชั่วคราวแล้วอ้างว่าข้อมูลคงอยู่หลัง redeploy
 
 | ตัวแปร | ค่าที่ต้องตั้ง |
 | --- | --- |

@@ -1,6 +1,6 @@
 # Order Hub 0.3
 
-ซอร์สเตรียมสำหรับ GitHub repository `CosMD-BBB/warehouse` พร้อม Docker และ CI สำหรับ backend จริง อ่าน [HOSTING.md](HOSTING.md) สำหรับการเปิดเว็บไซต์ผ่าน Node/SQLite และ [GITHUB_DELIVERY.md](GITHUB_DELIVERY.md) สำหรับสถานะ upload/deploy GitHub Pages ใช้รันระบบนี้ไม่ได้
+ซอร์สเตรียมสำหรับ GitHub repository `CosMD-BBB/Warehouse_Management` พร้อม Docker และ CI สำหรับ backend จริง อ่าน [HOSTING.md](HOSTING.md) สำหรับการเปิดเว็บไซต์ผ่าน Node/SQLite และ [GITHUB_DELIVERY.md](GITHUB_DELIVERY.md) สำหรับสถานะ upload/deploy GitHub Pages ใช้รันระบบนี้ไม่ได้
 
 ผลตรวจ Cloud วันที่ 7 ตุลาคม 2026 และภาพหน้าจอจากข้อมูลสาธิตอยู่ใน [CLOUD_QA_RESULTS.md](CLOUD_QA_RESULTS.md) รันผ่าน backend จริงและ API ล่าสุดผ่าน 17/17 กรณี แต่ runtime ของแชตนี้ยังไม่มีลิงก์ Preview ที่เปิดจากภายนอกได้
 
