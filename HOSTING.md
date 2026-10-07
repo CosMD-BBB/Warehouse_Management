@@ -38,6 +38,8 @@ TLS ต้องสิ้นสุดที่ HTTPS proxy ของผู้ใ
 
 ## เปิดตัวอย่างผ่านเบราว์เซอร์
 
+สำหรับโปรเจกต์ Vercel เดิม ใช้ Node Function adapter และ PostgreSQL สำหรับข้อมูลทดลองตาม [VERCEL_SETUP.md](VERCEL_SETUP.md) ไม่ใช้ดิสก์ใน Function เป็นที่เก็บถาวร และไม่ใช้ `dist` เป็นเว็บไซต์เดี่ยว
+
 ใช้ปุ่มใน [README.md](README.md) และขั้นตอน [CODESPACES.md](CODESPACES.md) เพื่อสร้างพื้นที่ทดลองบน GitHub ที่เริ่ม backend จริงอัตโนมัติ ใช้ฐานข้อมูลสาธิตแยกและพอร์ต Private โดยยังต้องเข้าสู่ GitHub และสร้าง Codespace ครั้งแรก นี่เป็นทางทดลองผ่านเบราว์เซอร์ ไม่ใช่การยืนยัน deployment สาธารณะหรือถาวร
 
 ## สถานะการส่งขึ้น GitHub และเว็บไซต์

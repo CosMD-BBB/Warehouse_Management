@@ -10,9 +10,26 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          # Ephemeral CI fixture only; never an Order Hub account or hosting credential.
+          POSTGRES_PASSWORD: ci-${{ github.run_id }}-${{ github.run_attempt }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      ORDER_HUB_TEST_POSTGRES_URL: postgresql://postgres:ci-${{ github.run_id }}-${{ github.run_attempt }}@127.0.0.1:5432/postgres
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - run: npm ci --ignore-scripts
       - run: npm test
+      - run: npm run build

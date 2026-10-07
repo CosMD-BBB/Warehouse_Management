@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "node scripts/build-vercel.mjs",
+  "outputDirectory": ".vercel-static",
+  "functions": {
+    "api/order-hub.mjs": {
+      "includeFiles": "{server,dist}/**",
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/order-hub"
+    }
+  ]
+}

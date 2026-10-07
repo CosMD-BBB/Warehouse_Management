@@ -20,6 +20,8 @@ const storeFields=(b,initial=false)=>{
   return {name,code};
 };
 async function hashPassword(password){const salt=randomBytes(16).toString('hex'),hash=await scryptAsync(password,salt,64,{N:32768,r:8,p:1,maxmem:64*1024*1024});return salt+':'+hash.toString('hex')}
+let dummyPasswordHash;
+const getDummyPasswordHash=()=>dummyPasswordHash||=hashPassword(randomBytes(32).toString('hex'));
 async function verifyPassword(password,stored){const [salt,hex]=stored.split(':');const actual=await scryptAsync(password,salt,64,{N:32768,r:8,p:1,maxmem:64*1024*1024}),expected=Buffer.from(hex,'hex');return actual.length===expected.length&&timingSafeEqual(actual,expected)}
 function passwordValid(value){if(typeof value!=='string'||value.length<12||value.length>128)fault('ใช้รหัสผ่าน 12–128 ตัวอักษร');return value}
 function accountFields(b){const username=String(b.username||'').trim().toLowerCase(),name=String(b.name||'').trim();if(!/^[a-z0-9._-]{3,40}$/.test(username))fault('ชื่อผู้ใช้ต้องเป็น a-z, 0-9, จุด ขีด หรือขีดล่าง 3–40 ตัว');if(!name||name.length>80)fault('กรุณาระบุชื่อผู้ใช้ 1–80 ตัวอักษร');return {username,name}}
@@ -31,13 +33,14 @@ function configuredOrigin(value){
   return url;
 }
 
-export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.local','order-hub.sqlite'),publicOrigin=process.env.ORDER_HUB_PUBLIC_ORIGIN||''}={}){
+export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.local','order-hub.sqlite'),publicOrigin=process.env.ORDER_HUB_PUBLIC_ORIGIN||'',attempts=new Map()}={}){
   const external=configuredOrigin(publicOrigin),cookieFlags=`HttpOnly; SameSite=Strict; Path=/${external?'; Secure':''}`;
+  if(!(attempts instanceof Map))throw new Error('Authentication attempt storage must be a Map');
   const clearedCookie=`oh_session=; ${cookieFlags}; Max-Age=0`;
   fs.mkdirSync(path.dirname(dbPath),{recursive:true,mode:0o700});
   const db=new DatabaseSync(dbPath);try{fs.chmodSync(dbPath,0o600)}catch{}
-  initializeStorage(db);
-  const attempts=new Map(),ttl=8*60*60*1000,dummyHashPromise=hashPassword(randomBytes(32).toString('hex'));
+  try{initializeStorage(db)}catch(error){db.close();throw error}
+  const ttl=8*60*60*1000;
   const transact=fn=>transaction(db,fn);
   const lookupUser=id=>db.prepare('SELECT u.*,t.name store_name,t.code store_code FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE u.id=? AND t.active=1').get(id);
   const record=(actor,action,target)=>db.prepare('INSERT INTO security_audit(at,tenant_id,actor_id,action,target_id) VALUES(?,?,?,?,?)').run(new Date().toISOString(),actor.tenant_id,actor.id,action,target||null);
@@ -77,7 +80,7 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
   }
   function readStoreState(u){const row=db.prepare('SELECT data FROM tenant_state WHERE tenant_id=?').get(u.tenant_id);if(!row)fault('ไม่พบข้อมูลร้าน',404);return JSON.parse(row.data)}
 
-  const server=http.createServer(async(req,res)=>{
+  const handler=async(req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Frame-Options','DENY');
     res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
     try{
@@ -111,7 +114,7 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
           for(const [k,v]of attempts)if(Date.now()-v.at>900000)attempts.delete(k);
           if(attempts.get(key)?.count>=6||attempts.get(ipKey)?.count>=30)fault('ลองเข้าสู่ระบบมากเกินไป กรุณารอ 15 นาที',429);
           const u=db.prepare('SELECT u.*,t.name store_name,t.code store_code FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE t.code=? AND t.active=1 AND u.username=?').get(code,username);
-          const valid=await verifyPassword(b.password,u?.password_hash||await dummyHashPromise),current=u?lookupUser(u.id):null;
+          const valid=await verifyPassword(b.password,u?.password_hash||await getDummyPasswordHash()),current=u?lookupUser(u.id):null;
           if(!valid||!current?.active||current.password_hash!==u.password_hash||current.tenant_id!==u.tenant_id||current.store_code!==code){
             for(const k of [key,ipKey])attempts.set(k,{count:(attempts.get(k)?.count||0)+1,at:Date.now()});fault('รหัสร้าน ชื่อผู้ใช้ หรือรหัสผ่านไม่ถูกต้อง',401);
           }
@@ -218,8 +221,11 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
       const types={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.ttf':'font/ttf','.svg':'image/svg+xml','.png':'image/png','.jpeg':'image/jpeg','.webp':'image/webp'};
       res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'});res.end(req.method==='HEAD'?undefined:fs.readFileSync(file));
     }catch(e){const status=e.status||500;if(status===500)console.error('Order Hub request failed:',e.message);send(res,status,{error:status===500?'ระบบขัดข้อง กรุณาลองใหม่':e.message,...(e.code==='SESSION_CHANGED'?{code:e.code}:{})})}
-  });
-  server.on('close',()=>db.close());return {server,db};
+  };
+  const server=http.createServer(handler);
+  let closed=false;
+  const close=()=>{if(!closed){db.close();closed=true}};
+  server.on('close',close);return {server,db,handler,close};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const host=process.env.ORDER_HUB_HOST||'127.0.0.1',port=Number(process.env.ORDER_HUB_PORT||process.env.PORT||4180);

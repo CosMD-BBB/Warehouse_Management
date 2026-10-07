@@ -1,5 +1,7 @@
 # Order Hub 0.3
 
+**ตัวอย่างบน Vercel:** มี adapter สำหรับ Node 24 Function และฐานข้อมูลทดลองถาวรแล้ว ใช้โปรเจกต์ Vercel เดิมกับสาขา `vercel-demo` และเชื่อม Neon/Postgres ตาม [VERCEL_SETUP.md](VERCEL_SETUP.md) การเปิดบน Vercel จริงยังต้องยืนยัน deployment; ไม่ใช้ `dist` เดี่ยวหรือฐานข้อมูล `/tmp` ที่หายเมื่อเริ่มตัวรันใหม่
+
 **เปิดตัวอย่างในเบราว์เซอร์โดยไม่ต้องติดตั้งบนเครื่อง:**
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/CosMD-BBB/Warehouse_Management/tree/main?quickstart=1)
@@ -20,7 +22,7 @@
 
 ไม่มีรหัสผ่านเริ่มต้น บัญชีและการเปลี่ยนแปลงจะอยู่ต่อหลังรีเฟรชหรือปิดเปิดระบบใหม่ ไฟล์ `Order_Hub_Prototype.html` เป็นหน้าทางเข้าเท่านั้น ระบบต้องทำงานผ่านเซิร์ฟเวอร์เพื่อบังคับสิทธิ์และบันทึกข้อมูล ห้ามใช้ static file server แทน
 
-ต้องใช้ Node.js 24 ขึ้นไป ตัวเริ่มใช้งานเลือก runtime ที่มีอยู่ในเครื่องนี้ให้อัตโนมัติ หรือรัน `npm start` ไม่ต้องติดตั้งแพ็กเกจเพิ่มเติม ค่าเริ่มต้นของเซิร์ฟเวอร์รับเฉพาะ loopback ของเครื่องนี้ การเปิดแบบออนไลน์ต้องตั้ง HTTPS origin แน่นอนและดิสก์ถาวรตาม `HOSTING.md` ก่อน
+ใช้ Node.js 24 สำหรับ repository นี้ รัน `npm ci --ignore-scripts` ก่อนตรวจชุดทดสอบหรือ build ส่วน `npm start` ยังคงใช้ SQLite ในเครื่องและไม่ต้องเชื่อม PostgreSQL ค่าเริ่มต้นของเซิร์ฟเวอร์รับเฉพาะ loopback การเปิดบน Node hosting ใช้ดิสก์ถาวรตาม `HOSTING.md`; Vercel ใช้ adapter และ PostgreSQL ตาม `VERCEL_SETUP.md`
 
 ## สิทธิ์
 

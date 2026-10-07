@@ -12,3 +12,5 @@ qa/screenshots/
 !.env.example
 *.log
 node_modules/
+.vercel/
+.vercel-static/

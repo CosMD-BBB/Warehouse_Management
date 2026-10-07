@@ -2,6 +2,8 @@
 .github
 .local
 node_modules
+.vercel
+.vercel-static
 .env
 .env.*
 *.sqlite*
