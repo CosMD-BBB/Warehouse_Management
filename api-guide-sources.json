@@ -1,0 +1,49 @@
+{
+  "checkedOn": "2026-10-07",
+  "scope": "Order API application guidance; current app remains draft-only",
+  "sources": {
+    "Shopee": [
+      "https://open.shopee.com/",
+      "https://open.shopee.com/developer-guide/12",
+      "https://open.shopee.com/developer-guide/14",
+      "https://open.shopee.com/developer-guide/20",
+      "https://open.shopee.com/developer-guide/4"
+    ],
+    "Lazada": [
+      "https://open.lazada.com/",
+      "https://open.lazada.com/apps/doc/doc?docId=108055&nodeId=10433",
+      "https://open.lazada.com/apps/doc/doc?docId=108131&nodeId=10535",
+      "https://open.lazada.com/apps/doc/doc?docId=108149&nodeId=10552",
+      "https://open.lazada.com/apps/doc/doc?docId=108260&nodeId=10533",
+      "https://open.lazada.com/apps/doc/doc?docId=120945&nodeId=29614",
+      "https://open.lazada.com/apps/doc/doc?docId=120984&nodeId=30764"
+    ],
+    "TikTok Shop": [
+      "https://partner.tiktokshop.com/",
+      "https://partner.tiktokshop.com/docv2/page/app-review-process",
+      "https://partner.tiktokshop.com/docv2/page/ar5ppjvv",
+      "https://partner.tiktokshop.com/docv2/page/order-management-system-oms",
+      "https://partner.tiktokshop.com/docv2/page/update-inventory",
+      "https://partner.us.tiktokshop.com/docv2/page/create-your-app"
+    ],
+    "Facebook": [
+      "https://developers.facebook.com/",
+      "https://developers.facebook.com/docs/messenger-platform/",
+      "https://developers.facebook.com/docs/messenger-platform/app-review/",
+      "https://developers.facebook.com/docs/messenger-platform/get-started/",
+      "https://developers.facebook.com/docs/messenger-platform/webhooks/",
+      "https://www.postman.com/meta/messenger-platform-api/documentation/iyp204x/messenger-platform-api",
+      "https://www.postman.com/meta/messenger-platform-api/folder/22794852-255610cd-47f5-4f4d-b3fa-71aec360be9a"
+    ],
+    "LINE OA": [
+      "https://developers.line.biz/console/",
+      "https://developers.line.biz/en/docs/messaging-api/building-bot/",
+      "https://developers.line.biz/en/docs/messaging-api/getting-started/",
+      "https://developers.line.biz/en/docs/messaging-api/overview/",
+      "https://developers.line.biz/en/docs/messaging-api/verify-webhook-signature/",
+      "https://manager.line.biz/"
+    ],
+    "Review": [],
+    "Offline sales": []
+  }
+}

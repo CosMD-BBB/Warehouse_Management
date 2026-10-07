@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-07",
+  "assets": {
+    "brand-logo.jpeg": {
+      "source": "/Users/jarae/Desktop/Image.jpeg",
+      "usage": "User supplied image, copied unchanged. CSS controls display crop."
+    },
+    "channels/shopee.svg": {
+      "source": "https://commons.wikimedia.org/wiki/File:Shopee_logo.svg",
+      "note": "Logo glyph from SVG; static paths sanitized."
+    },
+    "channels/lazada.svg": {
+      "source": "https://commons.wikimedia.org/wiki/File:Lazada_(2019).svg",
+      "note": "Logo glyph from SVG; static paths sanitized."
+    },
+    "channels/tiktok.svg": {
+      "source": "https://commons.wikimedia.org/wiki/File:Tiktok_icon.svg",
+      "note": "Static SVG icon."
+    },
+    "channels/facebook.svg": {
+      "source": "https://commons.wikimedia.org/wiki/File:2023_Facebook_icon.svg",
+      "note": "Static SVG icon."
+    },
+    "channels/line.png": {
+      "source": "https://www.line.me/en/logo",
+      "download": "https://www.line.me/static/logo/top/LINE_Brand_icon.zip",
+      "note": "Unmodified official LINE PNG."
+    },
+    "Review and Offline sales": {
+      "source": "Local generic interface symbols",
+      "note": "Generic people and parcel icons; not third-party brand marks."
+    },
+    "brand-icon.png": {
+      "source": "Built-in imagegen edit of the user-supplied mascot",
+      "reference": "brand-logo.jpeg",
+      "usage": "Head-only icon against red background; website logo, favicon and touch icon",
+      "date": "2026-10-07"
+    }
+  }
+}

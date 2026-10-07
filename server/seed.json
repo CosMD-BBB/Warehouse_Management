@@ -1,0 +1,6411 @@
+{
+  "products": [
+    {
+      "sku": "CLN-100",
+      "name": "Gentle Cleanser",
+      "sub": "เจลล้างหน้า 100 ml",
+      "price": 490,
+      "cost": 155,
+      "stock": 124,
+      "location": "A-01-01",
+      "min": 35
+    },
+    {
+      "sku": "SUN-050",
+      "name": "Daily Sunscreen SPF50+",
+      "sub": "กันแดด 50 ml",
+      "price": 790,
+      "cost": 240,
+      "stock": 92,
+      "location": "A-01-02",
+      "min": 35
+    },
+    {
+      "sku": "SER-030",
+      "name": "Brightening Serum",
+      "sub": "เซรั่ม 30 ml",
+      "price": 1190,
+      "cost": 360,
+      "stock": 26,
+      "location": "A-02-01",
+      "min": 30
+    },
+    {
+      "sku": "MOI-050",
+      "name": "Barrier Moisturizer",
+      "sub": "มอยส์เจอไรเซอร์ 50 ml",
+      "price": 690,
+      "cost": 205,
+      "stock": 65,
+      "location": "A-02-02",
+      "min": 25
+    },
+    {
+      "sku": "SET-003",
+      "name": "Daily Essentials Set",
+      "sub": "ชุดดูแลผิว 3 ชิ้น",
+      "price": 1590,
+      "cost": 530,
+      "stock": 18,
+      "location": "B-01-01",
+      "min": 20
+    }
+  ],
+  "orders": [
+    {
+      "id": "OH-10421",
+      "external": "S26800001",
+      "channel": "Shopee",
+      "date": "2026-09-24",
+      "time": "08:00",
+      "customer": "ลูกค้าสาธิต 001",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        },
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 100,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400001",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10422",
+      "external": "t26800002",
+      "channel": "TikTok Shop",
+      "date": "2026-09-24",
+      "time": "09:07",
+      "customer": "ลูกค้าสาธิต 002",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400002",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10423",
+      "external": "S26800003",
+      "channel": "Shopee",
+      "date": "2026-09-24",
+      "time": "10:14",
+      "customer": "ลูกค้าสาธิต 003",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400003",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10424",
+      "external": "L26800004",
+      "channel": "Lazada",
+      "date": "2026-09-24",
+      "time": "11:21",
+      "customer": "ลูกค้าสาธิต 004",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400004",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10425",
+      "external": "t26800005",
+      "channel": "TikTok Shop",
+      "date": "2026-09-24",
+      "time": "12:28",
+      "customer": "ลูกค้าสาธิต 005",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 2,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10426",
+      "external": "S26800006",
+      "channel": "Shopee",
+      "date": "2026-09-24",
+      "time": "13:35",
+      "customer": "ลูกค้าสาธิต 006",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400006",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10427",
+      "external": "L26800007",
+      "channel": "LINE OA",
+      "date": "2026-09-24",
+      "time": "14:42",
+      "customer": "ลูกค้าสาธิต 007",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 2,
+          "price": 690,
+          "cost": 205
+        },
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 2870,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10428",
+      "external": "L26800008",
+      "channel": "Lazada",
+      "date": "2026-09-24",
+      "time": "15:49",
+      "customer": "ลูกค้าสาธิต 008",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400008",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10429",
+      "external": "t26800009",
+      "channel": "TikTok Shop",
+      "date": "2026-09-24",
+      "time": "16:56",
+      "customer": "ลูกค้าสาธิต 009",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 2,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400009",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10430",
+      "external": "f26800010",
+      "channel": "Facebook",
+      "date": "2026-09-24",
+      "time": "17:03",
+      "customer": "ลูกค้าสาธิต 010",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 2,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400010",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10431",
+      "external": "O26800011",
+      "channel": "Offline sales",
+      "date": "2026-09-24",
+      "time": "08:10",
+      "customer": "ลูกค้าสาธิต 011",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400011",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10432",
+      "external": "S26800012",
+      "channel": "Shopee",
+      "date": "2026-09-25",
+      "time": "09:17",
+      "customer": "ลูกค้าสาธิต 012",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400012",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10433",
+      "external": "t26800013",
+      "channel": "TikTok Shop",
+      "date": "2026-09-25",
+      "time": "10:24",
+      "customer": "ลูกค้าสาธิต 013",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        },
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10434",
+      "external": "L26800014",
+      "channel": "Lazada",
+      "date": "2026-09-25",
+      "time": "11:31",
+      "customer": "ลูกค้าสาธิต 014",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400014",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10435",
+      "external": "S26800015",
+      "channel": "Shopee",
+      "date": "2026-09-25",
+      "time": "12:38",
+      "customer": "ลูกค้าสาธิต 015",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 1190,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10436",
+      "external": "t26800016",
+      "channel": "TikTok Shop",
+      "date": "2026-09-25",
+      "time": "13:45",
+      "customer": "ลูกค้าสาธิต 016",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400016",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10437",
+      "external": "S26800017",
+      "channel": "Shopee",
+      "date": "2026-09-25",
+      "time": "14:52",
+      "customer": "ลูกค้าสาธิต 017",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 2,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400017",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10438",
+      "external": "L26800018",
+      "channel": "Lazada",
+      "date": "2026-09-25",
+      "time": "15:59",
+      "customer": "ลูกค้าสาธิต 018",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400018",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10439",
+      "external": "t26800019",
+      "channel": "TikTok Shop",
+      "date": "2026-09-25",
+      "time": "16:06",
+      "customer": "ลูกค้าสาธิต 019",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        },
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400019",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10440",
+      "external": "S26800020",
+      "channel": "Shopee",
+      "date": "2026-09-25",
+      "time": "17:13",
+      "customer": "ลูกค้าสาธิต 020",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 100,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400020",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10441",
+      "external": "L26800021",
+      "channel": "LINE OA",
+      "date": "2026-09-25",
+      "time": "08:20",
+      "customer": "ลูกค้าสาธิต 021",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10442",
+      "external": "L26800022",
+      "channel": "Lazada",
+      "date": "2026-09-25",
+      "time": "09:27",
+      "customer": "ลูกค้าสาธิต 022",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400022",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10443",
+      "external": "t26800023",
+      "channel": "TikTok Shop",
+      "date": "2026-09-25",
+      "time": "10:34",
+      "customer": "ลูกค้าสาธิต 023",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 1190,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10444",
+      "external": "f26800024",
+      "channel": "Facebook",
+      "date": "2026-09-26",
+      "time": "11:41",
+      "customer": "ลูกค้าสาธิต 024",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400024",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10445",
+      "external": "O26800025",
+      "channel": "Offline sales",
+      "date": "2026-09-26",
+      "time": "12:48",
+      "customer": "ลูกค้าสาธิต 025",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        },
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400025",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10446",
+      "external": "S26800026",
+      "channel": "Shopee",
+      "date": "2026-09-26",
+      "time": "13:55",
+      "customer": "ลูกค้าสาธิต 026",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400026",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10447",
+      "external": "t26800027",
+      "channel": "TikTok Shop",
+      "date": "2026-09-26",
+      "time": "14:02",
+      "customer": "ลูกค้าสาธิต 027",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400027",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10448",
+      "external": "L26800028",
+      "channel": "Lazada",
+      "date": "2026-09-26",
+      "time": "15:09",
+      "customer": "ลูกค้าสาธิต 028",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 2,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400028",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10449",
+      "external": "S26800029",
+      "channel": "Shopee",
+      "date": "2026-09-26",
+      "time": "16:16",
+      "customer": "ลูกค้าสาธิต 029",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10450",
+      "external": "t26800030",
+      "channel": "TikTok Shop",
+      "date": "2026-09-26",
+      "time": "17:23",
+      "customer": "ลูกค้าสาธิต 030",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400030",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10451",
+      "external": "S26800031",
+      "channel": "Shopee",
+      "date": "2026-09-26",
+      "time": "08:30",
+      "customer": "ลูกค้าสาธิต 031",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        },
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 1880,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10452",
+      "external": "L26800032",
+      "channel": "Lazada",
+      "date": "2026-09-26",
+      "time": "09:37",
+      "customer": "ลูกค้าสาธิต 032",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 2,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400032",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10453",
+      "external": "t26800033",
+      "channel": "TikTok Shop",
+      "date": "2026-09-26",
+      "time": "10:44",
+      "customer": "ลูกค้าสาธิต 033",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 2,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400033",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10454",
+      "external": "S26800034",
+      "channel": "Shopee",
+      "date": "2026-09-26",
+      "time": "11:51",
+      "customer": "ลูกค้าสาธิต 034",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400034",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10455",
+      "external": "L26800035",
+      "channel": "LINE OA",
+      "date": "2026-09-26",
+      "time": "12:58",
+      "customer": "ลูกค้าสาธิต 035",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400035",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10456",
+      "external": "L26800036",
+      "channel": "Lazada",
+      "date": "2026-09-26",
+      "time": "13:05",
+      "customer": "ลูกค้าสาธิต 036",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400036",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10457",
+      "external": "t26800037",
+      "channel": "TikTok Shop",
+      "date": "2026-09-27",
+      "time": "14:12",
+      "customer": "ลูกค้าสาธิต 037",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        },
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10458",
+      "external": "f26800038",
+      "channel": "Facebook",
+      "date": "2026-09-27",
+      "time": "15:19",
+      "customer": "ลูกค้าสาธิต 038",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400038",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10459",
+      "external": "O26800039",
+      "channel": "Offline sales",
+      "date": "2026-09-27",
+      "time": "16:26",
+      "customer": "ลูกค้าสาธิต 039",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 1190,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10460",
+      "external": "S26800040",
+      "channel": "Shopee",
+      "date": "2026-09-27",
+      "time": "17:33",
+      "customer": "ลูกค้าสาธิต 040",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400040",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10461",
+      "external": "t26800041",
+      "channel": "TikTok Shop",
+      "date": "2026-09-27",
+      "time": "08:40",
+      "customer": "ลูกค้าสาธิต 041",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400041",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10462",
+      "external": "L26800042",
+      "channel": "Lazada",
+      "date": "2026-09-27",
+      "time": "09:47",
+      "customer": "ลูกค้าสาธิต 042",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 2,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400042",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10463",
+      "external": "S26800043",
+      "channel": "Shopee",
+      "date": "2026-09-27",
+      "time": "10:54",
+      "customer": "ลูกค้าสาธิต 043",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        },
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400043",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10464",
+      "external": "t26800044",
+      "channel": "TikTok Shop",
+      "date": "2026-09-27",
+      "time": "11:01",
+      "customer": "ลูกค้าสาธิต 044",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400044",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10465",
+      "external": "S26800045",
+      "channel": "Shopee",
+      "date": "2026-09-27",
+      "time": "12:08",
+      "customer": "ลูกค้าสาธิต 045",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 2,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10466",
+      "external": "L26800046",
+      "channel": "Lazada",
+      "date": "2026-09-27",
+      "time": "13:15",
+      "customer": "ลูกค้าสาธิต 046",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400046",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10467",
+      "external": "t26800047",
+      "channel": "TikTok Shop",
+      "date": "2026-09-27",
+      "time": "14:22",
+      "customer": "ลูกค้าสาธิต 047",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 1190,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10468",
+      "external": "S26800048",
+      "channel": "Shopee",
+      "date": "2026-09-27",
+      "time": "15:29",
+      "customer": "ลูกค้าสาธิต 048",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400048",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10469",
+      "external": "L26800049",
+      "channel": "LINE OA",
+      "date": "2026-09-27",
+      "time": "16:36",
+      "customer": "ลูกค้าสาธิต 049",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        },
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400049",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10470",
+      "external": "L26800050",
+      "channel": "Lazada",
+      "date": "2026-09-27",
+      "time": "17:43",
+      "customer": "ลูกค้าสาธิต 050",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400050",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10471",
+      "external": "t26800051",
+      "channel": "TikTok Shop",
+      "date": "2026-09-28",
+      "time": "08:50",
+      "customer": "ลูกค้าสาธิต 051",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400051",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10472",
+      "external": "f26800052",
+      "channel": "Facebook",
+      "date": "2026-09-28",
+      "time": "09:57",
+      "customer": "ลูกค้าสาธิต 052",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 2,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400052",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10473",
+      "external": "O26800053",
+      "channel": "Offline sales",
+      "date": "2026-09-28",
+      "time": "10:04",
+      "customer": "ลูกค้าสาธิต 053",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10474",
+      "external": "S26800054",
+      "channel": "Shopee",
+      "date": "2026-09-28",
+      "time": "11:11",
+      "customer": "ลูกค้าสาธิต 054",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400054",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10475",
+      "external": "t26800055",
+      "channel": "TikTok Shop",
+      "date": "2026-09-28",
+      "time": "12:18",
+      "customer": "ลูกค้าสาธิต 055",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        },
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 1780,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10476",
+      "external": "L26800056",
+      "channel": "Lazada",
+      "date": "2026-09-28",
+      "time": "13:25",
+      "customer": "ลูกค้าสาธิต 056",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400056",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10477",
+      "external": "S26800057",
+      "channel": "Shopee",
+      "date": "2026-09-28",
+      "time": "14:32",
+      "customer": "ลูกค้าสาธิต 057",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400057",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10478",
+      "external": "t26800058",
+      "channel": "TikTok Shop",
+      "date": "2026-09-28",
+      "time": "15:39",
+      "customer": "ลูกค้าสาธิต 058",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 100,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400058",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10479",
+      "external": "S26800059",
+      "channel": "Shopee",
+      "date": "2026-09-28",
+      "time": "16:46",
+      "customer": "ลูกค้าสาธิต 059",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400059",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10480",
+      "external": "L26800060",
+      "channel": "Lazada",
+      "date": "2026-09-28",
+      "time": "17:53",
+      "customer": "ลูกค้าสาธิต 060",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400060",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10481",
+      "external": "t26800061",
+      "channel": "TikTok Shop",
+      "date": "2026-09-28",
+      "time": "08:00",
+      "customer": "ลูกค้าสาธิต 061",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 2,
+          "price": 1190,
+          "cost": 360
+        },
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10482",
+      "external": "S26800062",
+      "channel": "Shopee",
+      "date": "2026-09-29",
+      "time": "09:07",
+      "customer": "ลูกค้าสาธิต 062",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 2,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400062",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10483",
+      "external": "L26800063",
+      "channel": "LINE OA",
+      "date": "2026-09-29",
+      "time": "10:14",
+      "customer": "ลูกค้าสาธิต 063",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 1590,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10484",
+      "external": "L26800064",
+      "channel": "Lazada",
+      "date": "2026-09-29",
+      "time": "11:21",
+      "customer": "ลูกค้าสาธิต 064",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400064",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10485",
+      "external": "t26800065",
+      "channel": "TikTok Shop",
+      "date": "2026-09-29",
+      "time": "12:28",
+      "customer": "ลูกค้าสาธิต 065",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400065",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10486",
+      "external": "f26800066",
+      "channel": "Facebook",
+      "date": "2026-09-29",
+      "time": "13:35",
+      "customer": "ลูกค้าสาธิต 066",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 2,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400066",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10487",
+      "external": "O26800067",
+      "channel": "Offline sales",
+      "date": "2026-09-29",
+      "time": "14:42",
+      "customer": "ลูกค้าสาธิต 067",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        },
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400067",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10488",
+      "external": "S26800068",
+      "channel": "Shopee",
+      "date": "2026-09-29",
+      "time": "15:49",
+      "customer": "ลูกค้าสาธิต 068",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400068",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10489",
+      "external": "t26800069",
+      "channel": "TikTok Shop",
+      "date": "2026-09-29",
+      "time": "16:56",
+      "customer": "ลูกค้าสาธิต 069",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10490",
+      "external": "L26800070",
+      "channel": "Lazada",
+      "date": "2026-09-29",
+      "time": "17:03",
+      "customer": "ลูกค้าสาธิต 070",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400070",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10491",
+      "external": "S26800071",
+      "channel": "Shopee",
+      "date": "2026-09-29",
+      "time": "08:10",
+      "customer": "ลูกค้าสาธิต 071",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 1190,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10492",
+      "external": "t26800072",
+      "channel": "TikTok Shop",
+      "date": "2026-09-29",
+      "time": "09:17",
+      "customer": "ลูกค้าสาธิต 072",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400072",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10493",
+      "external": "S26800073",
+      "channel": "Shopee",
+      "date": "2026-09-29",
+      "time": "10:24",
+      "customer": "ลูกค้าสาธิต 073",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        },
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400073",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10494",
+      "external": "L26800074",
+      "channel": "Lazada",
+      "date": "2026-09-30",
+      "time": "11:31",
+      "customer": "ลูกค้าสาธิต 074",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400074",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10495",
+      "external": "t26800075",
+      "channel": "TikTok Shop",
+      "date": "2026-09-30",
+      "time": "12:38",
+      "customer": "ลูกค้าสาธิต 075",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400075",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10496",
+      "external": "S26800076",
+      "channel": "Shopee",
+      "date": "2026-09-30",
+      "time": "13:45",
+      "customer": "ลูกค้าสาธิต 076",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400076",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10497",
+      "external": "L26800077",
+      "channel": "LINE OA",
+      "date": "2026-09-30",
+      "time": "14:52",
+      "customer": "ลูกค้าสาธิต 077",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 2,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10498",
+      "external": "L26800078",
+      "channel": "Lazada",
+      "date": "2026-09-30",
+      "time": "15:59",
+      "customer": "ลูกค้าสาธิต 078",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 2,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400078",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10499",
+      "external": "t26800079",
+      "channel": "TikTok Shop",
+      "date": "2026-09-30",
+      "time": "16:06",
+      "customer": "ลูกค้าสาธิต 079",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        },
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 2180,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10500",
+      "external": "f26800080",
+      "channel": "Facebook",
+      "date": "2026-09-30",
+      "time": "17:13",
+      "customer": "ลูกค้าสาธิต 080",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 2,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400080",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10501",
+      "external": "O26800081",
+      "channel": "Offline sales",
+      "date": "2026-09-30",
+      "time": "08:20",
+      "customer": "ลูกค้าสาธิต 081",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400081",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10502",
+      "external": "S26800082",
+      "channel": "Shopee",
+      "date": "2026-09-30",
+      "time": "09:27",
+      "customer": "ลูกค้าสาธิต 082",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400082",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10503",
+      "external": "t26800083",
+      "channel": "TikTok Shop",
+      "date": "2026-09-30",
+      "time": "10:34",
+      "customer": "ลูกค้าสาธิต 083",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400083",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10504",
+      "external": "L26800084",
+      "channel": "Lazada",
+      "date": "2026-09-30",
+      "time": "11:41",
+      "customer": "ลูกค้าสาธิต 084",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400084",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10505",
+      "external": "S26800085",
+      "channel": "Shopee",
+      "date": "2026-09-30",
+      "time": "12:48",
+      "customer": "ลูกค้าสาธิต 085",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        },
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10506",
+      "external": "t26800086",
+      "channel": "TikTok Shop",
+      "date": "2026-09-30",
+      "time": "13:55",
+      "customer": "ลูกค้าสาธิต 086",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400086",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10507",
+      "external": "S26800087",
+      "channel": "Shopee",
+      "date": "2026-10-01",
+      "time": "14:02",
+      "customer": "ลูกค้าสาธิต 087",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 1190,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10508",
+      "external": "L26800088",
+      "channel": "Lazada",
+      "date": "2026-10-01",
+      "time": "15:09",
+      "customer": "ลูกค้าสาธิต 088",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400088",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10509",
+      "external": "t26800089",
+      "channel": "TikTok Shop",
+      "date": "2026-10-01",
+      "time": "16:16",
+      "customer": "ลูกค้าสาธิต 089",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400089",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10510",
+      "external": "S26800090",
+      "channel": "Shopee",
+      "date": "2026-10-01",
+      "time": "17:23",
+      "customer": "ลูกค้าสาธิต 090",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400090",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10511",
+      "external": "L26800091",
+      "channel": "LINE OA",
+      "date": "2026-10-01",
+      "time": "08:30",
+      "customer": "ลูกค้าสาธิต 091",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        },
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400091",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10512",
+      "external": "L26800092",
+      "channel": "Lazada",
+      "date": "2026-10-01",
+      "time": "09:37",
+      "customer": "ลูกค้าสาธิต 092",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 2,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400092",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10513",
+      "external": "t26800093",
+      "channel": "TikTok Shop",
+      "date": "2026-10-01",
+      "time": "10:44",
+      "customer": "ลูกค้าสาธิต 093",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10514",
+      "external": "f26800094",
+      "channel": "Facebook",
+      "date": "2026-10-01",
+      "time": "11:51",
+      "customer": "ลูกค้าสาธิต 094",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400094",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10515",
+      "external": "O26800095",
+      "channel": "Offline sales",
+      "date": "2026-10-01",
+      "time": "12:58",
+      "customer": "ลูกค้าสาธิต 095",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 2,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 1580,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10516",
+      "external": "S26800096",
+      "channel": "Shopee",
+      "date": "2026-10-01",
+      "time": "13:05",
+      "customer": "ลูกค้าสาธิต 096",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 100,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400096",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10517",
+      "external": "t26800097",
+      "channel": "TikTok Shop",
+      "date": "2026-10-01",
+      "time": "14:12",
+      "customer": "ลูกค้าสาธิต 097",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        },
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400097",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10518",
+      "external": "L26800098",
+      "channel": "Lazada",
+      "date": "2026-10-01",
+      "time": "15:19",
+      "customer": "ลูกค้าสาธิต 098",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400098",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10519",
+      "external": "S26800099",
+      "channel": "Shopee",
+      "date": "2026-10-01",
+      "time": "16:26",
+      "customer": "ลูกค้าสาธิต 099",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400099",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10520",
+      "external": "t26800100",
+      "channel": "TikTok Shop",
+      "date": "2026-10-01",
+      "time": "17:33",
+      "customer": "ลูกค้าสาธิต 100",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400100",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10521",
+      "external": "S26800101",
+      "channel": "Shopee",
+      "date": "2026-10-02",
+      "time": "08:40",
+      "customer": "ลูกค้าสาธิต 101",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10522",
+      "external": "L26800102",
+      "channel": "Lazada",
+      "date": "2026-10-02",
+      "time": "09:47",
+      "customer": "ลูกค้าสาธิต 102",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400102",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10523",
+      "external": "t26800103",
+      "channel": "TikTok Shop",
+      "date": "2026-10-02",
+      "time": "10:54",
+      "customer": "ลูกค้าสาธิต 103",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        },
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 1880,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10524",
+      "external": "S26800104",
+      "channel": "Shopee",
+      "date": "2026-10-02",
+      "time": "11:01",
+      "customer": "ลูกค้าสาธิต 104",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400104",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10525",
+      "external": "L26800105",
+      "channel": "LINE OA",
+      "date": "2026-10-02",
+      "time": "12:08",
+      "customer": "ลูกค้าสาธิต 105",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400105",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10526",
+      "external": "L26800106",
+      "channel": "Lazada",
+      "date": "2026-10-02",
+      "time": "13:15",
+      "customer": "ลูกค้าสาธิต 106",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400106",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10527",
+      "external": "t26800107",
+      "channel": "TikTok Shop",
+      "date": "2026-10-02",
+      "time": "14:22",
+      "customer": "ลูกค้าสาธิต 107",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400107",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10528",
+      "external": "f26800108",
+      "channel": "Facebook",
+      "date": "2026-10-02",
+      "time": "15:29",
+      "customer": "ลูกค้าสาธิต 108",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400108",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10529",
+      "external": "O26800109",
+      "channel": "Offline sales",
+      "date": "2026-10-02",
+      "time": "16:36",
+      "customer": "ลูกค้าสาธิต 109",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        },
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10530",
+      "external": "S26800110",
+      "channel": "Shopee",
+      "date": "2026-10-02",
+      "time": "17:43",
+      "customer": "ลูกค้าสาธิต 110",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400110",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10531",
+      "external": "t26800111",
+      "channel": "TikTok Shop",
+      "date": "2026-10-02",
+      "time": "08:50",
+      "customer": "ลูกค้าสาธิต 111",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 690,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10532",
+      "external": "L26800112",
+      "channel": "Lazada",
+      "date": "2026-10-03",
+      "time": "09:57",
+      "customer": "ลูกค้าสาธิต 112",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400112",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10533",
+      "external": "S26800113",
+      "channel": "Shopee",
+      "date": "2026-10-03",
+      "time": "10:04",
+      "customer": "ลูกค้าสาธิต 113",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400113",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10534",
+      "external": "t26800114",
+      "channel": "TikTok Shop",
+      "date": "2026-10-03",
+      "time": "11:11",
+      "customer": "ลูกค้าสาธิต 114",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 2,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400114",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10535",
+      "external": "S26800115",
+      "channel": "Shopee",
+      "date": "2026-10-03",
+      "time": "12:18",
+      "customer": "ลูกค้าสาธิต 115",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        },
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400115",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10536",
+      "external": "L26800116",
+      "channel": "Lazada",
+      "date": "2026-10-03",
+      "time": "13:25",
+      "customer": "ลูกค้าสาธิต 116",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400116",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10537",
+      "external": "t26800117",
+      "channel": "TikTok Shop",
+      "date": "2026-10-03",
+      "time": "14:32",
+      "customer": "ลูกค้าสาธิต 117",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 2,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10538",
+      "external": "S26800118",
+      "channel": "Shopee",
+      "date": "2026-10-03",
+      "time": "15:39",
+      "customer": "ลูกค้าสาธิต 118",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400118",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10539",
+      "external": "L26800119",
+      "channel": "LINE OA",
+      "date": "2026-10-03",
+      "time": "16:46",
+      "customer": "ลูกค้าสาธิต 119",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 2,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 3180,
+      "status": "returned",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10540",
+      "external": "L26800120",
+      "channel": "Lazada",
+      "date": "2026-10-03",
+      "time": "17:53",
+      "customer": "ลูกค้าสาธิต 120",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400120",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10541",
+      "external": "t26800121",
+      "channel": "TikTok Shop",
+      "date": "2026-10-03",
+      "time": "08:00",
+      "customer": "ลูกค้าสาธิต 121",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        },
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400121",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10542",
+      "external": "f26800122",
+      "channel": "Facebook",
+      "date": "2026-10-03",
+      "time": "09:07",
+      "customer": "ลูกค้าสาธิต 122",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 2,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400122",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10543",
+      "external": "O26800123",
+      "channel": "Offline sales",
+      "date": "2026-10-03",
+      "time": "10:14",
+      "customer": "ลูกค้าสาธิต 123",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400123",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10544",
+      "external": "S26800124",
+      "channel": "Shopee",
+      "date": "2026-10-04",
+      "time": "11:21",
+      "customer": "ลูกค้าสาธิต 124",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 2,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400124",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10545",
+      "external": "t26800125",
+      "channel": "TikTok Shop",
+      "date": "2026-10-04",
+      "time": "12:28",
+      "customer": "ลูกค้าสาธิต 125",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400125",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10546",
+      "external": "L26800126",
+      "channel": "Lazada",
+      "date": "2026-10-04",
+      "time": "13:35",
+      "customer": "ลูกค้าสาธิต 126",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "new",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10547",
+      "external": "S26800127",
+      "channel": "Shopee",
+      "date": "2026-10-04",
+      "time": "14:42",
+      "customer": "ลูกค้าสาธิต 127",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        },
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10548",
+      "external": "t26800128",
+      "channel": "TikTok Shop",
+      "date": "2026-10-04",
+      "time": "15:49",
+      "customer": "ลูกค้าสาธิต 128",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "hold",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10549",
+      "external": "S26800129",
+      "channel": "Shopee",
+      "date": "2026-10-04",
+      "time": "16:56",
+      "customer": "ลูกค้าสาธิต 129",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10550",
+      "external": "L26800130",
+      "channel": "Lazada",
+      "date": "2026-10-04",
+      "time": "17:03",
+      "customer": "ลูกค้าสาธิต 130",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10551",
+      "external": "t26800131",
+      "channel": "TikTok Shop",
+      "date": "2026-10-04",
+      "time": "08:10",
+      "customer": "ลูกค้าสาธิต 131",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10552",
+      "external": "S26800132",
+      "channel": "Shopee",
+      "date": "2026-10-04",
+      "time": "09:17",
+      "customer": "ลูกค้าสาธิต 132",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10553",
+      "external": "L26800133",
+      "channel": "LINE OA",
+      "date": "2026-10-04",
+      "time": "10:24",
+      "customer": "ลูกค้าสาธิต 133",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        },
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "packing",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10554",
+      "external": "L26800134",
+      "channel": "Lazada",
+      "date": "2026-10-04",
+      "time": "11:31",
+      "customer": "ลูกค้าสาธิต 134",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "new",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10555",
+      "external": "t26800135",
+      "channel": "TikTok Shop",
+      "date": "2026-10-04",
+      "time": "12:38",
+      "customer": "ลูกค้าสาธิต 135",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "hold",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10556",
+      "external": "f26800136",
+      "channel": "Facebook",
+      "date": "2026-10-04",
+      "time": "13:45",
+      "customer": "ลูกค้าสาธิต 136",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "packed",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10557",
+      "external": "O26800137",
+      "channel": "Offline sales",
+      "date": "2026-10-05",
+      "time": "14:52",
+      "customer": "ลูกค้าสาธิต 137",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 2,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400137",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10558",
+      "external": "S26800138",
+      "channel": "Shopee",
+      "date": "2026-10-05",
+      "time": "15:59",
+      "customer": "ลูกค้าสาธิต 138",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400138",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10559",
+      "external": "t26800139",
+      "channel": "TikTok Shop",
+      "date": "2026-10-05",
+      "time": "16:06",
+      "customer": "ลูกค้าสาธิต 139",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        },
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "new",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10560",
+      "external": "L26800140",
+      "channel": "Lazada",
+      "date": "2026-10-05",
+      "time": "17:13",
+      "customer": "ลูกค้าสาธิต 140",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10561",
+      "external": "S26800141",
+      "channel": "Shopee",
+      "date": "2026-10-05",
+      "time": "08:20",
+      "customer": "ลูกค้าสาธิต 141",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 2,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "hold",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10562",
+      "external": "t26800142",
+      "channel": "TikTok Shop",
+      "date": "2026-10-05",
+      "time": "09:27",
+      "customer": "ลูกค้าสาธิต 142",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10563",
+      "external": "S26800143",
+      "channel": "Shopee",
+      "date": "2026-10-05",
+      "time": "10:34",
+      "customer": "ลูกค้าสาธิต 143",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10564",
+      "external": "L26800144",
+      "channel": "Lazada",
+      "date": "2026-10-05",
+      "time": "11:41",
+      "customer": "ลูกค้าสาธิต 144",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10565",
+      "external": "t26800145",
+      "channel": "TikTok Shop",
+      "date": "2026-10-05",
+      "time": "12:48",
+      "customer": "ลูกค้าสาธิต 145",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        },
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10566",
+      "external": "S26800146",
+      "channel": "Shopee",
+      "date": "2026-10-05",
+      "time": "13:55",
+      "customer": "ลูกค้าสาธิต 146",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "packing",
+      "reserved": true,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10567",
+      "external": "L26800147",
+      "channel": "LINE OA",
+      "date": "2026-10-05",
+      "time": "14:02",
+      "customer": "ลูกค้าสาธิต 147",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "new",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10568",
+      "external": "L26800148",
+      "channel": "Lazada",
+      "date": "2026-10-05",
+      "time": "15:09",
+      "customer": "ลูกค้าสาธิต 148",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "hold",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10569",
+      "external": "t26800149",
+      "channel": "TikTok Shop",
+      "date": "2026-10-05",
+      "time": "16:16",
+      "customer": "ลูกค้าสาธิต 149",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "packed",
+      "reserved": true,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10570",
+      "external": "f26800150",
+      "channel": "Facebook",
+      "date": "2026-10-05",
+      "time": "17:23",
+      "customer": "ลูกค้าสาธิต 150",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "DEMO400150",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10571",
+      "external": "O26800151",
+      "channel": "Offline sales",
+      "date": "2026-10-06",
+      "time": "08:30",
+      "customer": "ลูกค้าสาธิต 151",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 2,
+          "price": 790,
+          "cost": 240
+        },
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400151",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10572",
+      "external": "S26800152",
+      "channel": "Shopee",
+      "date": "2026-10-06",
+      "time": "09:37",
+      "customer": "ลูกค้าสาธิต 152",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "new",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10573",
+      "external": "t26800153",
+      "channel": "TikTok Shop",
+      "date": "2026-10-06",
+      "time": "10:44",
+      "customer": "ลูกค้าสาธิต 153",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10574",
+      "external": "L26800154",
+      "channel": "Lazada",
+      "date": "2026-10-06",
+      "time": "11:51",
+      "customer": "ลูกค้าสาธิต 154",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "hold",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10575",
+      "external": "S26800155",
+      "channel": "Shopee",
+      "date": "2026-10-06",
+      "time": "12:58",
+      "customer": "ลูกค้าสาธิต 155",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10576",
+      "external": "t26800156",
+      "channel": "TikTok Shop",
+      "date": "2026-10-06",
+      "time": "13:05",
+      "customer": "ลูกค้าสาธิต 156",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10577",
+      "external": "S26800157",
+      "channel": "Shopee",
+      "date": "2026-10-06",
+      "time": "14:12",
+      "customer": "ลูกค้าสาธิต 157",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        },
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10578",
+      "external": "L26800158",
+      "channel": "Lazada",
+      "date": "2026-10-06",
+      "time": "15:19",
+      "customer": "ลูกค้าสาธิต 158",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10579",
+      "external": "t26800159",
+      "channel": "TikTok Shop",
+      "date": "2026-10-06",
+      "time": "16:26",
+      "customer": "ลูกค้าสาธิต 159",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "packing",
+      "reserved": true,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10580",
+      "external": "S26800160",
+      "channel": "Shopee",
+      "date": "2026-10-06",
+      "time": "17:33",
+      "customer": "ลูกค้าสาธิต 160",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 2,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "new",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10581",
+      "external": "L26800161",
+      "channel": "LINE OA",
+      "date": "2026-10-06",
+      "time": "08:40",
+      "customer": "ลูกค้าสาธิต 161",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "hold",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10582",
+      "external": "L26800162",
+      "channel": "Lazada",
+      "date": "2026-10-07",
+      "time": "09:47",
+      "customer": "ลูกค้าสาธิต 162",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "packed",
+      "reserved": true,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10583",
+      "external": "t26800163",
+      "channel": "TikTok Shop",
+      "date": "2026-10-07",
+      "time": "10:54",
+      "customer": "ลูกค้าสาธิต 163",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 2,
+          "price": 790,
+          "cost": 240
+        },
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO400163",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10584",
+      "external": "f26800164",
+      "channel": "Facebook",
+      "date": "2026-10-07",
+      "time": "11:01",
+      "customer": "ลูกค้าสาธิต 164",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "delivered",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "DEMO400164",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10585",
+      "external": "O26800165",
+      "channel": "Offline sales",
+      "date": "2026-10-07",
+      "time": "12:08",
+      "customer": "ลูกค้าสาธิต 165",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 2,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "new",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10586",
+      "external": "S26800166",
+      "channel": "Shopee",
+      "date": "2026-10-07",
+      "time": "13:15",
+      "customer": "ลูกค้าสาธิต 166",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10587",
+      "external": "t26800167",
+      "channel": "TikTok Shop",
+      "date": "2026-10-07",
+      "time": "14:22",
+      "customer": "ลูกค้าสาธิต 167",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "hold",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10588",
+      "external": "L26800168",
+      "channel": "Lazada",
+      "date": "2026-10-07",
+      "time": "15:29",
+      "customer": "ลูกค้าสาธิต 168",
+      "province": "ภูเก็ต",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "cancelled",
+      "reserved": false,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "แพลตฟอร์มพักออเดอร์",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10589",
+      "external": "S26800169",
+      "channel": "Shopee",
+      "date": "2026-10-07",
+      "time": "16:36",
+      "customer": "ลูกค้าสาธิต 169",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 2,
+          "price": 690,
+          "cost": 205
+        },
+        {
+          "sku": "SET-003",
+          "qty": 1,
+          "price": 1590,
+          "cost": 530
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10590",
+      "external": "t26800170",
+      "channel": "TikTok Shop",
+      "date": "2026-10-07",
+      "time": "17:43",
+      "customer": "ลูกค้าสาธิต 170",
+      "province": "เชียงใหม่",
+      "items": [
+        {
+          "sku": "MOI-050",
+          "qty": 1,
+          "price": 690,
+          "cost": 205
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอตรวจการชำระเงิน",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10591",
+      "external": "S26800171",
+      "channel": "Shopee",
+      "date": "2026-10-07",
+      "time": "08:50",
+      "customer": "ลูกค้าสาธิต 171",
+      "province": "นนทบุรี",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 1190,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "KEX",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10592",
+      "external": "L26800172",
+      "channel": "Lazada",
+      "date": "2026-10-07",
+      "time": "09:57",
+      "customer": "ลูกค้าสาธิต 172",
+      "province": "ชลบุรี",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 490,
+          "cost": 155
+        }
+      ],
+      "discount": 100,
+      "refund": 0,
+      "status": "packing",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "holdReason": "ที่อยู่จัดส่งไม่ครบ",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-10593",
+      "external": "t26800173",
+      "channel": "TikTok Shop",
+      "date": "2026-10-07",
+      "time": "10:04",
+      "customer": "ลูกค้าสาธิต 173",
+      "province": "ขอนแก่น",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 790,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "new",
+      "reserved": false,
+      "carrier": "J&T Express",
+      "tracking": "",
+      "holdReason": "รอจับคู่ SKU",
+      "deadline": "2026-10-08",
+      "scanned": {},
+      "createdVia": "ข้อมูลสาธิต"
+    },
+    {
+      "id": "OH-RV-301",
+      "external": "REVIEW-301",
+      "channel": "Review",
+      "date": "2026-10-06",
+      "time": "10:00",
+      "customer": "ผู้รีวิวสาธิต 1",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "CLN-100",
+          "qty": 1,
+          "price": 0,
+          "cost": 155
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ส่งฟรีให้ผู้รีวิวสาธิต"
+    },
+    {
+      "id": "OH-RV-302",
+      "external": "REVIEW-302",
+      "channel": "Review",
+      "date": "2026-10-06",
+      "time": "10:00",
+      "customer": "ผู้รีวิวสาธิต 2",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SUN-050",
+          "qty": 1,
+          "price": 0,
+          "cost": 240
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "ready",
+      "reserved": true,
+      "carrier": "Flash Express",
+      "tracking": "",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ส่งฟรีให้ผู้รีวิวสาธิต"
+    },
+    {
+      "id": "OH-RV-303",
+      "external": "REVIEW-303",
+      "channel": "Review",
+      "date": "2026-10-06",
+      "time": "10:00",
+      "customer": "ผู้รีวิวสาธิต 3",
+      "province": "กรุงเทพมหานคร",
+      "items": [
+        {
+          "sku": "SER-030",
+          "qty": 1,
+          "price": 0,
+          "cost": 360
+        }
+      ],
+      "discount": 0,
+      "refund": 0,
+      "status": "shipped",
+      "reserved": false,
+      "carrier": "Flash Express",
+      "tracking": "DEMO-RV303",
+      "deadline": "2026-10-07",
+      "scanned": {},
+      "createdVia": "ส่งฟรีให้ผู้รีวิวสาธิต"
+    }
+  ],
+  "payouts": [
+    {
+      "id": "PAY-0",
+      "orderId": "OH-10421",
+      "channel": "Shopee",
+      "date": "2026-09-26",
+      "sales": 1780,
+      "fee": 213.6,
+      "shipping": 35,
+      "net": 1531.4
+    },
+    {
+      "id": "PAY-1",
+      "orderId": "OH-10422",
+      "channel": "TikTok Shop",
+      "date": "2026-09-26",
+      "sales": 1190,
+      "fee": 142.8,
+      "shipping": 35,
+      "net": 1012.2
+    },
+    {
+      "id": "PAY-3",
+      "orderId": "OH-10424",
+      "channel": "Lazada",
+      "date": "2026-09-26",
+      "sales": 1090,
+      "fee": 130.8,
+      "shipping": 35,
+      "net": 924.2
+    },
+    {
+      "id": "PAY-5",
+      "orderId": "OH-10426",
+      "channel": "Shopee",
+      "date": "2026-09-26",
+      "sales": 1590,
+      "fee": 190.8,
+      "shipping": 35,
+      "net": 1364.2
+    },
+    {
+      "id": "PAY-7",
+      "orderId": "OH-10428",
+      "channel": "Lazada",
+      "date": "2026-09-26",
+      "sales": 1190,
+      "fee": 142.8,
+      "shipping": 35,
+      "net": 1012.2
+    },
+    {
+      "id": "PAY-8",
+      "orderId": "OH-10429",
+      "channel": "TikTok Shop",
+      "date": "2026-09-26",
+      "sales": 980,
+      "fee": 117.6,
+      "shipping": 35,
+      "net": 827.4
+    },
+    {
+      "id": "PAY-9",
+      "orderId": "OH-10430",
+      "channel": "Facebook",
+      "date": "2026-09-26",
+      "sales": 3080,
+      "fee": 369.6,
+      "shipping": 35,
+      "net": 2675.4
+    },
+    {
+      "id": "PAY-11",
+      "orderId": "OH-10432",
+      "channel": "Shopee",
+      "date": "2026-09-27",
+      "sales": 1190,
+      "fee": 142.8,
+      "shipping": 35,
+      "net": 1012.2
+    },
+    {
+      "id": "PAY-13",
+      "orderId": "OH-10434",
+      "channel": "Lazada",
+      "date": "2026-09-27",
+      "sales": 490,
+      "fee": 58.8,
+      "shipping": 35,
+      "net": 396.2
+    },
+    {
+      "id": "PAY-15",
+      "orderId": "OH-10436",
+      "channel": "TikTok Shop",
+      "date": "2026-09-27",
+      "sales": 390,
+      "fee": 46.8,
+      "shipping": 35,
+      "net": 308.2
+    },
+    {
+      "id": "PAY-16",
+      "orderId": "OH-10437",
+      "channel": "Shopee",
+      "date": "2026-09-27",
+      "sales": 3180,
+      "fee": 381.6,
+      "shipping": 35,
+      "net": 2763.4
+    },
+    {
+      "id": "PAY-17",
+      "orderId": "OH-10438",
+      "channel": "Lazada",
+      "date": "2026-09-27",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-19",
+      "orderId": "OH-10440",
+      "channel": "Shopee",
+      "date": "2026-09-27",
+      "sales": 590,
+      "fee": 70.8,
+      "shipping": 35,
+      "net": 484.2
+    },
+    {
+      "id": "PAY-21",
+      "orderId": "OH-10442",
+      "channel": "Lazada",
+      "date": "2026-09-27",
+      "sales": 390,
+      "fee": 46.8,
+      "shipping": 35,
+      "net": 308.2
+    },
+    {
+      "id": "PAY-23",
+      "orderId": "OH-10444",
+      "channel": "Facebook",
+      "date": "2026-09-28",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-24",
+      "orderId": "OH-10445",
+      "channel": "Offline sales",
+      "date": "2026-09-28",
+      "sales": 1980,
+      "fee": 237.6,
+      "shipping": 35,
+      "net": 1707.4
+    },
+    {
+      "id": "PAY-25",
+      "orderId": "OH-10446",
+      "channel": "Shopee",
+      "date": "2026-09-28",
+      "sales": 790,
+      "fee": 94.8,
+      "shipping": 35,
+      "net": 660.2
+    },
+    {
+      "id": "PAY-27",
+      "orderId": "OH-10448",
+      "channel": "Lazada",
+      "date": "2026-09-28",
+      "sales": 1480,
+      "fee": 177.6,
+      "shipping": 35,
+      "net": 1267.4
+    },
+    {
+      "id": "PAY-29",
+      "orderId": "OH-10450",
+      "channel": "TikTok Shop",
+      "date": "2026-09-28",
+      "sales": 1590,
+      "fee": 190.8,
+      "shipping": 35,
+      "net": 1364.2
+    },
+    {
+      "id": "PAY-31",
+      "orderId": "OH-10452",
+      "channel": "Lazada",
+      "date": "2026-09-28",
+      "sales": 980,
+      "fee": 117.6,
+      "shipping": 35,
+      "net": 827.4
+    },
+    {
+      "id": "PAY-32",
+      "orderId": "OH-10453",
+      "channel": "TikTok Shop",
+      "date": "2026-09-28",
+      "sales": 980,
+      "fee": 117.6,
+      "shipping": 35,
+      "net": 827.4
+    },
+    {
+      "id": "PAY-33",
+      "orderId": "OH-10454",
+      "channel": "Shopee",
+      "date": "2026-09-28",
+      "sales": 1490,
+      "fee": 178.8,
+      "shipping": 35,
+      "net": 1276.2
+    },
+    {
+      "id": "PAY-35",
+      "orderId": "OH-10456",
+      "channel": "Lazada",
+      "date": "2026-09-28",
+      "sales": 490,
+      "fee": 58.8,
+      "shipping": 35,
+      "net": 396.2
+    },
+    {
+      "id": "PAY-37",
+      "orderId": "OH-10458",
+      "channel": "Facebook",
+      "date": "2026-09-29",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-39",
+      "orderId": "OH-10460",
+      "channel": "Shopee",
+      "date": "2026-09-29",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-40",
+      "orderId": "OH-10461",
+      "channel": "TikTok Shop",
+      "date": "2026-09-29",
+      "sales": 1590,
+      "fee": 190.8,
+      "shipping": 35,
+      "net": 1364.2
+    },
+    {
+      "id": "PAY-41",
+      "orderId": "OH-10462",
+      "channel": "Lazada",
+      "date": "2026-09-29",
+      "sales": 1380,
+      "fee": 165.6,
+      "shipping": 35,
+      "net": 1179.4
+    },
+    {
+      "id": "PAY-43",
+      "orderId": "OH-10464",
+      "channel": "TikTok Shop",
+      "date": "2026-09-29",
+      "sales": 490,
+      "fee": 58.8,
+      "shipping": 35,
+      "net": 396.2
+    },
+    {
+      "id": "PAY-45",
+      "orderId": "OH-10466",
+      "channel": "Lazada",
+      "date": "2026-09-29",
+      "sales": 1090,
+      "fee": 130.8,
+      "shipping": 35,
+      "net": 924.2
+    },
+    {
+      "id": "PAY-47",
+      "orderId": "OH-10468",
+      "channel": "Shopee",
+      "date": "2026-09-29",
+      "sales": 490,
+      "fee": 58.8,
+      "shipping": 35,
+      "net": 396.2
+    },
+    {
+      "id": "PAY-48",
+      "orderId": "OH-10469",
+      "channel": "LINE OA",
+      "date": "2026-09-29",
+      "sales": 1980,
+      "fee": 237.6,
+      "shipping": 35,
+      "net": 1707.4
+    },
+    {
+      "id": "PAY-49",
+      "orderId": "OH-10470",
+      "channel": "Lazada",
+      "date": "2026-09-29",
+      "sales": 490,
+      "fee": 58.8,
+      "shipping": 35,
+      "net": 396.2
+    },
+    {
+      "id": "PAY-51",
+      "orderId": "OH-10472",
+      "channel": "Facebook",
+      "date": "2026-09-30",
+      "sales": 3080,
+      "fee": 369.6,
+      "shipping": 35,
+      "net": 2675.4
+    },
+    {
+      "id": "PAY-53",
+      "orderId": "OH-10474",
+      "channel": "Shopee",
+      "date": "2026-09-30",
+      "sales": 1190,
+      "fee": 142.8,
+      "shipping": 35,
+      "net": 1012.2
+    },
+    {
+      "id": "PAY-55",
+      "orderId": "OH-10476",
+      "channel": "Lazada",
+      "date": "2026-09-30",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-56",
+      "orderId": "OH-10477",
+      "channel": "Shopee",
+      "date": "2026-09-30",
+      "sales": 1190,
+      "fee": 142.8,
+      "shipping": 35,
+      "net": 1012.2
+    },
+    {
+      "id": "PAY-57",
+      "orderId": "OH-10478",
+      "channel": "TikTok Shop",
+      "date": "2026-09-30",
+      "sales": 990,
+      "fee": 118.8,
+      "shipping": 35,
+      "net": 836.2
+    },
+    {
+      "id": "PAY-59",
+      "orderId": "OH-10480",
+      "channel": "Lazada",
+      "date": "2026-09-30",
+      "sales": 790,
+      "fee": 94.8,
+      "shipping": 35,
+      "net": 660.2
+    },
+    {
+      "id": "PAY-61",
+      "orderId": "OH-10482",
+      "channel": "Shopee",
+      "date": "2026-10-01",
+      "sales": 1580,
+      "fee": 189.6,
+      "shipping": 35,
+      "net": 1355.4
+    },
+    {
+      "id": "PAY-63",
+      "orderId": "OH-10484",
+      "channel": "Lazada",
+      "date": "2026-10-01",
+      "sales": 1490,
+      "fee": 178.8,
+      "shipping": 35,
+      "net": 1276.2
+    },
+    {
+      "id": "PAY-64",
+      "orderId": "OH-10485",
+      "channel": "TikTok Shop",
+      "date": "2026-10-01",
+      "sales": 790,
+      "fee": 94.8,
+      "shipping": 35,
+      "net": 660.2
+    },
+    {
+      "id": "PAY-65",
+      "orderId": "OH-10486",
+      "channel": "Facebook",
+      "date": "2026-10-01",
+      "sales": 2380,
+      "fee": 285.6,
+      "shipping": 35,
+      "net": 2059.4
+    },
+    {
+      "id": "PAY-67",
+      "orderId": "OH-10488",
+      "channel": "Shopee",
+      "date": "2026-10-01",
+      "sales": 1590,
+      "fee": 190.8,
+      "shipping": 35,
+      "net": 1364.2
+    },
+    {
+      "id": "PAY-69",
+      "orderId": "OH-10490",
+      "channel": "Lazada",
+      "date": "2026-10-01",
+      "sales": 390,
+      "fee": 46.8,
+      "shipping": 35,
+      "net": 308.2
+    },
+    {
+      "id": "PAY-71",
+      "orderId": "OH-10492",
+      "channel": "TikTok Shop",
+      "date": "2026-10-01",
+      "sales": 1590,
+      "fee": 190.8,
+      "shipping": 35,
+      "net": 1364.2
+    },
+    {
+      "id": "PAY-72",
+      "orderId": "OH-10493",
+      "channel": "Shopee",
+      "date": "2026-10-01",
+      "sales": 1780,
+      "fee": 213.6,
+      "shipping": 35,
+      "net": 1531.4
+    },
+    {
+      "id": "PAY-73",
+      "orderId": "OH-10494",
+      "channel": "Lazada",
+      "date": "2026-10-02",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-75",
+      "orderId": "OH-10496",
+      "channel": "Shopee",
+      "date": "2026-10-02",
+      "sales": 590,
+      "fee": 70.8,
+      "shipping": 35,
+      "net": 484.2
+    },
+    {
+      "id": "PAY-77",
+      "orderId": "OH-10498",
+      "channel": "Lazada",
+      "date": "2026-10-02",
+      "sales": 1380,
+      "fee": 165.6,
+      "shipping": 35,
+      "net": 1179.4
+    },
+    {
+      "id": "PAY-79",
+      "orderId": "OH-10500",
+      "channel": "Facebook",
+      "date": "2026-10-02",
+      "sales": 3180,
+      "fee": 381.6,
+      "shipping": 35,
+      "net": 2763.4
+    },
+    {
+      "id": "PAY-80",
+      "orderId": "OH-10501",
+      "channel": "Offline sales",
+      "date": "2026-10-02",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-81",
+      "orderId": "OH-10502",
+      "channel": "Shopee",
+      "date": "2026-10-02",
+      "sales": 390,
+      "fee": 46.8,
+      "shipping": 35,
+      "net": 308.2
+    },
+    {
+      "id": "PAY-83",
+      "orderId": "OH-10504",
+      "channel": "Lazada",
+      "date": "2026-10-02",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-85",
+      "orderId": "OH-10506",
+      "channel": "TikTok Shop",
+      "date": "2026-10-02",
+      "sales": 790,
+      "fee": 94.8,
+      "shipping": 35,
+      "net": 660.2
+    },
+    {
+      "id": "PAY-87",
+      "orderId": "OH-10508",
+      "channel": "Lazada",
+      "date": "2026-10-03",
+      "sales": 1090,
+      "fee": 130.8,
+      "shipping": 35,
+      "net": 924.2
+    },
+    {
+      "id": "PAY-88",
+      "orderId": "OH-10509",
+      "channel": "TikTok Shop",
+      "date": "2026-10-03",
+      "sales": 490,
+      "fee": 58.8,
+      "shipping": 35,
+      "net": 396.2
+    },
+    {
+      "id": "PAY-89",
+      "orderId": "OH-10510",
+      "channel": "Shopee",
+      "date": "2026-10-03",
+      "sales": 490,
+      "fee": 58.8,
+      "shipping": 35,
+      "net": 396.2
+    },
+    {
+      "id": "PAY-91",
+      "orderId": "OH-10512",
+      "channel": "Lazada",
+      "date": "2026-10-03",
+      "sales": 2380,
+      "fee": 285.6,
+      "shipping": 35,
+      "net": 2059.4
+    },
+    {
+      "id": "PAY-93",
+      "orderId": "OH-10514",
+      "channel": "Facebook",
+      "date": "2026-10-03",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-95",
+      "orderId": "OH-10516",
+      "channel": "Shopee",
+      "date": "2026-10-03",
+      "sales": 1490,
+      "fee": 178.8,
+      "shipping": 35,
+      "net": 1276.2
+    },
+    {
+      "id": "PAY-96",
+      "orderId": "OH-10517",
+      "channel": "TikTok Shop",
+      "date": "2026-10-03",
+      "sales": 2180,
+      "fee": 261.6,
+      "shipping": 35,
+      "net": 1883.4
+    },
+    {
+      "id": "PAY-97",
+      "orderId": "OH-10518",
+      "channel": "Lazada",
+      "date": "2026-10-03",
+      "sales": 1190,
+      "fee": 142.8,
+      "shipping": 35,
+      "net": 1012.2
+    },
+    {
+      "id": "PAY-99",
+      "orderId": "OH-10520",
+      "channel": "TikTok Shop",
+      "date": "2026-10-03",
+      "sales": 390,
+      "fee": 46.8,
+      "shipping": 35,
+      "net": 308.2
+    },
+    {
+      "id": "PAY-101",
+      "orderId": "OH-10522",
+      "channel": "Lazada",
+      "date": "2026-10-04",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-103",
+      "orderId": "OH-10524",
+      "channel": "Shopee",
+      "date": "2026-10-04",
+      "sales": 1190,
+      "fee": 142.8,
+      "shipping": 35,
+      "net": 1012.2
+    },
+    {
+      "id": "PAY-104",
+      "orderId": "OH-10525",
+      "channel": "LINE OA",
+      "date": "2026-10-04",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-105",
+      "orderId": "OH-10526",
+      "channel": "Lazada",
+      "date": "2026-10-04",
+      "sales": 590,
+      "fee": 70.8,
+      "shipping": 35,
+      "net": 484.2
+    },
+    {
+      "id": "PAY-107",
+      "orderId": "OH-10528",
+      "channel": "Facebook",
+      "date": "2026-10-04",
+      "sales": 1590,
+      "fee": 190.8,
+      "shipping": 35,
+      "net": 1364.2
+    },
+    {
+      "id": "PAY-109",
+      "orderId": "OH-10530",
+      "channel": "Shopee",
+      "date": "2026-10-04",
+      "sales": 1190,
+      "fee": 142.8,
+      "shipping": 35,
+      "net": 1012.2
+    },
+    {
+      "id": "PAY-111",
+      "orderId": "OH-10532",
+      "channel": "Lazada",
+      "date": "2026-10-05",
+      "sales": 1090,
+      "fee": 130.8,
+      "shipping": 35,
+      "net": 924.2
+    },
+    {
+      "id": "PAY-112",
+      "orderId": "OH-10533",
+      "channel": "Shopee",
+      "date": "2026-10-05",
+      "sales": 1590,
+      "fee": 190.8,
+      "shipping": 35,
+      "net": 1364.2
+    },
+    {
+      "id": "PAY-113",
+      "orderId": "OH-10534",
+      "channel": "TikTok Shop",
+      "date": "2026-10-05",
+      "sales": 1580,
+      "fee": 189.6,
+      "shipping": 35,
+      "net": 1355.4
+    },
+    {
+      "id": "PAY-115",
+      "orderId": "OH-10536",
+      "channel": "Lazada",
+      "date": "2026-10-05",
+      "sales": 490,
+      "fee": 58.8,
+      "shipping": 35,
+      "net": 396.2
+    },
+    {
+      "id": "PAY-117",
+      "orderId": "OH-10538",
+      "channel": "Shopee",
+      "date": "2026-10-05",
+      "sales": 390,
+      "fee": 46.8,
+      "shipping": 35,
+      "net": 308.2
+    },
+    {
+      "id": "PAY-119",
+      "orderId": "OH-10540",
+      "channel": "Lazada",
+      "date": "2026-10-05",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-120",
+      "orderId": "OH-10541",
+      "channel": "TikTok Shop",
+      "date": "2026-10-05",
+      "sales": 1880,
+      "fee": 225.6,
+      "shipping": 35,
+      "net": 1619.4
+    },
+    {
+      "id": "PAY-121",
+      "orderId": "OH-10542",
+      "channel": "Facebook",
+      "date": "2026-10-05",
+      "sales": 3180,
+      "fee": 381.6,
+      "shipping": 35,
+      "net": 2763.4
+    },
+    {
+      "id": "PAY-124",
+      "orderId": "OH-10545",
+      "channel": "TikTok Shop",
+      "date": "2026-10-06",
+      "sales": 690,
+      "fee": 82.8,
+      "shipping": 35,
+      "net": 572.2
+    },
+    {
+      "id": "PAY-137",
+      "orderId": "OH-10558",
+      "channel": "Shopee",
+      "date": "2026-10-07",
+      "sales": 790,
+      "fee": 94.8,
+      "shipping": 35,
+      "net": 660.2
+    }
+  ],
+  "expenses": [
+    {
+      "date": "2026-09-24",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-24",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-24",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-24",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-24",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-24",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-24",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-25",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-25",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-25",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-25",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-25",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-25",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-25",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-26",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-26",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-26",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-26",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-26",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-26",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-26",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-27",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-27",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-27",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-27",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-27",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-27",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-27",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-28",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-28",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-28",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-28",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-28",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-28",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-28",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-29",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-29",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-29",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-29",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-29",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-29",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-29",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-30",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-30",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-30",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-30",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-30",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-30",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-09-30",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-01",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-01",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-01",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-01",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-01",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-01",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-01",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-02",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-02",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-02",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-02",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-02",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-02",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-02",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-03",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-03",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-03",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-03",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-03",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-03",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-03",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-04",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-04",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-04",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-04",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-04",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-04",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-04",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-05",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-05",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-05",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-05",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-05",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-05",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-05",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-06",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-06",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-06",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-06",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-06",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-06",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-06",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-07",
+      "channel": "Shopee",
+      "ads": 260,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-07",
+      "channel": "TikTok Shop",
+      "ads": 320,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-07",
+      "channel": "Lazada",
+      "ads": 150,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-07",
+      "channel": "LINE OA",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-07",
+      "channel": "Facebook",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-07",
+      "channel": "Offline sales",
+      "ads": 50,
+      "operating": 100
+    },
+    {
+      "date": "2026-10-07",
+      "channel": "Review",
+      "ads": 50,
+      "operating": 100
+    }
+  ],
+  "channels": [
+    {
+      "name": "Shopee",
+      "key": "shopee",
+      "letter": "S",
+      "color": "#eb845a"
+    },
+    {
+      "name": "TikTok Shop",
+      "key": "tiktok",
+      "letter": "t",
+      "color": "#34463d"
+    },
+    {
+      "name": "Lazada",
+      "key": "lazada",
+      "letter": "L",
+      "color": "#aa94d4"
+    },
+    {
+      "name": "LINE OA",
+      "key": "line",
+      "letter": "L",
+      "color": "#79b888"
+    },
+    {
+      "name": "Facebook",
+      "key": "facebook",
+      "letter": "f",
+      "color": "#7d9ec8"
+    },
+    {
+      "name": "Offline sales",
+      "key": "website",
+      "letter": "O",
+      "color": "#a2bb6d"
+    },
+    {
+      "name": "Review",
+      "key": "review",
+      "letter": "R",
+      "color": "#b39878"
+    }
+  ],
+  "audit": [],
+  "syncCount": 0,
+  "stockRevision": 1,
+  "stockEvents": [],
+  "blockedChannel": "",
+  "publishedStock": {}
+}

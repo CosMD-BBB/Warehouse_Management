@@ -1,0 +1,93 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import http from 'node:http';
+import {randomUUID} from 'node:crypto';
+import {createApp} from '../server/index.mjs';
+import {available,reserved} from '../server/model.mjs';
+
+test('fulfillment, shared stock, retries and authorization races',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'order-hub-workflow-'));
+  const dbPath=path.join(dir,'test.sqlite');let app=createApp({dbPath});
+  await new Promise(r=>app.server.listen(0,'127.0.0.1',r));
+  let origin='http://127.0.0.1:'+app.server.address().port,admin;
+  const checks=[];const ok=(v,m)=>{assert.ok(v,m);checks.push(m)};
+  const request=async(route,body,session=admin,method=body?'POST':'GET')=>{
+    const headers={};if(session){headers.Cookie=session.cookie;headers['X-CSRF-Token']=session.csrf}
+    if(body){headers.Origin=origin;headers['Content-Type']='application/json'}
+    const r=await fetch(origin+route,{method,headers,body:body?JSON.stringify(body):undefined});
+    return {status:r.status,j:await r.json(),cookie:r.headers.get('set-cookie')?.split(';')[0]};
+  };
+  const act=(action,input={},session=admin)=>request('/api/actions',{action,...input},session);
+  const state=async()=>(await request('/api/state')).j.data;
+  const make=async(channel,qty=1)=>{const r=await act('create-order',{channel,sku:'CLN-100',qty,customer:'ผู้รับทดสอบ',province:'กรุงเทพมหานคร',phone:'0812345678',shippingAddress:{addressLine:'123 ถนนทดสอบ',subdistrict:'ปทุมวัน',district:'ปทุมวัน',province:'กรุงเทพมหานคร',postalCode:'10330'}});assert.equal(r.status,200);return r.j.result.orderId};
+  const get=(d,id)=>d.orders.find(o=>o.id===id);
+  try{
+    let r=await request('/api/auth/setup',{name:'QA Admin',username:'qa_admin',password:'Workflow-admin-strong-001'},null);
+    admin={cookie:r.cookie,csrf:r.j.csrf};
+    let d=await state(),initial=d.products[0].stock,initialAvailable=available(d,'CLN-100');
+    const id=await make('Offline sales',2);d=await state();
+    const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    ok(get(d,id).date===today&&get(d,id).deadline>today,'new order uses Bangkok current date and next-day deadline');
+    ok(available(d,'CLN-100')===initialAvailable,'new manual order does not reserve before confirmation');
+    await act('reserve',{id});d=await state();
+    ok(get(d,id).status==='ready'&&available(d,'CLN-100')===initialAvailable-2,'reserve decreases common availability once');
+    r=await act('reserve',{id});ok(r.status===400,'second reservation rejected');
+    await act('start-pack',{id});r=await act('complete-pack',{id});ok(r.status===400,'incomplete pack rejected');
+    r=await act('scan',{id,sku:'WRONG'});ok(r.status===400,'wrong SKU rejected');
+    await act('scan',{id,sku:'CLN-100'});await act('scan',{id,sku:'CLN-100'});
+    r=await act('scan',{id,sku:'CLN-100'});ok(r.status===400,'extra item scan rejected');
+    await act('complete-pack',{id});await act('dispatch',{id});d=await state();
+    ok(get(d,id).status==='shipped'&&!get(d,id).reserved&&d.products[0].stock===initial-2,'dispatch decreases physical stock and releases reservation atomically');
+    ok(available(d,'CLN-100')===initialAvailable-2,'dispatch does not deduct available stock twice');
+    r=await act('dispatch',{id});ok(r.status===400,'duplicate dispatch rejected');
+    r=await act('cancel',{id});ok(r.status===400,'shipped orders cannot be cancelled as unshipped');
+    const review=await make('Review',1);d=await state();
+    ok(get(d,review).reserved&&get(d,review).items.every(l=>l.price===0),'free Review reserves common stock with zero sales');
+    await act('cancel',{id:review});d=await state();
+    ok(!get(d,review).reserved&&available(d,'CLN-100')===initialAvailable-2,'Review cancellation releases reservation once');
+    r=await act('cancel',{id:review});ok(r.status===400,'duplicate cancellation rejected');
+    const key=randomUUID(),before=d.products[0].stock;
+    await act('stock-receive',{sku:'CLN-100',qty:3,requestId:key});
+    await act('stock-receive',{sku:'CLN-100',qty:3,requestId:key});d=await state();
+    ok(d.products[0].stock===before+3,'retrying same receipt request does not duplicate inventory');
+    r=await act('stock-receive',{sku:'CLN-100',qty:4,requestId:key});ok(r.status===409,'same request identity with changed amount rejected');
+    const manualKey=randomUUID(),manual={channel:'Review',sku:'CLN-100',qty:1,customer:'Retry review',province:'กรุงเทพมหานคร',phone:'0812345678',shippingAddress:{addressLine:'123 ถนนทดสอบ',subdistrict:'ปทุมวัน',district:'ปทุมวัน',province:'กรุงเทพมหานคร',postalCode:'10330'},requestId:manualKey};
+    const first=await act('create-order',manual),second=await act('create-order',manual);
+    d=await state();ok(first.j.result.orderId===second.j.result.orderId&&d.orders.filter(o=>o.customer==='Retry review').length===1,'retrying order creation preserves one order and reservation');
+    await act('simulate-order');d=await state();const count=d.orders.length,quantity=available(d,'CLN-100');await act('simulate-order');d=await state();
+    ok(d.orders.length===count&&available(d,'CLN-100')===quantity,'duplicate provider sample event does not duplicate stock reservation');
+    await act('fail-stock');const stale=d.publishedStock.Lazada.qty['CLN-100'];
+    await act('stock-receive',{sku:'CLN-100',qty:5});d=await state();
+    ok(d.publishedStock.Lazada.qty['CLN-100']===stale&&d.publishedStock.Shopee.qty['CLN-100']===available(d,'CLN-100'),'failed channel retains stale mirror while common pool changes');
+    await act('retry-stock');d=await state();ok(d.publishedStock.Lazada.qty['CLN-100']===available(d,'CLN-100'),'retry publishes newest absolute quantity');
+    await request('/api/users',{name:'Worker',username:'qa_worker',role:'warehouse',password:'Workflow-worker-strong-001'});
+    r=await request('/api/auth/login',{username:'qa_worker',password:'Workflow-worker-strong-001'},null);const worker={cookie:r.cookie,csrf:r.j.csrf,id:r.j.user.id};
+    const started=new Promise(resolve=>app.server.once('request',resolve));let finish;
+    const delayedResponse=new Promise((resolve,reject)=>{
+      const req=http.request(origin+'/api/actions',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:worker.cookie,'X-CSRF-Token':worker.csrf}},res=>{res.resume();res.on('end',()=>resolve(res.statusCode))});
+      req.on('error',reject);req.write('{"action":"stock-receive",');finish=()=>req.end('"sku":"CLN-100","qty":10}');
+    });
+    await started;await request('/api/users/'+worker.id,{role:'finance'},admin,'PATCH');finish();
+    ok(await delayedResponse===401,'request begun before role revocation cannot finish a stock mutation');
+    ok((await state()).products[0].stock===d.products[0].stock,'revoked delayed request has no stock side effect');
+    await request('/api/users',{name:'Login race',username:'qa_race',role:'warehouse',password:'Workflow-race-password-001'});
+    const replacementHash=app.db.prepare("SELECT password_hash FROM users WHERE username='qa_admin'").get().password_hash;
+    app.server.once('request',req=>req.on('end',()=>setImmediate(()=>{app.db.prepare("UPDATE users SET password_hash=? WHERE username='qa_race'").run(replacementHash)})));
+    r=await request('/api/auth/login',{username:'qa_race',password:'Workflow-race-password-001'},null);
+    ok(r.status===401,'password reset while login verifies cannot issue a session with old password');
+    const left=await make('Offline sales'),right=await make('Offline sales');
+    d=await state();d.products[0].stock=reserved(d,'CLN-100')+1;
+    app.db.prepare("UPDATE tenant_state SET data=? WHERE tenant_id=(SELECT tenant_id FROM users WHERE username='qa_admin')").run(JSON.stringify(d));
+    await Promise.all([act('reserve',{id:left}),act('reserve',{id:right})]);d=await state();
+    ok([get(d,left),get(d,right)].filter(o=>o.status==='ready').length===1&&[get(d,left),get(d,right)].filter(o=>o.status==='hold').length===1,'competing orders can reserve the last unit only once');
+    ok(available(d,'CLN-100')===0,'competing reservations cannot make stock negative');
+    const snapshot=JSON.stringify(d.products),shippedId=id;
+    await new Promise(r=>app.server.close(r));app=createApp({dbPath});await new Promise(r=>app.server.listen(0,'127.0.0.1',r));origin='http://127.0.0.1:'+app.server.address().port;
+    r=await request('/api/auth/login',{username:'qa_admin',password:'Workflow-admin-strong-001'},null);admin={cookie:r.cookie,csrf:r.j.csrf};d=await state();
+    ok(JSON.stringify(d.products)===snapshot&&get(d,shippedId).status==='shipped','stock and fulfillment state survive server restart');
+    fs.writeFileSync('qa/workflow-results.json',JSON.stringify({passed:checks.length,checks,errors:[]},null,2));console.log(JSON.stringify({passed:checks.length,errors:[]}));
+  }finally{await new Promise(r=>app.server.close(r));fs.rmSync(dir,{recursive:true,force:true})}
+});

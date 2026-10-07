@@ -1,0 +1,14 @@
+qa/*-results.json
+qa/*-report*.json
+qa/screenshots/
+*.zip
+.DS_Store
+.local/
+*.sqlite*
+*.db
+*.db-*
+.env
+.env.*
+!.env.example
+*.log
+node_modules/

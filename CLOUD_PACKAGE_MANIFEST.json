@@ -1,0 +1,169 @@
+{
+  "project": "Order Hub",
+  "version": "0.3.0",
+  "preparedDate": "2026-10-07",
+  "timezone": "Asia/Bangkok",
+  "targetChat": "WMS Software",
+  "targetThreadId": "01a115a2-9d2b-7446-bd09-6d5f5266809b",
+  "runtime": "Node.js >=24; npm start",
+  "apiTests": {
+    "cases": 16,
+    "passed": 16,
+    "failed": 0,
+    "suites": [
+      "auth",
+      "workflow",
+      "tenancy",
+      "order-entry"
+    ]
+  },
+  "finalBrowserQa": "pending",
+  "actualUserDatabaseMigration": "pending; user database intentionally excluded",
+  "privateDataExcluded": true,
+  "files": {
+    "package.json": {
+      "size": 292,
+      "sha256": "7e2cfaa63616108e99e3593b30d2244906cbea1ec2140fb39699696fcbc6a599"
+    },
+    "README.md": {
+      "size": 16135,
+      "sha256": "3cb8d94fb12d2f2306b147e4a567e9b59c5826d8cafc76c3e7d7122fdffafe3e"
+    },
+    "AGENTS.md": {
+      "size": 4266,
+      "sha256": "7bb4001d7bf95154f2c32fdddf75dc56806fa28f26850e97790f033bf7c6ceb3"
+    },
+    ".gitignore": {
+      "size": 38,
+      "sha256": "7590bc0f232f469164b9221f53d2b5501dbe5e477ac0363805fb905304bbe1cd"
+    },
+    "CLOUD_HANDOFF.md": {
+      "size": 33175,
+      "sha256": "227ec435aa93c04d193914d008a6e75f11c44d47882d240af4544b5bb3a37dbb"
+    },
+    "asset-sources.json": {
+      "size": 1488,
+      "sha256": "72bda4109411e2b1714c7fed29713905d6a7d95df6199b65a2d513e217a7a309"
+    },
+    "api-guide-sources.json": {
+      "size": 2326,
+      "sha256": "4b371826d45f7d20278710cba3dd43aa8b89674b70a2011177e864ceb5c2f757"
+    },
+    "server/index.mjs": {
+      "size": 21822,
+      "sha256": "d13f9c8a4d341d84c524284bc2acb5be24a355e22c44882cde667485234a70fc"
+    },
+    "server/model.mjs": {
+      "size": 17935,
+      "sha256": "ad9bf4ac75de5f484569ff4feb70fad09fde48f17d1413a06bb2b68b26685e6e"
+    },
+    "server/storage.mjs": {
+      "size": 5896,
+      "sha256": "ece1b9302868e02b4dd79af3b3338cab5ecc8c0b34d4ae25da8625b8ec687e7a"
+    },
+    "server/seed.json": {
+      "size": 160047,
+      "sha256": "d6ef99c04595a43f55befddd7032ed9d3d3b22cd55c62c09de015e09021845ee"
+    },
+    "dist/app.js": {
+      "size": 20924,
+      "sha256": "13c79b940cea7977083e10f2204ad6abdc47951051a6eaa360fdc342717df460"
+    },
+    "dist/auth-client.js": {
+      "size": 57235,
+      "sha256": "f03ff4bd2e3336015a20ead3db1400452124b594dccca016d42ddeff4838a496"
+    },
+    "dist/auth.css": {
+      "size": 15450,
+      "sha256": "2e1c6e359f0bfc9a38d336143c8a59f6b101b6fd9f03412eb3b4fd3e72b7401f"
+    },
+    "dist/brand-icon.png": {
+      "size": 1867468,
+      "sha256": "2b8afbb8cbc0c4c7f7a17aaae2af3d5787ca18b7ac69f53f5c1837c197611b6f"
+    },
+    "dist/brand-logo.jpeg": {
+      "size": 143327,
+      "sha256": "53ca2d97a4e2436e178e4be296515e31727034f8ea66dc2cf44f4d560924d934"
+    },
+    "dist/channels/facebook.svg": {
+      "size": 1584,
+      "sha256": "7d4dd023ba81517968658664be16832db9cee8e2a475354757b03df3c9286f43"
+    },
+    "dist/channels/lazada.svg": {
+      "size": 7923,
+      "sha256": "2e7a82ece216e15281dc22d5e6de6cb2687d71da5deb7d54a554fb9b2abef92c"
+    },
+    "dist/channels/line.png": {
+      "size": 22239,
+      "sha256": "5e93437eb5ec0dcdece92d1562fcd435d1d521cca5c013d2d9e15b544a1d8a39"
+    },
+    "dist/channels/shopee.svg": {
+      "size": 1816,
+      "sha256": "423c3d88b4a57dbe37e2bffaa191ae401b579523d983ce2e06a702004a244590"
+    },
+    "dist/channels/tiktok.svg": {
+      "size": 1773,
+      "sha256": "10df28a4bbc51e3c8f8e5600df356296d44e3578bab66134e2c4a144f19c03ef"
+    },
+    "dist/connections.js": {
+      "size": 52867,
+      "sha256": "d9c160e3e1ff0fbcbe8956b30de3f6f2517c98fc311b34617bb445999b3898e1"
+    },
+    "dist/features.js": {
+      "size": 69241,
+      "sha256": "3c9bfbe8780fceb8b0ee4e92f5754cb128910f005bda79264f0a987d55a5a00a"
+    },
+    "dist/fonts/Manrope-Variable.ttf": {
+      "size": 163392,
+      "sha256": "a661044558fff3e68e7f0bb4d7236ec2ea7e6e14272cedd38d0d614035e3d17f"
+    },
+    "dist/fonts/SukhumvitThai-400.ttf": {
+      "size": 64856,
+      "sha256": "a147bd6f8dfa3ee6dcf9cc4a0cb802a4731c1ca7ba0e2ed8498dc1ae8c1c8d90"
+    },
+    "dist/fonts/SukhumvitThai-600.ttf": {
+      "size": 64180,
+      "sha256": "fb7e5a195b0499b1e2fd5b3760e096ba9fa0ee3fdd3bcaa58ebe15f782a3dda6"
+    },
+    "dist/fonts/SukhumvitThai-700.ttf": {
+      "size": 61516,
+      "sha256": "eaec605a4d3c5f373bcf90e3894a691a8d9866708b94cbf67fec2213d51acf87"
+    },
+    "dist/index.html": {
+      "size": 1242,
+      "sha256": "2288241fc3c6bc5520eb8b3ef894b7ed667e2b7cd2ca71d0c36319d32d8788aa"
+    },
+    "dist/order-editor.css": {
+      "size": 10799,
+      "sha256": "21301649f1e2009ed0572d25ccaef4e5e6bc246daac62c6591e351e48d2f5290"
+    },
+    "dist/order-editor.js": {
+      "size": 38146,
+      "sha256": "c13a41120d430ca0cf915f93087cdfdfa2236ce6e83fa25fe2b15c2f5711994a"
+    },
+    "dist/stock-sync.js": {
+      "size": 9741,
+      "sha256": "38db547bd970fb98da7f7e15a4d3a8af30fa2de0fc58c8d98f6c98fab8b1c940"
+    },
+    "dist/styles.css": {
+      "size": 22658,
+      "sha256": "4828d4a159bb5a4e07e425cb93868e9b109faf962ba5736731f58682299b19fc"
+    },
+    "qa/auth.test.mjs": {
+      "size": 7116,
+      "sha256": "5a616f78b0b15e183b8822b2b1babd012aeff012e6ee25d40c3ab2dc8f922e76"
+    },
+    "qa/workflow.test.mjs": {
+      "size": 9318,
+      "sha256": "7ec8b18dd2c3a9bba1f7851e3e853f73b0f9abc86d1e1986abe2032f0f28da19"
+    },
+    "qa/tenancy.test.mjs": {
+      "size": 29763,
+      "sha256": "2d3e9d25fd5678d0cf159ffbd3ccb68f3f80d6728a85cbc2305b8358ee4882cc"
+    },
+    "qa/order-entry.test.mjs": {
+      "size": 24735,
+      "sha256": "ad9b9ae4c1245eaf7b1128fe93dc403f58cb30446e821729fe9f1eb2a38dfe03"
+    }
+  }
+}

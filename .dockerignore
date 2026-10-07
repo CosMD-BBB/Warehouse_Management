@@ -1,0 +1,14 @@
+.git
+.github
+.local
+node_modules
+.env
+.env.*
+*.sqlite*
+*.db
+*.db-*
+*.zip
+*.log
+qa/*-results.json
+qa/*-report*.json
+qa/screenshots
