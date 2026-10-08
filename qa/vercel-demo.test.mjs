@@ -71,7 +71,7 @@ test('Vercel page and all original public assets load without database configura
     assert.equal(r.headers['x-content-type-options'],'nosniff');assert.match(r.headers['content-security-policy'],/connect-src 'self'/);
   }
   const head=await f.request('/',{method:'HEAD'});assert.equal(head.status,200);assert.equal(head.bytes.length,0);
-  for(const route of ['/server/seed.json','/.local/order-hub.sqlite','/package.json','/README.md','/api/order-hub','/../server/seed.json','/%2e%2e/server/seed.json','//server/seed.json'])assert.equal((await f.request(route)).status,404,route);
+  for(const route of ['/build-ready.txt','/server/seed.json','/.local/order-hub.sqlite','/package.json','/README.md','/api/order-hub','/../server/seed.json','/%2e%2e/server/seed.json','//server/seed.json'])assert.equal((await f.request(route)).status,404,route);
   assert.equal(f.store.calls,0,'static and invalid paths must not open a database');
 });
 

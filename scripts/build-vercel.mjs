@@ -50,8 +50,8 @@ export function buildVercel({root=projectRoot,nodeVersion=process.versions.node}
   for(const asset of REQUIRED_PUBLIC_ASSETS)requiredFile(root,'dist/'+asset);
   for(const folder of ['api','server','dist'])inspectTree(path.join(root,folder),{rejectSecrets:true});
 
-  // Vercel requires a static output directory, but every request belongs to the
-  // Node function. Keeping it empty prevents a static login or private-file bypass.
+  // Vercel rejects an empty static output directory. Generate only a harmless
+  // marker; the catch-all route still sends every request to the Node function.
   const output=path.join(root,VERCEL_OUTPUT_DIRECTORY);
   if(fs.existsSync(output))inspectTree(output);
   else {
@@ -60,6 +60,7 @@ export function buildVercel({root=projectRoot,nodeVersion=process.versions.node}
   }
   fs.rmSync(output,{recursive:true,force:true});
   fs.mkdirSync(output,{mode:0o755});
+  fs.writeFileSync(path.join(output,'build-ready.txt'),'Order Hub deployment build output.\n',{mode:0o644});
   return {outputDirectory:output,assetCount:REQUIRED_PUBLIC_ASSETS.length};
 }
 

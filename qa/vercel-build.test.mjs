@@ -21,7 +21,7 @@ test('Vercel routes every page, asset and API through the Node function rather t
   assert.equal(config.outputDirectory,VERCEL_OUTPUT_DIRECTORY);
   assert.deepEqual(config.routes,[{src:'/(.*)',dest:'/api/order-hub'}]);
   const route=new RegExp('^'+config.routes[0].src+'$');
-  for(const uri of ['/','/fonts/Manrope-Variable.ttf','/api/auth/login','/.local/order-hub.sqlite','/server/seed.json'])assert.ok(route.test(uri));
+  for(const uri of ['/','/fonts/Manrope-Variable.ttf','/api/auth/login','/build-ready.txt','/.local/order-hub.sqlite','/server/seed.json'])assert.ok(route.test(uri));
   const entry=config.functions['api/order-hub.mjs'];
   assert.equal(entry.includeFiles,'{server,dist}/**');assert.equal(entry.maxDuration,60);
   assert.equal('runtime' in entry,false,'Node version must come from package engines, not a custom runtime');
@@ -29,12 +29,15 @@ test('Vercel routes every page, asset and API through the Node function rather t
   assert.equal(fs.existsSync(path.join(projectRoot,'api/order-hub.mjs')),true);
 });
 
-test('Vercel build checks all 21 assets and keeps static output empty without copying private files',t=>{
+test('Vercel build produces nonempty output without copying app pages or private files',t=>{
   const root=fixture(t),output=path.join(root,VERCEL_OUTPUT_DIRECTORY);
   fs.mkdirSync(path.join(root,'.local'));fs.writeFileSync(path.join(root,'.local','actual.sqlite'),'do not touch');
   fs.writeFileSync(path.join(root,'.env'),'private placeholder');fs.mkdirSync(output);fs.writeFileSync(path.join(output,'old-index.html'),'stale static page');
   const result=buildVercel({root,nodeVersion:'24.19.0'});
-  assert.equal(result.assetCount,21);assert.equal(result.outputDirectory,output);assert.deepEqual(fs.readdirSync(output),[]);
+  assert.equal(result.assetCount,21);assert.equal(result.outputDirectory,output);
+  assert.deepEqual(fs.readdirSync(output),['build-ready.txt']);
+  assert.ok(fs.statSync(path.join(output,'build-ready.txt')).size>0,'Vercel requires a nonempty static output directory');
+  assert.equal(fs.existsSync(path.join(output,'index.html')),false,'the app must be served by the Node function');
   assert.equal(fs.readFileSync(path.join(root,'.local','actual.sqlite'),'utf8'),'do not touch');
   assert.equal(fs.readFileSync(path.join(root,'.env'),'utf8'),'private placeholder');
   for(const asset of REQUIRED_PUBLIC_ASSETS)assert.equal(fs.readFileSync(path.join(root,'dist',asset),'utf8'),'fixture: dist/'+asset);
