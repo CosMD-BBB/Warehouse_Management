@@ -1,6 +1,6 @@
 # Order Hub 0.3
 
-**ตัวอย่างบน Vercel:** มี adapter สำหรับ Node 24 Function และฐานข้อมูลทดลองถาวรแล้ว ใช้โปรเจกต์ Vercel เดิมกับสาขา `vercel-demo` และเชื่อม Neon/Postgres ตาม [VERCEL_SETUP.md](VERCEL_SETUP.md) การเปิดบน Vercel จริงยังต้องยืนยัน deployment; ไม่ใช้ `dist` เดี่ยวหรือฐานข้อมูล `/tmp` ที่หายเมื่อเริ่มตัวรันใหม่
+**ตัวอย่างบน Vercel:** Preview สาขา `vercel-demo` เปิด Dashboard ให้ลองเล่นได้ทันทีด้วยข้อมูลตัวอย่างแยกต่อผู้เข้าชม มีปุ่มเริ่มใหม่ ใช้ backend จริงกับ Neon/Postgres ตาม [VERCEL_SETUP.md](VERCEL_SETUP.md) การเปิดให้ทุกคนเข้าถึงต้องปิด Vercel Authentication ใน Deployment Protection ของโปรเจกต์ด้วย การตั้งค่านี้ยังไม่ได้เปลี่ยนจากแชต และการเปิดบน Vercel จริงยังต้องยืนยัน deployment ส่วน Local และ Production ยังคงใช้ Login เดิม
 
 **เปิดตัวอย่างในเบราว์เซอร์โดยไม่ต้องติดตั้งบนเครื่อง:**
 

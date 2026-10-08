@@ -1,6 +1,8 @@
 // Durable transport for the low-volume Vercel demo. The local application never
 // imports pg, and this transport never reads a user's local database.
+import {createHash} from 'node:crypto';
 const maxSnapshotBytes=10*1024*1024,sqliteHeader=Buffer.from('SQLite format 3\0');
+const maxPublicSnapshotBytes=2*1024*1024,maxPublicVisitors=100;
 const namespacePattern=/^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$/;
 
 function configuration({connectionString,namespace,ssl,pool}){
@@ -69,6 +71,7 @@ async function withClientTransaction(pool,work){
 
 export function createPostgresSnapshotStore(options){
   const config=configuration(options||{});
+  const publicProject=createHash('sha256').update('public-demo-v1|'+config.namespace).digest('hex');
   let poolPromise,schemaPromise,closed=false;
   async function pool(){
     if(closed)throw new Error('Demo database store is closed');
@@ -97,17 +100,57 @@ export function createPostgresSnapshotStore(options){
           attempts JSONB NOT NULL DEFAULT '[]'::jsonb,
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )`);
+        await client.query(`CREATE TABLE IF NOT EXISTS order_hub_public_demo_snapshots (
+          project_key TEXT NOT NULL,
+          visitor_hash TEXT NOT NULL,
+          snapshot BYTEA,
+          attempts JSONB NOT NULL DEFAULT '[]'::jsonb,
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '24 hours',
+          PRIMARY KEY(project_key,visitor_hash)
+        )`);
+        await client.query('CREATE INDEX IF NOT EXISTS order_hub_public_demo_expiry ON order_hub_public_demo_snapshots(project_key,expires_at)');
       });
       schemaPromise.catch(()=>{schemaPromise=undefined});
     }
     await schemaPromise;
   }
   return {
-    async transaction(callback){
+    async transaction(callback,{visitor,allowCreate=false}={}){
       if(typeof callback!=='function')throw new Error('Demo database transaction requires a callback');
+      if(visitor!==undefined&&(typeof visitor!=='string'||!/^[a-f0-9]{64}$/.test(visitor)||typeof allowCreate!=='boolean'))throw new Error('Invalid public demo visitor');
       const value=await pool();
       await schema(value);
       return withClientTransaction(value,async client=>{
+        if(visitor!==undefined){
+          const parameters=[publicProject,visitor];
+          const select=()=>client.query('SELECT snapshot,attempts FROM order_hub_public_demo_snapshots WHERE project_key=$1 AND visitor_hash=$2 AND expires_at>NOW() FOR UPDATE',parameters);
+          let selected=await select();
+          if(!selected.rows.length){
+            if(!allowCreate)throw Object.assign(new Error('Public demo session expired'),{code:'PUBLIC_DEMO_EXPIRED',status:401});
+            // Only allocations share this project lock; existing visitors lock
+            // their own row. The count and insert cannot race across cold starts.
+            await client.query('SELECT pg_advisory_xact_lock(hashtext($1),1936615792)',[publicProject]);
+            await client.query('DELETE FROM order_hub_public_demo_snapshots WHERE project_key=$1 AND expires_at<=NOW()',[publicProject]);
+            selected=await select();
+            if(!selected.rows.length){
+              const count=await client.query('SELECT COUNT(*)::integer AS n FROM order_hub_public_demo_snapshots WHERE project_key=$1',[publicProject]);
+              if(count.rows[0].n>=maxPublicVisitors)throw Object.assign(new Error('Public demo visitor capacity reached'),{code:'PUBLIC_DEMO_CAPACITY'});
+              await client.query('INSERT INTO order_hub_public_demo_snapshots(project_key,visitor_hash) VALUES($1,$2)',parameters);
+              selected=await select();
+            }
+          }
+          if(selected.rows.length!==1)throw new Error('Public demo visitor could not be locked');
+          const row=selected.rows[0],snapshot=snapshotValue(row.snapshot,{nullable:true});
+          if(snapshot&&snapshot.length>maxPublicSnapshotBytes)throw new Error('Public demo snapshot exceeds 2 MiB');
+          const output=await callback({snapshot,attempts:attemptValues(row.attempts)});
+          if(!output||typeof output!=='object')throw new Error('Demo database callback must return its updated state');
+          const nextSnapshot=snapshotValue(output.snapshot),nextAttempts=attemptValues(output.attempts);
+          if(nextSnapshot.length>maxPublicSnapshotBytes)throw Object.assign(new Error('Public demo snapshot exceeds 2 MiB'),{code:'PUBLIC_DEMO_SIZE'});
+          const updated=await client.query("UPDATE order_hub_public_demo_snapshots SET snapshot=$3,attempts=$4::jsonb,updated_at=NOW(),expires_at=NOW()+INTERVAL '24 hours' WHERE project_key=$1 AND visitor_hash=$2",[...parameters,nextSnapshot,JSON.stringify(nextAttempts)]);
+          if(updated.rowCount!==1)throw new Error('Public demo snapshot could not be saved');
+          return output.result;
+        }
         await client.query('INSERT INTO order_hub_demo_snapshots(namespace) VALUES($1) ON CONFLICT(namespace) DO NOTHING',[config.namespace]);
         const selected=await client.query('SELECT snapshot,attempts FROM order_hub_demo_snapshots WHERE namespace=$1 FOR UPDATE',[config.namespace]);
         if(selected.rows.length!==1)throw new Error('Demo database namespace could not be locked');

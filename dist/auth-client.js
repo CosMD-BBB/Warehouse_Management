@@ -1,5 +1,5 @@
 'use strict';
-let currentAuth=null,csrfToken='',authPermissions=null,userRows=[],connectionDrafts=[],isSetup=false;
+let currentAuth=null,csrfToken='',authPermissions=null,userRows=[],connectionDrafts=[],isSetup=false,publicDemo=false;
 const roleLabels={admin:'Admin',warehouse:'Warehouse',finance:'Finance'};
 const allowedViews={admin:['overview','orders','fulfillment','inventory','reports','connections','blueprint','users'],warehouse:['orders','fulfillment','inventory'],finance:['overview','orders','reports']};
 const roleText={admin:'จัดการทั้งหมด รวมผู้ใช้และการเชื่อมต่อ',warehouse:'จัดการออเดอร์ หยิบแพ็ก จัดส่ง และสต๊อก',finance:'ดูรายงานการเงินและออเดอร์ ไม่แก้ไขงานคลัง'};
@@ -70,9 +70,130 @@ views.store=()=>`<div class="store-context-note">${icon('box')}<span>กำล�
 async function copyStoreLoginLink(input){try{await navigator.clipboard.writeText(input.value);toast('คัดลอกลิงก์เข้าสู่ระบบแล้ว')}catch{input.focus();input.select();toast('เลือกลิงก์แล้ว กดคัดลอกเพื่อส่งให้ทีม')}}
 function bindStore(){const form=document.getElementById('store-settings-form');form.onsubmit=async e=>{e.preventDefault();if(form.dataset.pending==='true')return;const error=document.getElementById('store-settings-error');error.textContent='';setPending(form,true);try{const out=await api('/store','PATCH',{name:String(new FormData(form).get('name')).trim()});if(out.store.id!==currentStore?.id){storeSessionChanged();return}acceptStore(out.store);shell();toast('บันทึกชื่อร้านแล้ว')}catch(err){if(form.isConnected){error.textContent=err.message;setPending(form,false)}}};document.getElementById('copy-store-link').onclick=()=>copyStoreLoginLink(document.getElementById('store-login-url'));document.getElementById('new-store-button').onclick=showCreateStore}
 function showCreateStore(){if(currentAuth?.role!=='admin')return;modal('สร้างร้านใหม่','ร้านใหม่จะมีบัญชีผู้ดูแลและข้อมูลของตัวเอง',`<form id="create-store-form"><div class="wizard-callout"><strong>สร้างบัญชี Admin สำหรับร้านใหม่</strong><p>บัญชีปัจจุบันยังอยู่ในร้าน ${esc(currentStore.name)} หลังสร้างสำเร็จ หากต้องการใช้ร้านใหม่ ให้ออกจากระบบแล้วเข้าสู่ระบบด้วยรหัสร้านและบัญชีใหม่</p></div><div class="modal-grid"><label class="field">ชื่อร้านใหม่<input name="storeName" required maxlength="80" placeholder="เช่น ร้านสาขาใหม่" autocomplete="organization"></label><label class="field">รหัสร้านใหม่<input name="storeCode" required minlength="3" maxlength="40" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="เช่น new-store" autocapitalize="none" spellcheck="false" autocomplete="off"><span class="form-help">อังกฤษเล็ก ตัวเลข และขีดกลาง 3–40 ตัว เปลี่ยนไม่ได้</span></label><label class="field">ชื่อผู้ดูแลร้านใหม่<input name="name" required maxlength="80" placeholder="ชื่อที่แสดง" autocomplete="off"></label><label class="field">ชื่อผู้ใช้ Admin ของร้านใหม่<input name="username" required minlength="3" maxlength="40" pattern="(?:[a-zA-Z0-9._]|-){3,40}" placeholder="เช่น admin" autocomplete="off"></label><label class="field">รหัสผ่านสำหรับร้านใหม่<input name="password" type="password" required minlength="12" maxlength="128" autocomplete="new-password" placeholder="อย่างน้อย 12 ตัวอักษร"></label><label class="field">ยืนยันรหัสผ่าน<input name="confirm" type="password" required minlength="12" maxlength="128" autocomplete="new-password"></label></div><p class="form-help" style="margin-top:15px">ร้านใหม่มีคลังกลางแยกต่างหาก ไม่ดึงออเดอร์ สต๊อก ผู้ใช้ หรือการเชื่อมต่อจากร้านนี้ไปด้วย</p><div class="auth-error" id="create-store-error" role="alert"></div><div class="modal-actions"><button class="btn primary" type="submit">สร้างร้านและบัญชี Admin</button></div></form>`);const form=document.getElementById('create-store-form');form.onsubmit=async e=>{e.preventDefault();if(form.dataset.pending==='true')return;const f=new FormData(form),error=document.getElementById('create-store-error');error.textContent='';if(f.get('password')!==f.get('confirm')){error.textContent='รหัสผ่านยืนยันไม่ตรงกัน';return}setPending(form,true);const username=String(f.get('username')).trim().toLowerCase();try{const out=await api('/stores','POST',{storeName:f.get('storeName'),storeCode:String(f.get('storeCode')).trim().toLowerCase(),name:f.get('name'),username,password:f.get('password')});const created=out.store;form.reset();modal('สร้างร้านใหม่แล้ว',esc(created.name),`<div class="store-created"><span class="badge packed">สร้างบัญชี Admin แล้ว</span><div class="stat-line"><span>ชื่อร้าน</span><strong>${esc(created.name)}</strong></div><div class="stat-line"><span>รหัสร้าน</span><strong>${esc(created.code)}</strong></div><div class="stat-line"><span>ชื่อผู้ใช้ Admin</span><strong>${esc(username)}</strong></div><label class="field" style="margin-top:20px">ลิงก์เข้าสู่ระบบร้านใหม่<input id="created-store-link" class="store-link-input" readonly value="${esc(storeLoginUrl(created.code))}"></label><div class="actions" style="margin-top:13px"><button class="btn" id="copy-created-store-link">คัดลอกลิงก์ร้านใหม่</button></div><p class="form-help" style="margin-top:19px">คุณยังอยู่ในร้าน ${esc(currentStore.name)} บัญชีร้านใหม่ใช้รหัสผ่านที่เพิ่งตั้งไว้ หากต้องการเปิดร้านใหม่ ให้ออกจากระบบแล้วใช้ลิงก์นี้</p><div class="modal-actions"><button class="btn primary" id="close-created-store">กลับร้านปัจจุบัน</button></div></div>`);document.getElementById('copy-created-store-link').onclick=()=>copyStoreLoginLink(document.getElementById('created-store-link'));document.getElementById('close-created-store').onclick=()=>document.getElementById('dialog').close()}catch(err){if(form.isConnected){error.textContent=err.message;setPending(form,false)}}}}
-bootAuth=async function(){if(location.protocol==='file:'){document.getElementById('app').innerHTML=`<main class="login-recovery">${mark()}<h1>เปิด Order Hub ผ่านระบบ Login</h1><p>กรุณาเปิดตัวเริ่มใช้งาน Order Hub แล้วเข้าสู่ระบบร้านค้า</p><a class="btn primary" href="http://127.0.0.1:4180/">เปิดหน้าเข้าสู่ระบบ</a></main>`;return}try{const r=await api('/auth/status');isSetup=r.needsSetup;loginStoreHint=loginStoreHint||r.legacyStoreCode||'';if(r.user&&loginStoreHint&&r.store?.code!==loginStoreHint){clearSession();showLogin('เข้าสู่ระบบด้วยบัญชีของร้าน '+loginStoreHint);return}currentAuth=r.user;acceptStore(r.store);csrfToken=r.csrf||'';authPermissions=r.permissions;if(currentAuth){await refreshData();shell()}else showLogin()}catch(error){document.getElementById('app').innerHTML=`<main class="login-recovery">${mark()}<h1>ยังเปิดระบบไม่ได้</h1><p>${esc(error.message)}</p><button class="btn primary" id="retry-auth">ลองอีกครั้ง</button></main>`;document.getElementById('retry-auth').onclick=bootAuth}};
+bootAuth=async function(){if(location.protocol==='file:'){document.getElementById('app').innerHTML=`<main class="login-recovery">${mark()}<h1>เปิด Order Hub ผ่านระบบ Login</h1><p>กรุณาเปิดตัวเริ่มใช้งาน Order Hub แล้วเข้าสู่ระบบร้านค้า</p><a class="btn primary" href="http://127.0.0.1:4180/">เปิดหน้าเข้าสู่ระบบ</a></main>`;return}try{const r=await api('/auth/status');publicDemo=r.publicDemo===true;isSetup=r.needsSetup;loginStoreHint=publicDemo?'':loginStoreHint||r.legacyStoreCode||'';if(!publicDemo&&r.user&&loginStoreHint&&r.store?.code!==loginStoreHint){clearSession();showLogin('เข้าสู่ระบบด้วยบัญชีของร้าน '+loginStoreHint);return}currentAuth=r.user;acceptStore(r.store);csrfToken=r.csrf||'';authPermissions=r.permissions;if(currentAuth){await refreshData();shell()}else showLogin()}catch(error){document.getElementById('app').innerHTML=`<main class="login-recovery">${mark()}<h1>ยังเปิดระบบไม่ได้</h1><p>${esc(error.message)}</p><button class="btn primary" id="retry-auth">ลองอีกครั้ง</button></main>`;document.getElementById('retry-auth').onclick=bootAuth}};
 let checkingStoreSession=false;
 async function checkStoreSession(){if(!currentAuth||checkingStoreSession||document.visibilityState==='hidden')return;checkingStoreSession=true;const epoch=sessionEpoch,expectedStoreId=currentStore?.id,expectedCsrf=csrfToken;try{const out=await api('/auth/status');if(epoch===sessionEpoch&&(!out.user||out.store?.id!==expectedStoreId||out.csrf!==expectedCsrf))storeSessionChanged()}catch{}finally{checkingStoreSession=false}}
 window.addEventListener('focus',checkStoreSession);
 document.addEventListener('visibilitychange',checkStoreSession);
 document.addEventListener('input',event=>{const input=event.target;if(input instanceof HTMLInputElement&&input.name==='storeCode'){const position=input.selectionStart;input.value=input.value.toLowerCase();if(position!==null)input.setSelectionRange(position,position)}});
+
+// Public previews receive an isolated guest session from the server. Normal
+// stores keep the login, passwords and team management above.
+const authenticatedAcceptStore=acceptStore;
+acceptStore=function(store){
+  if(!publicDemo){authenticatedAcceptStore(store);return}
+  currentStore=store||null;
+  loginStoreHint='';
+  const url=new URL(location.href);
+  url.searchParams.delete('store');
+  history.replaceState(null,'',url);
+};
+
+function publicDemoRecovery(message='เปิดพื้นที่ทดลองของคุณอีกครั้งได้เลย'){
+  document.body.classList.remove('public-demo-mode');
+  document.getElementById('app').innerHTML=`<main class="login-recovery">${mark()}<h1>พื้นที่ทดลองของคุณ</h1><p>${esc(message)}</p><button class="btn primary" id="retry-auth">เปิดพื้นที่ทดลอง</button></main>`;
+  document.getElementById('retry-auth').onclick=bootAuth;
+}
+
+const authenticatedShowLogin=showLogin;
+showLogin=function(error=''){
+  if(publicDemo){publicDemoRecovery(error||undefined);return}
+  document.body.classList.remove('public-demo-mode');
+  authenticatedShowLogin(error);
+};
+
+const authenticatedSessionChanged=storeSessionChanged;
+storeSessionChanged=function(message){
+  if(!publicDemo){authenticatedSessionChanged(message);return}
+  clearSession();
+  publicDemoRecovery('พื้นที่ทดลองเปลี่ยนหรือหมดเวลา กดเปิดเพื่อทดลองต่อได้');
+};
+
+function showPublicDemoReset(){
+  if(!publicDemo||!currentAuth)return;
+  modal('เริ่มข้อมูลทดลองใหม่','เริ่มต้นอีกครั้งด้วยข้อมูลตัวอย่าง',`<p>ออเดอร์และรายการที่คุณเพิ่มในพื้นที่ทดลองนี้จะถูกล้าง และกลับเป็นข้อมูลตัวอย่างเริ่มต้น</p><p class="form-help">ข้อมูลของผู้เข้าชมคนอื่นไม่เปลี่ยนแปลง</p><form id="demo-reset-form"><div class="auth-error" id="demo-reset-error" role="alert"></div><div class="modal-actions"><button class="btn" type="button" id="cancel-demo-reset">กลับไปทดลองต่อ</button><button class="btn primary" type="submit" id="confirm-demo-reset">เริ่มใหม่</button></div></form>`);
+  document.getElementById('cancel-demo-reset').onclick=()=>document.getElementById('dialog').close();
+  const form=document.getElementById('demo-reset-form');
+  form.onsubmit=async event=>{
+    event.preventDefault();
+    if(form.dataset.pending==='true')return;
+    const error=document.getElementById('demo-reset-error');
+    error.textContent='';
+    setPending(form,true);
+    try{
+      const out=await api('/auth/demo-reset','POST',{});
+      clearSession();
+      publicDemo=out.publicDemo===true;
+      currentAuth=out.user;
+      acceptStore(out.store);
+      csrfToken=out.csrf||'';
+      authPermissions=out.permissions;
+      isSetup=false;
+      await refreshData();
+      shell();
+      toast('เริ่มพื้นที่ทดลองใหม่แล้ว');
+    }catch(err){
+      if(form.isConnected){error.textContent=err.message;setPending(form,false)}
+    }
+  };
+}
+
+const authenticatedLogout=logout;
+logout=async function(){if(publicDemo){showPublicDemoReset();return}return authenticatedLogout()};
+
+const authenticatedUsersView=views.users;
+views.users=function(){
+  if(!publicDemo)return authenticatedUsersView();
+  const rows=[['ดูออเดอร์','ทั้งหมด','เฉพาะข้อมูลจัดส่ง','ดูได้'],['สร้าง / ยกเลิกออเดอร์','ทำได้','—','—'],['กันสต๊อก / หยิบแพ็ก / จัดส่ง','ทำได้','ทำได้','—'],['รับสินค้าเข้า / ดูสต๊อก','ทำได้','ทำได้','—'],['ยอดขาย / ต้นทุน / การเงิน','ดูและส่งออก','—','ดูและส่งออก'],['เชื่อมต่อช่องทางขาย','จัดการได้','—','—'],['บัญชีผู้ใช้และสิทธิ์','จัดการได้','—','—']];
+  return `<div class="store-context-note">${icon('users')}<span>ตัวอย่างสิทธิ์ของทีม<small>คุณกำลังลองใช้งานในสิทธิ์ Admin โหมดทดลองไม่ต้องสร้างบัญชีหรือกรอกรหัสผ่าน</small></span></div><div class="user-summary">${Object.keys(roleLabels).map(role=>`<article class="role-card"><h2>${roleLabels[role]}</h2><p>${roleText[role]}</p></article>`).join('')}</div>${panel('สิทธิ์แต่ละระดับ','ระบบใช้งานจริงกำหนดสิทธิ์ให้สมาชิกของแต่ละร้านได้',`<div class="table-scroll"><table class="data-table permissions-table"><thead><tr><th>การใช้งาน</th><th>Admin</th><th>Warehouse</th><th>Finance</th></tr></thead><tbody>${rows.map(row=>`<tr>${row.map((cell,index)=>`<td class="${index&&cell!=='—'?'permission-check':cell==='—'?'permission-no':''}">${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`)}`;
+};
+
+const authenticatedStoreView=views.store;
+views.store=function(){
+  if(!publicDemo)return authenticatedStoreView();
+  return `<div class="store-context-note">${icon('box')}<span>ร้านตัวอย่างของคุณ<small>ข้อมูลแยกจากผู้เข้าชมคนอื่น ลองเปลี่ยนชื่อร้านได้โดยใช้ข้อมูลสมมติ</small></span></div><div class="store-grid">${panel('ข้อมูลร้านตัวอย่าง','ลองตั้งชื่อร้านที่แสดงในพื้นที่ทำงาน',`<div class="panel-body"><form id="store-settings-form" class="wizard-fields"><label class="field">ชื่อร้าน<input name="name" value="${esc(currentStore.name)}" maxlength="80" required autocomplete="off"></label><label class="field">รหัสร้านตัวอย่าง<input value="${esc(currentStore.code)}" readonly></label><div class="auth-error" id="store-settings-error" role="alert"></div><div class="actions"><button class="btn primary" type="submit">บันทึกชื่อร้าน</button></div></form></div>`)}${panel('สต๊อกกลางของร้านเดียวกัน','ลองจัดการทุกช่องทางในพื้นที่เดียว',`<div class="panel-body"><p class="section-sub">Facebook, Shopee, TikTok Shop, Lazada, LINE OA, Review และ Offline sales ใช้สินค้าคงคลังกองเดียวกัน</p><div class="wizard-callout"><strong>ข้อมูลสำหรับทดลองเท่านั้น</strong><p>ยังไม่เชื่อมร้านค้าหรือขนส่งจริง และไม่ต้องสร้างบัญชีใหม่ หากต้องการเริ่มลองอีกครั้ง กด “เริ่มใหม่” ที่มุมขวาบน</p></div></div>`)}</div>`;
+};
+
+const authenticatedBindStore=bindStore;
+bindStore=function(){
+  if(!publicDemo){authenticatedBindStore();return}
+  const form=document.getElementById('store-settings-form');
+  form.onsubmit=async event=>{
+    event.preventDefault();
+    if(form.dataset.pending==='true')return;
+    const error=document.getElementById('store-settings-error');
+    error.textContent='';
+    setPending(form,true);
+    try{
+      const out=await api('/store','PATCH',{name:String(new FormData(form).get('name')).trim()});
+      if(out.store.id!==currentStore?.id){storeSessionChanged();return}
+      acceptStore(out.store);
+      shell();
+      toast('บันทึกชื่อร้านตัวอย่างแล้ว');
+    }catch(err){if(form.isConnected){error.textContent=err.message;setPending(form,false)}}
+  };
+};
+
+const authenticatedUserForm=showUserForm;
+showUserForm=function(user){if(publicDemo){toast('โหมดทดลองไม่ต้องสร้างบัญชีหรือกรอกรหัสผ่าน');return}authenticatedUserForm(user)};
+const authenticatedCreateStore=showCreateStore;
+showCreateStore=function(){if(publicDemo){toast('คุณมีร้านตัวอย่างของตัวเองแล้ว ลองแก้ชื่อร้านได้');return}authenticatedCreateStore()};
+const authenticatedAccount=showAccount;
+showAccount=function(){if(publicDemo){showPublicDemoReset();return}authenticatedAccount()};
+
+const authenticatedShell=shell;
+shell=function(){
+  authenticatedShell();
+  document.body.classList.toggle('public-demo-mode',publicDemo&&!!currentAuth);
+  if(!publicDemo||!currentAuth)return;
+  document.querySelector('.top-right').innerHTML='<span class="demo-badge">โหมดทดลอง</span><button class="btn small demo-reset-button" id="demo-reset">เริ่มใหม่</button>';
+  document.getElementById('demo-reset').onclick=showPublicDemoReset;
+  const banner=document.createElement('aside');
+  banner.className='public-demo-banner';
+  banner.setAttribute('aria-label','ข้อมูลโหมดทดลอง');
+  banner.innerHTML=`${icon('box')}<div><strong>โหมดทดลอง · ข้อมูลตัวอย่างของคุณ</strong><p>ข้อมูลแยกจากผู้เข้าชมคนอื่น · ใช้ข้อมูลสมมติในการลองใช้งาน</p></div>`;
+  document.querySelector('.content').prepend(banner);
+  if(state.view==='users'||state.view==='store')document.querySelector('.heading .actions').replaceChildren();
+  const footer=document.querySelector('.page-foot');
+  footer.innerHTML='<span>Order Hub · ข้อมูลตัวอย่างสมมติ · ยังไม่เชื่อมร้านค้าจริง</span><span>พื้นที่ทดลองของคุณแยกจากผู้เข้าชมคนอื่น</span>';
+};

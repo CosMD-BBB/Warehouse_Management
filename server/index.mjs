@@ -33,13 +33,23 @@ function configuredOrigin(value){
   return url;
 }
 
-export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.local','order-hub.sqlite'),publicOrigin=process.env.ORDER_HUB_PUBLIC_ORIGIN||'',attempts=new Map()}={}){
+export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.local','order-hub.sqlite'),publicOrigin=process.env.ORDER_HUB_PUBLIC_ORIGIN||'',attempts=new Map(),publicDemo=false}={}){
   const external=configuredOrigin(publicOrigin),cookieFlags=`HttpOnly; SameSite=Strict; Path=/${external?'; Secure':''}`;
   if(!(attempts instanceof Map))throw new Error('Authentication attempt storage must be a Map');
+  if(typeof publicDemo!=='boolean'||publicDemo&&!external)throw new Error('Public demo requires an explicit HTTPS origin');
   const clearedCookie=`oh_session=; ${cookieFlags}; Max-Age=0`;
   fs.mkdirSync(path.dirname(dbPath),{recursive:true,mode:0o700});
   const db=new DatabaseSync(dbPath);try{fs.chmodSync(dbPath,0o600)}catch{}
-  try{initializeStorage(db)}catch(error){db.close();throw error}
+  try{
+    if(publicDemo){
+      const table=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='public_demo_meta'").get();
+      const users=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get();
+      if(!table&&users&&db.prepare('SELECT COUNT(*) n FROM users').get().n)throw new Error('Public demo cannot open an existing account database');
+      if(table&&db.prepare('SELECT marker FROM public_demo_meta').get()?.marker!=='synthetic-guest-v1')throw new Error('Invalid public demo database marker');
+    }
+    initializeStorage(db);
+    if(publicDemo&&!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='public_demo_meta'").get())db.exec("CREATE TABLE public_demo_meta(marker TEXT PRIMARY KEY); INSERT INTO public_demo_meta VALUES('synthetic-guest-v1');");
+  }catch(error){db.close();throw error}
   const ttl=8*60*60*1000;
   const transact=fn=>transaction(db,fn);
   const lookupUser=id=>db.prepare('SELECT u.*,t.name store_name,t.code store_code FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE u.id=? AND t.active=1').get(id);
@@ -63,6 +73,7 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
   function issue(user){
     const token=randomBytes(32).toString('hex'),csrf=randomBytes(24).toString('hex');
     db.prepare('DELETE FROM sessions WHERE expires_at<=?').run(Date.now());
+    if(publicDemo)db.prepare('DELETE FROM sessions WHERE user_id=? AND token_hash NOT IN (SELECT token_hash FROM sessions WHERE user_id=? ORDER BY expires_at DESC LIMIT 15)').run(user.id,user.id);
     db.prepare('INSERT INTO sessions VALUES(?,?,?,?)').run(digest(token),user.id,csrf,Date.now()+ttl);
     return {csrf,cookie:`oh_session=${token}; ${cookieFlags}; Max-Age=${ttl/1000}`};
   }
@@ -80,6 +91,29 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
   }
   function readStoreState(u){const row=db.prepare('SELECT data FROM tenant_state WHERE tenant_id=?').get(u.tenant_id);if(!row)fault('ไม่พบข้อมูลร้าน',404);return JSON.parse(row.data)}
 
+  async function demoOwner(reset=false,revalidate){
+    const existing=db.prepare("SELECT id FROM users WHERE username='demo_guest' AND role='admin' AND active=1").get();
+    if(existing&&!reset)return lookupUser(existing.id);
+    if(!reset&&db.prepare('SELECT COUNT(*) n FROM users').get().n)throw new Error('Invalid public demo owner');
+    const hash=await hashPassword(randomBytes(32).toString('hex'));
+    revalidate?.();
+    return transact(()=>{
+      if(!reset){
+        const current=db.prepare("SELECT id FROM users WHERE username='demo_guest' AND role='admin' AND active=1").get();
+        if(current)return lookupUser(current.id);
+        if(db.prepare('SELECT COUNT(*) n FROM users').get().n)throw new Error('Invalid public demo owner');
+      }
+      if(reset)for(const table of ['sessions','action_requests','security_audit','connection_drafts','tenant_state','users','tenants'])db.exec('DELETE FROM '+table);
+      const store=insertStore(db,{name:'ร้านตัวอย่างของคุณ',code:'demo'},createSeed());
+      const owner=addOwner(store,{username:'demo_guest',name:'ผู้ทดลองใช้งาน'},hash);
+      record(owner,'public_demo_start',owner.id);return owner;
+    });
+  }
+  function demoReply(res,user,{fresh=false}={}){
+    const issued=fresh?issue(user):null;
+    send(res,200,{publicDemo:true,needsSetup:false,legacyStoreCode:'demo',user:safeUser(user),store:storeOf(user),csrf:issued?.csrf||user.csrf,permissions:ROLES[user.role]},issued?{'Set-Cookie':issued.cookie}:{});
+  }
+
   const handler=async(req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Frame-Options','DENY');
     res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
@@ -92,9 +126,11 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
       let user=session(req);
       if(route.startsWith('/api/')){
         if(route==='/api/auth/status'&&req.method==='GET'){
+          if(publicDemo){if(!user)demoReply(res,await demoOwner(),{fresh:true});else demoReply(res,user);return}
           const stores=db.prepare('SELECT code FROM tenants WHERE active=1 LIMIT 2').all();
           send(res,200,{needsSetup:db.prepare('SELECT COUNT(*) n FROM users').get().n===0,legacyStoreCode:stores.length===1?stores[0].code:'',user:user?safeUser(user):null,store:user?storeOf(user):null,csrf:user?.csrf||null,permissions:user?ROLES[user.role]:null});return;
         }
+        if(publicDemo&&(route==='/api/auth/setup'||route==='/api/auth/login'||route==='/api/auth/password'||route==='/api/auth/logout'||route==='/api/stores'||route==='/api/users'&&req.method==='POST'||route.startsWith('/api/users/')&&req.method==='PATCH'))fault('โหมดทดลองใช้ข้อมูลตัวอย่างและไม่รับข้อมูลบัญชีจริง',403);
         if(route==='/api/auth/setup'&&req.method==='POST'){
           if(db.prepare('SELECT COUNT(*) n FROM users').get().n)fault('สร้าง Admin เริ่มต้นแล้ว',409);
           const b=await body(req),fields=accountFields(b),storeFieldsValue=storeFields(b,true),hash=await hashPassword(passwordValid(b.password));
@@ -124,6 +160,10 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
         if(!user)fault('กรุณาเข้าสู่ระบบ',401);
         checkStoreContext(req,user);
         if(mutating&&req.headers['x-csrf-token']!==user.csrf)fault('Session verification failed',403);
+        if(route==='/api/auth/demo-reset'&&req.method==='POST'&&publicDemo){
+          await body(req);user=freshSession(req,'admin');
+          demoReply(res,await demoOwner(true,()=>freshSession(req,'admin')),{fresh:true});return;
+        }
         if(route==='/api/auth/logout'&&req.method==='POST'){
           db.prepare('DELETE FROM sessions WHERE token_hash=?').run(user.token_hash);record(user,'logout');
           send(res,200,{ok:true},{'Set-Cookie':clearedCookie});return;
@@ -135,7 +175,7 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
           send(res,200,{ok:true},{'Set-Cookie':clearedCookie});return;
         }
         if(route==='/api/state'&&req.method==='GET'){
-          send(res,200,{data:projectData(readStoreState(user),user.role),user:safeUser(user),store:storeOf(user),permissions:ROLES[user.role]});return;
+          send(res,200,{data:projectData(readStoreState(user),user.role),user:safeUser(user),store:storeOf(user),permissions:ROLES[user.role],...(publicDemo?{publicDemo:true}:{})});return;
         }
         if(route==='/api/actions'&&req.method==='POST'){
           const b=await body(req);user=freshSession(req);
