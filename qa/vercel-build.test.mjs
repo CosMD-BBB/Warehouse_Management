@@ -10,7 +10,7 @@ const projectRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'
 function fixture(t){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'order-hub-vercel-build-'));
   t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
-  const files=[...REQUIRED_PUBLIC_ASSETS.map(asset=>'dist/'+asset),'package-lock.json','api/order-hub.mjs','server/index.mjs','server/model.mjs','server/storage.mjs','server/seed.json','server/vercel-demo.mjs','server/demo-postgres.mjs','server/email-auth.mjs','server/migration-backup.mjs'];
+  const files=[...REQUIRED_PUBLIC_ASSETS.map(asset=>'dist/'+asset),'package-lock.json','api/order-hub.mjs','server/index.mjs','server/model.mjs','server/storage.mjs','server/seed.json','server/vercel-demo.mjs','server/demo-postgres.mjs','server/email-auth.mjs','server/migration-backup.mjs','server/barcodes.mjs','server/shipping.mjs'];
   for(const relative of files){const file=path.join(root,relative);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,'fixture: '+relative)}
   return root;
 }
@@ -34,7 +34,7 @@ test('Vercel build produces nonempty output without copying app pages or private
   fs.mkdirSync(path.join(root,'.local'));fs.writeFileSync(path.join(root,'.local','actual.sqlite'),'do not touch');
   fs.writeFileSync(path.join(root,'.env'),'private placeholder');fs.mkdirSync(output);fs.writeFileSync(path.join(output,'old-index.html'),'stale static page');
   const result=buildVercel({root,nodeVersion:'24.19.0'});
-  assert.equal(result.assetCount,21);assert.equal(result.outputDirectory,output);
+  assert.equal(result.assetCount,25);assert.equal(result.outputDirectory,output);
   assert.deepEqual(fs.readdirSync(output),['build-ready.txt']);
   assert.ok(fs.statSync(path.join(output,'build-ready.txt')).size>0,'Vercel requires a nonempty static output directory');
   assert.equal(fs.existsSync(path.join(output,'index.html')),false,'the app must be served by the Node function');

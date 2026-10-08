@@ -28,6 +28,9 @@ export function parseWizardArguments(argv){
   for(let index=0;index<argv.length;index++){
     const flag=argv[index];
     if(flag==='--help'){options.help=true;continue}
+    if(flag==='--replace-accounts'||flag==='--choose-operation'){
+      const key=flag==='--replace-accounts'?'replaceAccounts':'chooseOperation';if(options[key])fail('ระบุตัวเลือกซ้ำ');options[key]=true;continue;
+    }
     const key=flag==='--store'?'storeCode':flag==='--username'?'username':null;
     if(!key||options[key]!==undefined||!argv[index+1]||argv[index+1].startsWith('--'))fail('ตัวเลือกไม่ถูกต้อง: ใช้ --help และห้ามส่งข้อมูลลับเป็น argument');
     options[key]=argv[++index];
@@ -62,9 +65,9 @@ function inspectSnapshot(db,target){
     const actual=db.prepare('PRAGMA table_info('+table+')').all().map(column=>column.name);
     if(columns.some(column=>!actual.includes(column)))fail('พบรูปแบบฐานข้อมูลที่ยังไม่รองรับ: ไม่มีการเปลี่ยนข้อมูล');
   }
-  const found=db.prepare("SELECT u.id FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE t.code=? AND t.active=1 AND u.username=? AND u.active=1 AND u.role='admin' LIMIT 2").all(target.storeCode,target.username);
+  const found=db.prepare("SELECT u.id,u.tenant_id,t.name AS store_name FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE t.code=? AND t.active=1 AND u.username=? AND u.active=1 AND u.role='admin' LIMIT 2").all(target.storeCode,target.username);
   if(found.length>1)fail('บัญชีใน snapshot ไม่เป็นเอกลักษณ์: ไม่มีการเปลี่ยนข้อมูล');
-  return found.length===1;
+  return found.length===1?{storeName:found[0].store_name,accountsCount:db.prepare('SELECT count(*) AS n FROM users WHERE tenant_id=?').get(found[0].tenant_id).n}:null;
 }
 
 export async function discoverOwnerSnapshots({pool,storeCode,username,temporaryDirectory=os.tmpdir()}){
@@ -100,7 +103,8 @@ export async function discoverOwnerSnapshots({pool,storeCode,username,temporaryD
       try{
         await fs.writeFile(file,row.snapshot,{mode:0o600,flag:'wx'});
         db=new DatabaseSync(file,{readOnly:true});
-        if(inspectSnapshot(db,target))matches.push({namespace:row.namespace,updatedAt:updated.toISOString(),...target});
+        const account=inspectSnapshot(db,target);
+        if(account)matches.push({namespace:row.namespace,updatedAt:updated.toISOString(),...target,...account});
       }finally{try{db?.close()}finally{await fs.rm(file,{force:true})}}
     }
     await client.query('COMMIT');transaction=false;
@@ -159,7 +163,7 @@ export async function runOwnerRecoveryWizard(argv=process.argv.slice(2),{
   homeDirectory=os.homedir(),temporaryDirectory=os.tmpdir()
 }={}){
   const options=parseWizardArguments(argv);
-  if(options.help){output.write('Order Hub — กู้ Admin ผ่าน PostgreSQL โดยผู้ดูแลฐานข้อมูล\nnode scripts/recover-owner-wizard.mjs [--store store-code --username owner]\nกรอก connection URL ในช่องซ่อนข้อความ หรือใช้ secret environment เดิม\nต้องเลือก namespace ที่ตรง deployment และยืนยันบัญชีก่อนเปลี่ยนรหัส\nสำรองใน ~/.order-hub-backups บนเครื่องผู้ดูแล ไม่มีรหัสผ่านเริ่มต้น\n');return}
+  if(options.help){output.write('Order Hub — กู้ Admin ผ่าน PostgreSQL โดยผู้ดูแลฐานข้อมูล\nnode scripts/recover-owner-wizard.mjs [--store store-code --username owner] [--replace-accounts | --choose-operation]\nไม่ระบุ argument: เลือกเปลี่ยนรหัสเดิม หรือล้างบัญชีร้านและสร้าง Admin ใหม่โดยเก็บข้อมูลร้าน\nกรอก connection URL ในช่องซ่อนข้อความ หรือใช้ secret environment เดิม\nต้องเลือก namespace ที่ตรง deployment และยืนยันบัญชีก่อนเปลี่ยนรหัส\nสำรองใน ~/.order-hub-backups บนเครื่องผู้ดูแล ไม่มีรหัสผ่านเริ่มต้น\n');return}
   if(!input.isTTY)fail('ต้องใช้ terminal แบบ interactive บนเครื่องผู้ดูแลฐานข้อมูล');
   const ask=promptText||((label)=>terminalQuestion(label,{input,output}));
   let pool,password,connectionString;
@@ -180,15 +184,31 @@ export async function runOwnerRecoveryWizard(argv=process.argv.slice(2),{
     const selection=(await ask('เลือกหมายเลขหนึ่งรายการ (เว้นว่าง = ยกเลิก): ')).trim();
     if(!/^[1-9][0-9]*$/.test(selection)||Number(selection)>matches.length)fail('ยกเลิก: ไม่ได้เลือก namespace ที่ตรง deployment อย่างชัดเจน');
     const selected=matches[Number(selection)-1];
-    output.write('เลือก namespace: '+selected.namespace+'\nอัปเดต (UTC): '+selected.updatedAt+'\nบัญชี: '+selected.storeCode+'/'+selected.username+'\n');
+    output.write('เลือก namespace: '+selected.namespace+'\nอัปเดต (UTC): '+selected.updatedAt+'\nร้าน: '+selected.storeName+' ('+selected.storeCode+')\nจำนวนบัญชีทั้งหมดในร้าน: '+selected.accountsCount+'\nบัญชี Admin ที่ใช้ยืนยัน: '+selected.storeCode+'/'+selected.username+'\n');
     const confirmation=(await ask('ยืนยันโดยพิมพ์ '+selected.storeCode+'/'+selected.username+' (อื่น ๆ = ยกเลิก): ')).trim();
     if(confirmation!==selected.storeCode+'/'+selected.username)fail('ยกเลิก: ไม่ได้ยืนยันบัญชีตรงกัน');
+    if(!options.replaceAccounts&&(options.chooseOperation||argv.length===0)){
+      output.write('1. เปลี่ยนรหัสของ Admin เดิม\n2. ล้างบัญชีทั้งหมดเฉพาะร้านนี้ และสร้าง Admin ใหม่ โดยเก็บออเดอร์ สต๊อก และข้อมูลร้าน\n');
+      const action=(await ask('เลือกวิธี 1 หรือ 2 (อื่น ๆ = ยกเลิก): ')).trim();
+      if(!['1','2'].includes(action))fail('ยกเลิก: ไม่ได้เลือกวิธีดำเนินการ');options.replaceAccounts=action==='2';
+    }
+    let replacement={};
+    if(options.replaceAccounts){
+      output.write('จะล้างบัญชี '+selected.accountsCount+' บัญชีของร้าน '+selected.storeName+' ('+selected.storeCode+') รวมสิทธิ์เข้าใช้และ OTP เดิม\nออเดอร์ สต๊อก ชื่อร้าน ประวัติ และร้านอื่นจะเก็บไว้ สร้าง Admin ใหม่พร้อมการล้างในธุรกรรมเดียว\n');
+      const accountsConfirmation=(await ask('ยืนยันการล้างบัญชีโดยพิมพ์ '+selected.storeCode+'/RESET-ACCOUNTS (อื่น ๆ = ยกเลิก): ')).trim();
+      if(accountsConfirmation!==selected.storeCode+'/RESET-ACCOUNTS')fail('ยกเลิก: ไม่ได้ยืนยันการล้างบัญชีตรงร้าน');
+      const newUsername=(await ask('ชื่อผู้ใช้ Admin ใหม่ (ใช้ชื่อเดิมได้): ')).trim();
+      const newName=(await ask('ชื่อที่แสดงของ Admin ใหม่: ')).trim();
+      if(!/^[a-z0-9._-]{3,40}$/.test(newUsername))fail('ชื่อผู้ใช้ใหม่ไม่ถูกต้อง: ไม่มีการเปลี่ยนข้อมูล');
+      if(!newName||newName.length>80||/[\u0000-\u001f\u007f]/.test(newName))fail('ชื่อ Admin ใหม่ไม่ถูกต้อง: ไม่มีการเปลี่ยนข้อมูล');
+      replacement={replaceAccounts:true,accountsConfirmation,newUsername,newName,expectedAccountsCount:selected.accountsCount,expectedStoreName:selected.storeName};
+    }
     const backupDirectory=await ensureBackupDirectory({homeDirectory});
     password=await promptHidden({input,output,label:'รหัสผ่านใหม่ (6–128 ตัวอักษร): '});validateRecoveryPassword(password);
     if(password!==await promptHidden({input,output,label:'รหัสผ่านใหม่อีกครั้ง: '}))fail('รหัสผ่านสองครั้งไม่ตรงกัน: ไม่มีการเปลี่ยนข้อมูล');
-    const backupFile=path.join(backupDirectory,'before-owner-recovery-'+Date.now()+'-'+randomBytes(12).toString('hex')+'.sqlite');
-    const result=await recoverOwner({connectionString,namespace:selected.namespace,storeCode:selected.storeCode,username:selected.username,confirmation,password,backupFile});
-    output.write('กู้รหัสผ่านแล้วสำหรับ '+result.storeCode+'/'+result.username+' และยกเลิก session เดิม\nสำรองก่อนเปลี่ยน: '+result.backupFile+'\nตรวจ Login และข้อมูลร้านเดิม แล้วผูกอีเมลผ่าน OTP เพื่อกู้ครั้งถัดไป\n');
+    const backupFile=path.join(backupDirectory,(options.replaceAccounts?'before-store-accounts-replacement-':'before-owner-recovery-')+Date.now()+'-'+randomBytes(12).toString('hex')+'.sqlite');
+    const result=await recoverOwner({connectionString,namespace:selected.namespace,storeCode:selected.storeCode,username:selected.username,confirmation,password,backupFile,...replacement});
+    output.write((options.replaceAccounts?'ล้างบัญชี '+result.replacedAccounts+' บัญชีแล้ว และสร้าง Admin ใหม่ '+result.storeCode+'/'+result.username+' โดยเก็บข้อมูลร้านเดิม\n':'กู้รหัสผ่านแล้วสำหรับ '+result.storeCode+'/'+result.username+' และยกเลิก session เดิม\n')+'สำรองก่อนเปลี่ยน: '+result.backupFile+'\nตรวจ Login และข้อมูลร้านเดิม แล้วผูกอีเมลผ่าน OTP เพื่อกู้ครั้งถัดไป\n');
     return result;
   }catch(error){
     if(error instanceof RecoveryError)throw error;

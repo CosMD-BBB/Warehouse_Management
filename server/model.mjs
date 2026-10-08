@@ -1,7 +1,9 @@
 import fs from 'node:fs';
+import {createShipmentRequest,cancelShipmentRequest,projectShipment,closePendingShipment} from './shipping.mjs';
+import {barcodeUpdate,resolveBarcode} from './barcodes.mjs';
 export const ROLES={
-  admin:{label:'Admin',views:['overview','orders','fulfillment','inventory','reports','connections','blueprint','users','store'],actions:['reserve','start-pack','scan','complete-pack','dispatch','cancel','resolve','create-order','update-order','stock-receive','simulate-order','retry-stock','fail-stock']},
-  warehouse:{label:'Warehouse',views:['orders','fulfillment','inventory'],actions:['reserve','start-pack','scan','complete-pack','dispatch','stock-receive','retry-stock']},
+  admin:{label:'Admin',views:['overview','orders','fulfillment','inventory','reports','connections','blueprint','users','store'],actions:['reserve','start-pack','scan','complete-pack','dispatch','cancel','resolve','create-order','update-order','stock-receive','set-barcode','request-shipment','cancel-shipment','simulate-order','retry-stock','fail-stock']},
+  warehouse:{label:'Warehouse',views:['orders','fulfillment','inventory'],actions:['reserve','start-pack','scan','complete-pack','dispatch','stock-receive','request-shipment','cancel-shipment','retry-stock']},
   finance:{label:'Finance',views:['overview','orders','reports'],actions:[]}
 };
 export const STOCK_CHANNELS=['Shopee','Lazada','TikTok Shop'];
@@ -75,19 +77,34 @@ export function perform(data,action,input,actor){
   let o=input.id?data.orders.find(o=>o.id===input.id):null;
   if(['reserve','start-pack','scan','complete-pack','dispatch','cancel','resolve','update-order'].includes(action)&&!o)fault('ไม่พบออเดอร์',404);
   switch(action){
+    case 'request-shipment':return createShipmentRequest(data,input,actor);
+    case 'cancel-shipment':return cancelShipmentRequest(data,input,actor);
     case 'reserve':return reserve(data,o,actor);
     case 'start-pack':if(o.status!=='ready'||!o.reserved)fault('ต้องเป็นออเดอร์ที่กันสต๊อกและรอหยิบ');o.status='packing';o.scanned={};event(data,o,'เริ่มหยิบและแพ็ก',actor);break;
-    case 'scan':{if(o.status!=='packing')fault('กรุณาเริ่มแพ็กก่อน');const qty=demands(o.items).get(input.sku);if(!qty)fault('SKU นี้ไม่อยู่ในออเดอร์');if((o.scanned[input.sku]||0)>=qty)fault('สินค้ารายการนี้ครบแล้ว');o.scanned[input.sku]=(o.scanned[input.sku]||0)+1;event(data,o,'ตรวจสินค้า '+input.sku+' '+o.scanned[input.sku]+'/'+qty,actor);break}
+    case 'scan':{
+      if(o.status!=='packing')fault('กรุณาเริ่มแพ็กก่อน');
+      const product=resolveBarcode(data.products,input.code!==undefined?input.code:input.sku),sku=product.sku;
+      if(input.code!==undefined&&input.sku!==undefined&&input.sku!==sku)fault('บาร์โค้ดไม่ตรงกับ SKU ที่ระบุ');
+      const qty=demands(o.items).get(sku);if(!qty)fault('สินค้าที่สแกนไม่อยู่ในออเดอร์');
+      const count=o.scanned?.[sku]||0;if(count>=qty)fault('สินค้ารายการนี้ครบแล้ว');
+      o.scanned??={};o.scanned[sku]=count+1;event(data,o,'ตรวจสินค้า '+sku+' '+o.scanned[sku]+'/'+qty,actor);
+      return {message:'ตรวจสินค้า '+sku+' '+o.scanned[sku]+'/'+qty,orderId:o.id,sku,scanned:o.scanned[sku],required:qty};
+    }
     case 'complete-pack':if(o.status!=='packing'||![...demands(o.items)].every(([sku,qty])=>(o.scanned[sku]||0)===qty))fault('กรุณาตรวจสินค้าให้ครบก่อนปิดกล่อง');o.status='packed';event(data,o,'ตรวจครบและปิดกล่อง',actor);break;
     case 'dispatch':{
       if(o.status!=='packed'||!o.reserved)fault('ต้องแพ็กสินค้าให้ครบก่อนส่ง');
       const qty=demands(o.items);if([...qty].some(([sku,n])=>!data.products.some(p=>p.sku===sku&&p.stock>=n)))fault('สินค้าคงคลังไม่พอ');
       for(const [sku,n]of qty)data.products.find(p=>p.sku===sku).stock-=n;
+      closePendingShipment(o,'ปิดคำขอเตรียมขนส่งหลังจำลองส่งมอบ');
       o.reserved=false;o.status='shipped';o.tracking='DEMO'+o.id.replace(/[^A-Z0-9]/g,'')+'TH';event(data,o,'จำลองส่งมอบขนส่งและตัดคงคลัง',actor);break;
     }
-    case 'cancel':if(!['new','ready','packing','packed','hold'].includes(o.status))fault('ออเดอร์ส่งแล้วต้องใช้กระบวนการคืนสินค้า');o.status='cancelled';o.reserved=false;o.scanned={};event(data,o,'ยกเลิกและปล่อยยอดกันสต๊อก',actor);break;
+    case 'cancel':if(!['new','ready','packing','packed','hold'].includes(o.status))fault('ออเดอร์ส่งแล้วต้องใช้กระบวนการคืนสินค้า');closePendingShipment(o,'ยกเลิกออเดอร์');o.status='cancelled';o.reserved=false;o.scanned={};event(data,o,'ยกเลิกและปล่อยยอดกันสต๊อก',actor);break;
     case 'resolve':if(o.status!=='hold'||input.confirmed!==true)fault('กรุณายืนยันการตรวจข้อมูลก่อน');o.status='new';o.holdReason='';return reserve(data,o,actor);
     case 'stock-receive':{const p=data.products.find(p=>p.sku===input.sku);if(!p)fault('ไม่พบสินค้า');p.stock+=integer(input.qty,1,10000);event(data,null,'รับสินค้าเข้า '+p.sku+' '+input.qty+' ชิ้น',actor);break}
+    case 'set-barcode':{
+      const {product,barcode,barcodes}=barcodeUpdate(data.products,input.sku,input);
+      Object.assign(product,{barcode,barcodes});event(data,null,'บันทึกบาร์โค้ดสินค้า '+product.sku,actor);break;
+    }
     case 'create-order':{
       const fields=orderInput(data,input,actor);o={id:'OH-'+(actor.store_code||'main').toUpperCase()+'-M'+Date.now().toString(36).toUpperCase()+data.orders.length,external:'MANUAL-'+data.orders.length,...fields,refund:0,status:'new',reserved:false,tracking:'',deadline:nextDay(),scanned:{},createdVia:'เปิดโดย '+actor.name};
       data.orders.push(o);event(data,o,'เปิดออเดอร์กลางสาธิตพร้อมข้อมูลจัดส่ง',actor);if(o.channel==='Review')reserve(data,o,actor);
@@ -116,6 +133,7 @@ export function perform(data,action,input,actor){
 }
 export function projectData(data,role){
   const out=structuredClone(data);delete out.lastStock;
+  for(const order of out.orders)if(order.shipment)order.shipment=projectShipment(order.shipment);
   if(role==='warehouse'){
     for(const p of out.products){delete p.price;delete p.cost}
     for(const o of out.orders){for(const k of ['discount','refund','subtotal','lineDiscount','itemNetTotal','shippingFee','grandTotal','payment'])delete o[k];for(const l of o.items){delete l.price;delete l.cost;delete l.discount}}

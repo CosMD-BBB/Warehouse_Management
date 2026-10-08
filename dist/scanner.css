@@ -1,0 +1,35 @@
+.scanner-station{margin-top:20px;padding:18px;background:#fffaf3;border:1px solid #e7d9c7;border-radius:12px}
+.scanner-station-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.scanner-station-heading h3{display:flex;align-items:center;gap:8px;margin:0;font-size:15px}
+.scanner-station-heading strong{font-size:13px;color:var(--muted)}
+.scanner-station .scan-form{align-items:flex-end;margin-top:0;gap:10px}
+.scanner-input-label{display:flex;flex:1;min-width:0;flex-direction:column;gap:6px;font-size:12px;font-weight:700}
+.scanner-input-label input{width:100%;min-width:0;background:#fff;font-size:16px}
+.scanner-input-label input:focus{outline:3px solid #e6b8a9;outline-offset:2px;border-color:var(--accent)}
+.scanner-help{font-size:12px;line-height:1.7;color:var(--muted);margin:10px 0 0}
+.scanner-state{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;flex-wrap:wrap}
+#scanner-queue-count{font-size:12px;font-weight:700;color:var(--muted)}
+.scanner-feedback{margin:10px 0 0;font-size:13px;line-height:1.6;min-height:21px;overflow-wrap:anywhere}
+.scanner-feedback[data-tone=error]{color:#a52323;font-weight:700}
+.scanner-feedback[data-tone=success]{color:#246540;font-weight:700}
+.scanner-product .name{min-width:0;overflow-wrap:anywhere}
+.scanner-product .scanner-product-barcode{font-size:11px;margin-top:3px;overflow-wrap:anywhere}
+.scanner-count-total{color:var(--muted);font-size:13px}
+.scanner-shipping-summary{margin:24px 0;border-top:1px solid var(--line);padding-top:18px}
+.scanner-edit-barcode{display:block;margin-top:8px}
+.inventory-barcode{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:5px;overflow-wrap:anywhere;max-width:260px}
+.scanner-barcode-form{display:grid;gap:15px}
+.scanner-barcode-form textarea{resize:vertical}
+#scanner-retry[hidden]{display:none}
+#scanner-retry{margin-top:10px;white-space:normal;text-align:left}
+@media(max-width:600px){
+  .scanner-station{padding:13px}
+  .scanner-station .scan-form{display:flex;flex-direction:column;align-items:stretch}
+  .scanner-station .scan-form .btn{justify-content:center}
+  .scanner-product{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+  .scanner-product .name{grid-column:1}
+  .scanner-product .pack-count{grid-column:2}
+  .scanner-product .btn{grid-column:1/3;justify-self:start;margin-top:2px}
+  .scanner-station-heading strong{width:100%}
+  .scanner-state .text-btn{text-align:left}
+}

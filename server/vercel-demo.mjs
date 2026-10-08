@@ -16,9 +16,9 @@ const securityHeaders={
   'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY',
   'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
 };
-const assetAllow=/^(index\.html|brand-logo\.jpeg|brand-icon\.png|styles\.css|auth\.css|order-editor\.css|app\.js|features\.js|stock-sync\.js|auth-client\.js|order-editor\.js|connections\.js|fonts\/[A-Za-z0-9._-]+\.(ttf|woff2)|channels\/[A-Za-z0-9._-]+\.(svg|png|webp))$/;
+const assetAllow=/^(index\.html|brand-logo\.jpeg|brand-icon\.png|styles\.css|auth\.css|order-editor\.css|app\.js|features\.js|stock-sync\.js|auth-client\.js|order-editor\.js|connections\.js|scanner\.js|scanner\.css|shipping\.js|shipping\.css|fonts\/[A-Za-z0-9._-]+\.(ttf|woff2)|channels\/[A-Za-z0-9._-]+\.(svg|png|webp))$/;
 const assetTypes={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.ttf':'font/ttf','.woff2':'font/woff2','.svg':'image/svg+xml','.png':'image/png','.jpeg':'image/jpeg','.webp':'image/webp'};
-const apiAllow=/^\/api\/(?:auth\/(?:status|setup|register|login|logout|password|reset|email(?:\/(?:request|verify))?|demo-reset)|state|actions|store|stores|users(?:\/[a-f0-9]{32})?|connections)$/;
+const apiAllow=/^\/api\/(?:auth\/(?:status|setup|register|login|logout|password|reset|email(?:\/(?:request|verify))?|demo-reset)|state|actions|store|stores|users(?:\/[a-f0-9]{32})?|connections|shipping\/readiness)$/;
 const failed=(status,message)=>Object.assign(new Error(message),{status});
 
 function exactOrigin(value){

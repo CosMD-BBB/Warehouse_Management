@@ -2,7 +2,9 @@
 
 **สมัครและกู้รหัสผ่าน:** หน้า `/account` มี Register ยืนยันอีเมลด้วย OTP และลืมรหัสผ่าน บัญชีเดิมผูกอีเมลได้หลังยืนยันรหัสผ่านปัจจุบัน ต้องเชื่อม Resend ก่อนส่ง OTP จริงตาม [EMAIL_SETUP.md](EMAIL_SETUP.md) Admin คนเดียวที่ยังไม่เคยยืนยันอีเมลต้องกู้ผ่านผู้ดูแลฐานข้อมูลตาม [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md)
 
-เจ้าของที่ใช้ Neon บน Mac เปิด **Recover Order Hub.command** ได้ตาม [RECOVER_ON_MAC.md](RECOVER_ON_MAC.md) เพื่อค้นหา เลือก และกู้บัญชีเดิมพร้อมสำรองบนเครื่องเจ้าของ
+เจ้าของที่ใช้ Neon บน Mac เปิด **Recover Order Hub.command** ได้ตาม [RECOVER_ON_MAC.md](RECOVER_ON_MAC.md) เพื่อค้นหา เลือก และกู้บัญชีเดิมพร้อมสำรองบนเครื่องเจ้าของ หากต้องการล้างบัญชีทั้งหมดของร้านและสร้าง Admin ใหม่โดยเก็บออเดอร์/สต๊อก เปิด **Reset Store Accounts.command** โหมดนี้ใช้สิทธิ์ฐานข้อมูลและทำพร้อมสำรองในธุรกรรมเดียว การ Deploy ไม่ล้างบัญชีให้เอง
+
+**แพ็กและเตรียมขนส่ง:** รองรับสแกนเนอร์ USB/Bluetooth โหมดคีย์บอร์ด Enter/Tab และตั้งบาร์โค้ดต่อสินค้าได้ หลังแพ็กครบมีฟอร์มน้ำหนัก/กล่อง/ผู้ส่งและวันรับสินค้า อ่าน [PACKING_SHIPPING.md](PACKING_SHIPPING.md) คำขอขนส่งยังแสดงรอเชื่อมต่อ จนกว่าจะมีแอปและสิทธิ์ API จริง
 
 **ตัวอย่างบน Vercel:** Preview สาขา `vercel-demo` เปิด Dashboard ให้ลองเล่นได้ทันทีด้วยข้อมูลตัวอย่างแยกต่อผู้เข้าชม มีปุ่มเริ่มใหม่ ใช้ backend จริงกับ Neon/Postgres ตาม [VERCEL_SETUP.md](VERCEL_SETUP.md) การเปิดให้ทุกคนเข้าถึงต้องปิด Vercel Authentication ใน Deployment Protection ของโปรเจกต์ด้วย การตั้งค่านี้ยังไม่ได้เปลี่ยนจากแชต และการเปิดบน Vercel จริงยังต้องยืนยัน deployment ส่วน Local และ Production ยังคงใช้ Login เดิม
 

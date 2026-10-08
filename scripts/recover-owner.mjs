@@ -23,6 +23,15 @@ function targetFields({storeCode,username,confirmation}){
   if(confirmation!==storeCode+'/'+username)fail('ยกเลิก: ไม่ได้ยืนยันรหัสร้านและชื่อผู้ใช้ตรงกัน');
   return {storeCode,username};
 }
+function replacementFields(options,target){
+  if(!options.replaceAccounts)return null;
+  if(options.accountsConfirmation!==target.storeCode+'/RESET-ACCOUNTS')fail('ยกเลิก: ต้องยืนยันการล้างบัญชีของร้านด้วย '+target.storeCode+'/RESET-ACCOUNTS');
+  if(typeof options.newUsername!=='string'||!/^[a-z0-9._-]{3,40}$/.test(options.newUsername))fail('ระบุชื่อผู้ใช้ Admin ใหม่ 3–40 ตัว โดยใช้ a–z, 0–9, จุด ขีดกลาง หรือขีดล่าง');
+  if(typeof options.newName!=='string'||!options.newName.trim()||options.newName!==options.newName.trim()||options.newName.length>80||/[\u0000-\u001f\u007f]/.test(options.newName))fail('ระบุชื่อ Admin ใหม่ 1–80 ตัวอักษร โดยไม่มีอักขระควบคุม');
+  if(options.expectedAccountsCount!==undefined&&(!Number.isSafeInteger(options.expectedAccountsCount)||options.expectedAccountsCount<1))fail('จำนวนบัญชีที่ยืนยันไม่ถูกต้อง');
+  if(options.expectedStoreName!==undefined&&typeof options.expectedStoreName!=='string')fail('ชื่อร้านที่ยืนยันไม่ถูกต้อง');
+  return {newUsername:options.newUsername,newName:options.newName,expectedAccountsCount:options.expectedAccountsCount,expectedStoreName:options.expectedStoreName};
+}
 export function validateRecoveryPassword(password){
   if(typeof password!=='string'||password.length<6||password.length>128||/[\u0000-\u001f\u007f]/.test(password))fail('กำหนดรหัสผ่านใหม่ 6–128 ตัวอักษร โดยไม่มีอักขระควบคุม');
   return password;
@@ -101,6 +110,28 @@ function findOwner(db,{storeCode,username}){
   if(!user)fail('ไม่พบบัญชี Admin ที่ใช้งานอยู่ในร้านและชื่อผู้ใช้นี้: ไม่มีการเปลี่ยนข้อมูล');
   return user;
 }
+function storeAccountSelection(db,user,replacement){
+  if(!replacement)return null;
+  const tenant=db.prepare('SELECT id,code,name FROM tenants WHERE id=? AND active=1').get(user.tenant_id);
+  const users=db.prepare('SELECT * FROM users WHERE tenant_id=? ORDER BY id').all(user.tenant_id);
+  if(!tenant||!users.length)fail('ข้อมูลร้านเปลี่ยนระหว่างดำเนินการ: ยกเลิก');
+  if(replacement.expectedStoreName!==undefined&&tenant.name!==replacement.expectedStoreName||replacement.expectedAccountsCount!==undefined&&users.length!==replacement.expectedAccountsCount)fail('ชื่อร้านหรือจำนวนบัญชีเปลี่ยนหลังยืนยัน: กรุณาตรวจและยืนยันใหม่');
+  return {tenant,accountsCount:users.length,usersFingerprint:JSON.stringify(users)};
+}
+function replaceOwnerAccounts(db,target,hash,expected,replacement,expectedSelection){
+  const user=findOwner(db,target),selection=storeAccountSelection(db,user,replacement);
+  if(user.id!==expected.id||user.password_hash!==expected.password_hash||user.tenant_id!==expected.tenant_id||JSON.stringify(selection)!==JSON.stringify(expectedSelection))fail('บัญชีร้านเปลี่ยนระหว่างดำเนินการ: ยกเลิกเพื่อรักษาข้อมูลล่าสุด');
+  // Delete dependent login credentials first; historical actor IDs remain as
+  // text in drafts, idempotency records and audit. Never touch tenant_state.
+  db.prepare('DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE tenant_id=?)').run(user.tenant_id);
+  if(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='email_challenges'").get())db.prepare('DELETE FROM email_challenges WHERE tenant_id=? OR (tenant_id IS NULL AND user_id IN (SELECT id FROM users WHERE tenant_id=?))').run(user.tenant_id,user.tenant_id);
+  db.prepare('DELETE FROM users WHERE tenant_id=?').run(user.tenant_id);
+  const id=randomBytes(16).toString('hex');
+  db.prepare("INSERT INTO users(id,tenant_id,username,name,password_hash,role,active,created_at) VALUES(?,?,?,?,?,'admin',1,?)").run(id,user.tenant_id,replacement.newUsername,replacement.newName,hash,new Date().toISOString());
+  if(db.prepare("SELECT count(*) AS n FROM users WHERE tenant_id=? AND active=1 AND role='admin'").get(user.tenant_id).n!==1)fail('สร้าง Admin ใหม่ไม่สำเร็จ: ยกเลิกการล้างบัญชี');
+  db.prepare('INSERT INTO security_audit(at,tenant_id,actor_id,action,target_id) VALUES(?,?,?,?,?)').run(new Date().toISOString(),user.tenant_id,null,'store_accounts_operator_replace',id);
+  return {storeCode:target.storeCode,storeName:selection.tenant.name,username:replacement.newUsername,userId:id,replacedAccounts:selection.accountsCount};
+}
 function changeOwner(db,target,hash,expected){
   const user=findOwner(db,target);
   if(expected&&(user.id!==expected.id||user.password_hash!==expected.password_hash||user.tenant_id!==expected.tenant_id))fail('บัญชีเปลี่ยนระหว่างดำเนินการ: ยกเลิกเพื่อรักษาข้อมูลล่าสุด');
@@ -123,27 +154,28 @@ async function durableSqliteBackup(db,backupFile){
 }
 
 export async function recoverSqliteOwner(options){
-  const target=targetFields(options);validateRecoveryPassword(options.password);
+  const target=targetFields(options),replacement=replacementFields(options,target);validateRecoveryPassword(options.password);
   const original=await existingFile(options.dbPath);await privateParent(options.backupFile);
   if(path.resolve(options.dbPath)===path.resolve(options.backupFile))fail('ไฟล์สำรองต้องแยกจากฐานข้อมูล');
   let db,reader,transaction=false;
   try{
     db=new DatabaseSync(options.dbPath);db.exec('PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON;');
-    const expected=findOwner(db,target),hash=await recoveryPasswordHash(options.password);
+    const expected=findOwner(db,target),expectedSelection=storeAccountSelection(db,expected,replacement),hash=await recoveryPasswordHash(options.password);
     const current=await existingFile(options.dbPath);if(current.ino!==original.ino||current.dev!==original.dev)fail('ไฟล์ฐานข้อมูลเปลี่ยนระหว่างดำเนินการ');
     db.exec('BEGIN IMMEDIATE');transaction=true;const locked=findOwner(db,target);
     if(locked.id!==expected.id||locked.password_hash!==expected.password_hash||locked.tenant_id!==expected.tenant_id)fail('บัญชีเปลี่ยนระหว่างดำเนินการ: ยกเลิกเพื่อรักษาข้อมูลล่าสุด');
+    if(replacement&&JSON.stringify(storeAccountSelection(db,locked,replacement))!==JSON.stringify(expectedSelection))fail('บัญชีร้านเปลี่ยนระหว่างดำเนินการ: กรุณาตรวจและยืนยันใหม่');
     // A separate read-only source sees the committed before-image while this
     // writer holds the lock. The SQLite backup API includes committed WAL data.
     reader=new DatabaseSync(options.dbPath,{readOnly:true});await durableSqliteBackup(reader,options.backupFile);reader.close();reader=undefined;
-    const result=changeOwner(db,target,hash,expected);db.exec('COMMIT');transaction=false;
+    const result=replacement?replaceOwnerAccounts(db,target,hash,expected,replacement,expectedSelection):changeOwner(db,target,hash,expected);db.exec('COMMIT');transaction=false;
     return {...result,backupFile:options.backupFile};
   }catch(error){if(transaction)try{db.exec('ROLLBACK')}catch{}throw error}
   finally{try{reader?.close()}finally{db?.close()}}
 }
 
 export async function recoverPostgresOwner(options){
-  const target=targetFields(options);validateRecoveryPassword(options.password);await privateParent(options.backupFile);
+  const target=targetFields(options),replacement=replacementFields(options,target);validateRecoveryPassword(options.password);await privateParent(options.backupFile);
   if(typeof options.namespace!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$/.test(options.namespace))fail('ระบุ namespace ของบัญชีจริงอย่างชัดเจน ห้ามเดาจาก URL');
   if(/^public-demo(?:[._-]|$)/i.test(options.namespace))fail('ปฏิเสธ namespace ผู้ทดลองสาธารณะ');
   const hash=await recoveryPasswordHash(options.password);
@@ -154,22 +186,49 @@ export async function recoverPostgresOwner(options){
       const temporary=await fs.mkdtemp(path.join(os.tmpdir(),'order-hub-owner-recovery-'));let db;
       try{
         await fs.chmod(temporary,0o700);const file=path.join(temporary,'account.sqlite');await fs.writeFile(file,snapshot,{mode:0o600,flag:'wx'});
-        db=new DatabaseSync(file);db.exec('PRAGMA foreign_keys=ON;');const expected=findOwner(db,target);
+        db=new DatabaseSync(file);db.exec('PRAGMA foreign_keys=ON;');const expected=findOwner(db,target),expectedSelection=storeAccountSelection(db,expected,replacement);
         // The immutable backup is durable before any mutation or PG commit.
         await durableSqliteBackup(db,options.backupFile);
         db.exec('BEGIN IMMEDIATE');let result;
-        try{result=changeOwner(db,target,hash,expected);db.exec('COMMIT')}catch(error){try{db.exec('ROLLBACK')}catch{}throw error}
+        try{result=replacement?replaceOwnerAccounts(db,target,hash,expected,replacement,expectedSelection):changeOwner(db,target,hash,expected);db.exec('COMMIT')}catch(error){try{db.exec('ROLLBACK')}catch{}throw error}
         const next=path.join(temporary,'after.sqlite');await backup(db,next);await fs.chmod(next,0o600);
         return {snapshot:await fs.readFile(next),attempts,result:{...result,backupFile:options.backupFile}};
       }finally{try{db?.close()}finally{await fs.rm(temporary,{recursive:true,force:true})}}
     });
   }finally{if(!options.store)await store.close()}
 }
+export const replaceSqliteStoreAccounts=options=>recoverSqliteOwner({...options,replaceAccounts:true});
+export const replacePostgresStoreAccounts=options=>recoverPostgresOwner({...options,replaceAccounts:true});
+
+async function describeReplacementTarget(options,connectionString){
+  const target=targetFields(options),describe=db=>{
+    const user=findOwner(db,target),tenant=db.prepare('SELECT name FROM tenants WHERE id=?').get(user.tenant_id);
+    return {expectedStoreName:tenant.name,expectedAccountsCount:db.prepare('SELECT count(*) AS n FROM users WHERE tenant_id=?').get(user.tenant_id).n};
+  };
+  if(!options.postgres){
+    await existingFile(options.dbPath);const db=new DatabaseSync(options.dbPath,{readOnly:true});
+    try{return describe(db)}finally{db.close()}
+  }
+  if(typeof options.namespace!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$/.test(options.namespace)||/^public-demo(?:[._-]|$)/i.test(options.namespace))fail('ระบุ namespace ของบัญชีจริงอย่างชัดเจน');
+  const {postgresRecoveryConfiguration}=await import('./recover-owner-wizard.mjs'),{Pool}=await import('pg');
+  const pool=new Pool({...postgresRecoveryConfiguration(connectionString),max:1,connectionTimeoutMillis:5000,idleTimeoutMillis:10000,application_name:'order-hub-owner-recovery'});pool.on('error',()=>{});
+  let client,directory,db;
+  try{
+    client=await pool.connect();
+    // Bound the bytea on the database side before bringing it onto disk. This
+    // preview is read-only; the actual operation rechecks it under the row lock.
+    const row=(await client.query('SELECT CASE WHEN octet_length(snapshot) BETWEEN 100 AND 10485760 THEN snapshot ELSE NULL END AS snapshot FROM order_hub_demo_snapshots WHERE namespace=$1',[options.namespace])).rows[0];
+    if(!Buffer.isBuffer(row?.snapshot)||!row.snapshot.subarray(0,16).equals(sqliteHeader))fail('ไม่พบข้อมูลบัญชีเดิมที่รองรับใน namespace นี้');
+    directory=await fs.mkdtemp(path.join(os.tmpdir(),'order-hub-accounts-preview-'));await fs.chmod(directory,0o700);
+    const file=path.join(directory,'before.sqlite');await fs.writeFile(file,row.snapshot,{mode:0o600,flag:'wx'});db=new DatabaseSync(file,{readOnly:true});return describe(db);
+  }finally{try{db?.close()}finally{try{client?.release()}finally{try{await pool.end()}finally{if(directory)await fs.rm(directory,{recursive:true,force:true})}}}}
+}
 
 export function parseRecoveryArguments(argv){
-  const result={},values=new Map([['--sqlite','dbPath'],['--namespace','namespace'],['--store','storeCode'],['--username','username'],['--backup-file','backupFile'],['--password-file','passwordFile'],['--confirm','confirmation']]);
+  const result={},values=new Map([['--sqlite','dbPath'],['--namespace','namespace'],['--store','storeCode'],['--username','username'],['--backup-file','backupFile'],['--password-file','passwordFile'],['--confirm','confirmation'],['--new-username','newUsername'],['--new-name','newName'],['--confirm-accounts','accountsConfirmation']]);
   for(let index=0;index<argv.length;index++){
     const flag=argv[index];if(flag==='--help'){result.help=true;continue}if(flag==='--postgres'){if(result.postgres)fail('ระบุ --postgres ซ้ำ');result.postgres=true;continue}
+    if(flag==='--replace-accounts'){if(result.replaceAccounts)fail('ระบุ --replace-accounts ซ้ำ');result.replaceAccounts=true;continue}
     const key=values.get(flag);if(!key||result[key]!==undefined||!argv[index+1]||argv[index+1].startsWith('--'))fail('ตัวเลือกคำสั่งไม่ถูกต้อง: ใช้ --help (ห้ามส่งรหัสผ่านเป็น argument)');result[key]=argv[++index];
   }
   if(result.help)return result;
@@ -177,23 +236,36 @@ export function parseRecoveryArguments(argv){
   if(!result.storeCode||!result.username||!result.backupFile)fail('ต้องระบุ --store --username และ --backup-file โดยไม่มีบัญชีหรือรหัสผ่านเริ่มต้น');
   if(result.postgres&&!result.namespace)fail('Postgres ต้องระบุ --namespace ให้ตรงค่าที่ใช้กับบัญชีเดิม');
   if(result.passwordFile&&!result.confirmation)fail('--password-file ต้องใช้ --confirm รหัสร้าน/ชื่อผู้ใช้');
+  if(!result.replaceAccounts&&(result.newUsername!==undefined||result.newName!==undefined||result.accountsConfirmation!==undefined))fail('ข้อมูล Admin ใหม่ใช้ร่วมกับ --replace-accounts เท่านั้น');
+  if(result.replaceAccounts&&(!result.newUsername||!result.newName))fail('--replace-accounts ต้องระบุ --new-username และ --new-name โดยไม่มีบัญชีเริ่มต้น');
+  if(result.replaceAccounts&&result.passwordFile&&!result.accountsConfirmation)fail('--password-file สำหรับล้างบัญชีต้องใช้ --confirm-accounts รหัสร้าน/RESET-ACCOUNTS');
   return result;
 }
 
 export async function runOwnerRecovery(argv=process.argv.slice(2),{environment=process.env,input=process.stdin,output=process.stdout}={}){
   const options=parseRecoveryArguments(argv);
-  if(options.help){output.write('Order Hub — กู้คืน Admin โดยผู้ดูแลฐานข้อมูลเท่านั้น\nnode scripts/recover-owner.mjs --sqlite /absolute/account.sqlite --store store-code --username owner --backup-file /private/backups/before.sqlite\nหรือ --postgres --namespace exact-private-namespace (ใช้ ORDER_HUB_DEMO_DATABASE_URL / DATABASE_URL / POSTGRES_URL จาก secret environment)\nไม่รับรหัสผ่านผ่าน argument หรือ environment; ระบุเองใน terminal หรือ --password-file /private/password.txt --confirm store-code/owner\nอ่าน ACCOUNT_RECOVERY.md ก่อนใช้\n');return}
+  if(options.help){output.write('Order Hub — กู้คืน Admin โดยผู้ดูแลฐานข้อมูลเท่านั้น\nnode scripts/recover-owner.mjs --sqlite /absolute/account.sqlite --store store-code --username owner --backup-file /private/backups/before.sqlite\nหรือ --postgres --namespace exact-private-namespace (ใช้ ORDER_HUB_DEMO_DATABASE_URL / DATABASE_URL / POSTGRES_URL จาก secret environment)\nล้างเฉพาะบัญชีร้านและสร้าง Admin ใหม่: เพิ่ม --replace-accounts --new-username chosen-name --new-name ชื่อเจ้าของ --confirm-accounts store-code/RESET-ACCOUNTS\nไม่รับรหัสผ่านผ่าน argument หรือ environment; ระบุเองใน terminal หรือ --password-file /private/password.txt --confirm store-code/owner\nใช้ wizard ใน RECOVER_ON_MAC.md เพื่อตรวจชื่อร้านและจำนวนบัญชีก่อนยืนยัน\nอ่าน ACCOUNT_RECOVERY.md ก่อนใช้\n');return}
   if(!options.confirmation){
     if(!input.isTTY)fail('ต้องยืนยันใน terminal หรือใช้ --confirm รหัสร้าน/ชื่อผู้ใช้ ร่วมกับไฟล์รหัสผ่าน 0600');
     const readline=createInterface({input,output});try{options.confirmation=await readline.question('ยืนยันบัญชีโดยพิมพ์ '+options.storeCode+'/'+options.username+' (อื่น ๆ = ยกเลิก): ')}finally{readline.close()}
   }
   targetFields(options);
+  const connectionString=environment.ORDER_HUB_DEMO_DATABASE_URL||environment.DATABASE_URL||environment.POSTGRES_URL;
+  if(options.replaceAccounts){
+    Object.assign(options,await describeReplacementTarget(options,connectionString));
+    output.write('ร้าน: '+options.expectedStoreName+' ('+options.storeCode+')\nจำนวนบัญชีทั้งหมดที่จะล้าง: '+options.expectedAccountsCount+'\nออเดอร์ สต๊อก และข้อมูลร้านเดิมจะเก็บไว้ สร้าง Admin ใหม่ในธุรกรรมเดียว\n');
+  }
+  if(options.replaceAccounts&&!options.accountsConfirmation){
+    if(!input.isTTY)fail('ต้องยืนยันการล้างบัญชีใน terminal หรือใช้ --confirm-accounts รหัสร้าน/RESET-ACCOUNTS');
+    const readline=createInterface({input,output});try{options.accountsConfirmation=await readline.question('ล้างบัญชีร้านและสร้าง Admin ใหม่ โดยพิมพ์ '+options.storeCode+'/RESET-ACCOUNTS (อื่น ๆ = ยกเลิก): ')}finally{readline.close()}
+  }
+  replacementFields(options,targetFields(options));
   let password;
   try{
     password=options.passwordFile?await readRecoveryPasswordFile(options.passwordFile):await promptHiddenPassword({input,output});validateRecoveryPassword(password);
     if(!options.passwordFile&&password!==await promptHiddenPassword({input,output,label:'รหัสผ่านใหม่อีกครั้ง: '}))fail('รหัสผ่านสองครั้งไม่ตรงกัน: ยกเลิก');
-    const result=options.postgres?await recoverPostgresOwner({...options,password,connectionString:environment.ORDER_HUB_DEMO_DATABASE_URL||environment.DATABASE_URL||environment.POSTGRES_URL}):await recoverSqliteOwner({...options,password});
-    output.write('กู้คืนรหัสผ่านแล้วสำหรับ '+result.storeCode+'/'+result.username+' และยกเลิก session เดิม\nสำรองข้อมูลก่อนเปลี่ยน: '+result.backupFile+'\nไม่มีการเพิ่มหรือยืนยันอีเมล ให้เข้าสู่ระบบแล้วผูกอีเมลผ่าน OTP\n');return result;
+    const result=options.postgres?await recoverPostgresOwner({...options,password,connectionString}):await recoverSqliteOwner({...options,password});
+    output.write((options.replaceAccounts?'ล้างบัญชี '+result.replacedAccounts+' บัญชีของร้าน '+result.storeName+' และสร้าง Admin ใหม่ '+result.storeCode+'/'+result.username+' แล้ว โดยเก็บข้อมูลร้านเดิม\n':'กู้คืนรหัสผ่านแล้วสำหรับ '+result.storeCode+'/'+result.username+' และยกเลิก session เดิม\n')+'สำรองข้อมูลก่อนเปลี่ยน: '+result.backupFile+'\nไม่มีการเพิ่มหรือยืนยันอีเมล ให้เข้าสู่ระบบแล้วผูกอีเมลผ่าน OTP\n');return result;
   }finally{password=undefined}
 }
 

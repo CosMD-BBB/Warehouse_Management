@@ -6,11 +6,11 @@ const projectRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'
 export const VERCEL_OUTPUT_DIRECTORY='.vercel-static';
 export const REQUIRED_PUBLIC_ASSETS=Object.freeze([
   'index.html','brand-logo.jpeg','brand-icon.png','styles.css','auth.css','order-editor.css',
-  'app.js','features.js','stock-sync.js','auth-client.js','order-editor.js','connections.js',
+  'app.js','features.js','stock-sync.js','auth-client.js','order-editor.js','connections.js','scanner.js','scanner.css','shipping.js','shipping.css',
   'fonts/Manrope-Variable.ttf','fonts/SukhumvitThai-400.ttf','fonts/SukhumvitThai-600.ttf','fonts/SukhumvitThai-700.ttf',
   'channels/facebook.svg','channels/shopee.svg','channels/tiktok.svg','channels/lazada.svg','channels/line.png'
 ]);
-const requiredBackendFiles=['package-lock.json','api/order-hub.mjs','server/index.mjs','server/model.mjs','server/storage.mjs','server/seed.json','server/vercel-demo.mjs','server/demo-postgres.mjs','server/email-auth.mjs','server/migration-backup.mjs'];
+const requiredBackendFiles=['package-lock.json','api/order-hub.mjs','server/index.mjs','server/model.mjs','server/storage.mjs','server/seed.json','server/vercel-demo.mjs','server/demo-postgres.mjs','server/email-auth.mjs','server/migration-backup.mjs','server/barcodes.mjs','server/shipping.mjs'];
 const sensitiveName=/^(?:\.env(?:\..*)?|(?:secrets?|credentials?|sessions?)(?:\..*)?)$|\.(?:sqlite(?:3)?|db)(?:-(?:wal|shm))?$|\.(?:pem|key)$/i;
 
 function directory(file){
