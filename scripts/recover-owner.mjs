@@ -61,7 +61,8 @@ export async function readRecoveryPasswordFile(file){
   }finally{await handle.close()}
 }
 
-export function promptHiddenPassword({input=process.stdin,output=process.stdout,label='รหัสผ่านใหม่: '}={}){
+export function promptHiddenPassword({input=process.stdin,output=process.stdout,label='รหัสผ่านใหม่: ',maxLength=128}={}){
+  if(!Number.isSafeInteger(maxLength)||maxLength<1||maxLength>4096)fail('ขนาดข้อมูลลับไม่ถูกต้อง');
   if(!input.isTTY||typeof input.setRawMode!=='function')fail('ต้องใช้ terminal แบบ interactive หรือ --password-file ที่มีสิทธิ์ 0600');
   return new Promise((resolve,reject)=>{
     let value='',finished=false;const decoder=new StringDecoder('utf8'),wasRaw=!!input.isRaw,wasPaused=input.isPaused();
@@ -78,7 +79,7 @@ export function promptHiddenPassword({input=process.stdin,output=process.stdout,
         if(char==='\r'||char==='\n'){finish();return}
         if(char==='\u007f'||char==='\b'){value=Array.from(value).slice(0,-1).join('');continue}
         if(!/[\u0000-\u001f]/.test(char))value+=char;
-        if(value.length>128){finish(new RecoveryError('รหัสผ่านยาวเกิน 128 ตัวอักษร'));return}
+        if(value.length>maxLength){finish(new RecoveryError('ข้อมูลลับยาวเกิน '+maxLength+' ตัวอักษร'));return}
       }
     };
     input.on('data',data);input.once('end',end);input.once('error',errorEvent);
