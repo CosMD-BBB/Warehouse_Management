@@ -324,7 +324,7 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
         fault('ไม่พบรายการที่เรียก',404);
       }
       if(!['GET','HEAD'].includes(req.method))fault('Method not allowed',405);
-      const asset=route==='/'?'index.html':route.slice(1),allow=/^(index\.html|brand-logo\.jpeg|brand-icon\.png|styles\.css|auth\.css|order-editor\.css|app\.js|features\.js|stock-sync\.js|auth-client\.js|order-editor\.js|connections\.js|scanner\.js|scanner\.css|shipping\.js|shipping\.css|fonts\/[A-Za-z0-9._-]+\.(ttf|woff2)|channels\/[A-Za-z0-9._-]+\.(svg|png|webp))$/;
+      const asset=route==='/'?'index.html':route.slice(1),allow=/^(index\.html|brand-logo\.jpeg|brand-icon\.png|styles\.css|auth\.css|order-editor\.css|app\.js|features\.js|stock-sync\.js|auth-client\.js|order-editor\.js|connections\.js|scanner\.js|scanner\.css|shipping\.js|shipping\.css|catalog\.js|catalog\.css|fonts\/[A-Za-z0-9._-]+\.(ttf|woff2)|channels\/[A-Za-z0-9._-]+\.(svg|png|webp))$/;
       if(!allow.test(asset))fault('Not found',404);
       const file=path.join(root,'dist',asset);if(!fs.existsSync(file))fault('Not found',404);
       const types={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.ttf':'font/ttf','.svg':'image/svg+xml','.png':'image/png','.jpeg':'image/jpeg','.webp':'image/webp'};

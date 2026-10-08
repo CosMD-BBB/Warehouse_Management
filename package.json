@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server/index.mjs",
     "build": "node scripts/build-vercel.mjs",
-    "test": "node --test qa/auth.test.mjs qa/workflow.test.mjs qa/tenancy.test.mjs qa/order-entry.test.mjs qa/hosting.test.mjs qa/codespaces.test.mjs qa/demo-postgres.test.mjs qa/vercel-demo.test.mjs qa/vercel-build.test.mjs qa/vercel-postgres.test.mjs qa/public-demo.test.mjs qa/email.test.mjs qa/email-adapter.test.mjs qa/owner-recovery.test.mjs qa/hosted-migration.test.mjs qa/recovery-wizard.test.mjs qa/barcode.test.mjs qa/shipping.test.mjs qa/shipping-api.test.mjs qa/store-accounts-reset.test.mjs"
+    "test": "node --test qa/auth.test.mjs qa/workflow.test.mjs qa/tenancy.test.mjs qa/order-entry.test.mjs qa/hosting.test.mjs qa/codespaces.test.mjs qa/demo-postgres.test.mjs qa/vercel-demo.test.mjs qa/vercel-build.test.mjs qa/vercel-postgres.test.mjs qa/public-demo.test.mjs qa/email.test.mjs qa/email-adapter.test.mjs qa/owner-recovery.test.mjs qa/hosted-migration.test.mjs qa/recovery-wizard.test.mjs qa/barcode.test.mjs qa/shipping.test.mjs qa/shipping-api.test.mjs qa/store-accounts-reset.test.mjs qa/catalog.test.mjs"
   },
   "engines": {
     "node": "24.x"

@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import {createShipmentRequest,cancelShipmentRequest,projectShipment,closePendingShipment} from './shipping.mjs';
 import {barcodeUpdate,resolveBarcode} from './barcodes.mjs';
+import {createProduct,linkChannelProduct,unlinkChannelProduct,mappedOrderItems,projectProductMappings} from './catalog.mjs';
+import {randomBytes} from 'node:crypto';
 export const ROLES={
-  admin:{label:'Admin',views:['overview','orders','fulfillment','inventory','reports','connections','blueprint','users','store'],actions:['reserve','start-pack','scan','complete-pack','dispatch','cancel','resolve','create-order','update-order','stock-receive','set-barcode','request-shipment','cancel-shipment','simulate-order','retry-stock','fail-stock']},
+  admin:{label:'Admin',views:['overview','orders','fulfillment','inventory','reports','connections','blueprint','users','store'],actions:['reserve','start-pack','scan','complete-pack','dispatch','cancel','resolve','create-order','update-order','stock-receive','set-barcode','request-shipment','cancel-shipment','simulate-order','create-product','link-channel-product','unlink-channel-product','simulate-mapped-order','retry-stock','fail-stock']},
   warehouse:{label:'Warehouse',views:['orders','fulfillment','inventory'],actions:['reserve','start-pack','scan','complete-pack','dispatch','stock-receive','request-shipment','cancel-shipment','retry-stock']},
   finance:{label:'Finance',views:['overview','orders','reports'],actions:[]}
 };
@@ -105,6 +107,22 @@ export function perform(data,action,input,actor){
       const {product,barcode,barcodes}=barcodeUpdate(data.products,input.sku,input);
       Object.assign(product,{barcode,barcodes});event(data,null,'บันทึกบาร์โค้ดสินค้า '+product.sku,actor);break;
     }
+    case 'create-product':{
+      const result=createProduct(data,input,actor);event(data,null,'เพิ่มสินค้ากลาง '+result.sku,actor);return result;
+    }
+    case 'link-channel-product':{
+      const result=linkChannelProduct(data,input,actor);event(data,null,'บันทึกการผูกสินค้าช่องทาง '+result.mappingId,actor);return result;
+    }
+    case 'unlink-channel-product':{
+      const result=unlinkChannelProduct(data,input,actor);event(data,null,'ยกเลิกการผูกสินค้าช่องทาง '+result.mappingId,actor);return result;
+    }
+    case 'simulate-mapped-order':{
+      const {mapping,items}=mappedOrderItems(data,input,actor),token=randomBytes(16).toString('hex').toUpperCase(),now=new Date().toISOString();
+      const subtotal=items.reduce((total,line)=>total+Math.round(line.price*100)*line.qty,0)/100;
+      o={id:'OH-'+(actor.store_code||'main').toUpperCase()+'-DEMO-'+token,external:'DEMO-'+token,version:2,channel:mapping.channel,date:today(),time:stamp().slice(0,5),createdAt:now,customer:'ลูกค้าสาธิตจาก '+mapping.channel,phone:'0800000000',email:'',socialName:'',socialUrl:'',shippingAddress:{addressLine:'99 ถนนตัวอย่าง (ข้อมูลสาธิต)',subdistrict:'ปทุมวัน',district:'ปทุมวัน',province:'กรุงเทพมหานคร',postalCode:'10330'},billingSame:true,billingAddress:null,province:'กรุงเทพมหานคร',items:items.map(line=>({...line,discount:0})),subtotal,lineDiscount:0,itemNetTotal:subtotal,discount:0,shippingFee:0,grandTotal:subtotal,payment:{method:'unpaid',status:'pending',amount:0,paidAt:'',bankName:'',reference:'',verificationSource:'manual'},refund:0,status:'new',reserved:false,carrier:'Flash Express',tracking:'',deadline:nextDay(),scanned:{},notes:'ออเดอร์จำลองเพื่อทดสอบการใช้สต๊อกกลาง ไม่มีการเชื่อม API จริง',tags:'สาธิต',createdVia:'ออเดอร์จำลองจากสินค้าที่ผูกไว้',sourceMapping:{mappingId:mapping.id,version:mapping.version,channel:mapping.channel,shopId:mapping.shopId,productId:mapping.productId,variantId:mapping.variantId,centralSku:mapping.centralSku}};
+      data.orders.push(o);const message=reserve(data,o,actor);
+      return {message:'ออเดอร์สาธิต '+o.id+': '+message,orderId:o.id,status:o.status,mappingId:mapping.id};
+    }
     case 'create-order':{
       const fields=orderInput(data,input,actor);o={id:'OH-'+(actor.store_code||'main').toUpperCase()+'-M'+Date.now().toString(36).toUpperCase()+data.orders.length,external:'MANUAL-'+data.orders.length,...fields,refund:0,status:'new',reserved:false,tracking:'',deadline:nextDay(),scanned:{},createdVia:'เปิดโดย '+actor.name};
       data.orders.push(o);event(data,o,'เปิดออเดอร์กลางสาธิตพร้อมข้อมูลจัดส่ง',actor);if(o.channel==='Review')reserve(data,o,actor);
@@ -133,6 +151,7 @@ export function perform(data,action,input,actor){
 }
 export function projectData(data,role){
   const out=structuredClone(data);delete out.lastStock;
+  out.productMappings=projectProductMappings(out.productMappings);
   for(const order of out.orders)if(order.shipment)order.shipment=projectShipment(order.shipment);
   if(role==='warehouse'){
     for(const p of out.products){delete p.price;delete p.cost}
