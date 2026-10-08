@@ -11,7 +11,7 @@ import {initializeStorage,insertStore} from '../server/storage.mjs';
 import {createPostgresSnapshotStore} from '../server/demo-postgres.mjs';
 import {recoverSqliteOwner,recoverPostgresOwner,recoveryPasswordHash,readRecoveryPasswordFile,promptHiddenPassword,parseRecoveryArguments,runOwnerRecovery} from '../scripts/recover-owner.mjs';
 
-const oldPassword='Fixture-original-owner-password',newPassword='Fixture-chosen-replacement-password';
+const oldPassword='Fixture-original-owner-password',newPassword='Fix6!!';
 const scryptAsync=promisify(scrypt);let initialHash;
 const rootDir=path.resolve('.');
 async function matches(password,stored){const [salt,hex]=stored.split(':');const value=await scryptAsync(password,salt,64,{N:32768,r:8,p:1,maxmem:64*1024*1024});return timingSafeEqual(value,Buffer.from(hex,'hex'))}
@@ -87,7 +87,7 @@ test('only owner-controlled private password files are accepted, and CLI has no 
 test('hidden password prompts never echo characters and restore terminal state on completion or cancellation',async()=>{
   class Terminal extends EventEmitter{isTTY=true;isRaw=false;paused=true;isPaused(){return this.paused}pause(){this.paused=true}resume(){this.paused=false}setRawMode(value){this.isRaw=value}}
   const input=new Terminal();let printed='';const output={write:value=>{printed+=value}};
-  const first=promptHiddenPassword({input,output});input.emit('data',Buffer.from(newPassword+'\r'));assert.equal(await first,newPassword);assert.equal(input.isRaw,false);assert.equal(input.paused,true);assert.doesNotMatch(printed,/Fixture/);
+  const first=promptHiddenPassword({input,output});input.emit('data',Buffer.from(newPassword+'\r'));assert.equal(await first,newPassword);assert.equal(input.isRaw,false);assert.equal(input.paused,true);assert.equal(printed.includes(newPassword),false);
   const unicode=promptHiddenPassword({input,output}),bytes=Buffer.from('รหัสผ่านภาษาไทย');input.emit('data',bytes.subarray(0,1));input.emit('data',Buffer.concat([bytes.subarray(1),Buffer.from('\r')]));assert.equal(await unicode,'รหัสผ่านภาษาไทย');assert.doesNotMatch(printed,/รหัสผ่านภาษาไทย/);
   const cancelled=promptHiddenPassword({input,output});input.emit('data',Buffer.from('\u0003'));await assert.rejects(cancelled,/ยกเลิก/);assert.equal(input.isRaw,false);assert.equal(input.listenerCount('data'),0);assert.equal(input.listenerCount('end'),0);
 });

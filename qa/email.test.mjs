@@ -10,7 +10,7 @@ import {createResendEmailAuth,deliverEmailJobs} from '../server/email-auth.mjs';
 import {createEmailFixture} from './email-fixture.mjs';
 import {backupStorageBeforeMigration} from '../server/migration-backup.mjs';
 
-const PASSWORD='Email-fixture-password-01',NEW_PASSWORD='Email-new-fixture-password-02';
+const PASSWORD='Fix6!!',NEW_PASSWORD='New6!!';
 async function harness(t,{configured=true,deferEmailDelivery=false,sendFailure=false}={}){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'order-hub-email-')),dbPath=path.join(dir,'fixture.sqlite');
   let clock=Date.now(),app,origin;const fixture=createEmailFixture({now:()=>clock,sendFailure});
@@ -58,6 +58,10 @@ test('signup requires mailbox OTP and a one-use proof bound to email, store and 
   const verified=await h.post('/api/auth/email/verify',{challengeId:c.result.j.challengeId,code:c.message.code});assert.equal(verified.status,200);
   const body={...base,verificationToken:verified.j.verificationToken};
   for(const change of [{email:'other@fixture.example'},{storeCode:'another'},{username:'another'}])assert.equal((await h.post('/api/auth/setup',{...body,...change})).status,400);
+  for(const password of ['12345','x'.repeat(129)]){
+    assert.equal((await h.post('/api/auth/setup',{...body,password})).status,400);
+    assert.equal(h.app.db.prepare('SELECT used_at FROM email_challenges WHERE id=?').get(c.result.j.challengeId).used_at,null);
+  }
   const created=await h.post('/api/auth/setup',body);assert.equal(created.status,201);assert.equal(created.j.user.email,'owner@fixture.example');assert.equal(created.j.user.emailVerified,true);
   assert.equal((await h.post('/api/auth/register',body)).status,400);
   assert.equal((await h.post('/api/auth/email/verify',{challengeId:c.result.j.challengeId,code:c.message.code})).status,400);
@@ -112,6 +116,11 @@ test('reset revokes every session and outstanding challenge, prevents replay and
   const login=await h.post('/api/auth/login',{storeCode:'main',username:'owner',password:PASSWORD});
   const extra={cookie:login.cookie,csrf:login.j.csrf};const proof=await h.prove('reset');
   const body={storeCode:'main',username:'owner',email:'owner@fixture.example',verificationToken:proof.token,password:NEW_PASSWORD};
+  for(const password of ['12345','x'.repeat(129)]){
+    assert.equal((await h.post('/api/auth/reset',{...body,password})).status,400);
+    assert.equal(h.app.db.prepare('SELECT used_at FROM email_challenges WHERE id=?').get(proof.result.j.challengeId).used_at,null);
+    assert.equal((await h.request('/api/state',{session:owner.session})).status,200);
+  }
   assert.equal((await h.post('/api/auth/reset',body)).status,200);
   assert.equal((await h.request('/api/state',{session:owner.session})).status,401);assert.equal((await h.request('/api/state',{session:extra})).status,401);
   assert.equal(h.app.db.prepare('SELECT COUNT(*) n FROM sessions').get().n,0);
@@ -123,8 +132,37 @@ test('reset revokes every session and outstanding challenge, prevents replay and
 
 test('changing password invalidates a previously verified reset proof',async t=>{
   const h=await harness(t),owner=await h.signup(),proof=await h.prove('reset');
+  for(const password of ['12345','x'.repeat(129)]){
+    assert.equal((await h.post('/api/auth/password',{currentPassword:PASSWORD,password},owner.session)).status,400);
+    assert.equal((await h.request('/api/state',{session:owner.session})).status,200);
+  }
   assert.equal((await h.post('/api/auth/password',{currentPassword:PASSWORD,password:NEW_PASSWORD},owner.session)).status,200);
+  assert.equal((await h.request('/api/state',{session:owner.session})).status,401);
+  assert.equal((await h.post('/api/auth/login',{storeCode:'main',username:'owner',password:PASSWORD})).status,401);
+  assert.equal((await h.post('/api/auth/login',{storeCode:'main',username:'owner',password:NEW_PASSWORD})).status,200);
   assert.equal((await h.post('/api/auth/reset',{storeCode:'main',username:'owner',email:'owner@fixture.example',verificationToken:proof.token,password:PASSWORD})).status,400);
+});
+
+test('registration and admin member provisioning retain the 6–128 password boundaries',async t=>{
+  const h=await harness(t),owner=await h.signup();
+  const registration=await h.fixture.signup((route,body)=>h.post(route,body),{...h.fields('registered'),email:'registered@fixture.example'});
+  for(const password of ['12345','x'.repeat(129)])assert.equal((await h.post('/api/auth/register',{...registration,password})).status,400);
+  const registered=await h.post('/api/auth/register',registration);assert.equal(registered.status,201);
+  assert.equal((await h.post('/api/auth/login',{storeCode:'registered',username:'owner',password:PASSWORD})).status,200);
+  const fields={username:'boundary-member',name:'Boundary fixture',role:'finance'};
+  for(const password of ['12345','x'.repeat(129)])assert.equal((await h.post('/api/users',{...fields,password},owner.session)).status,400);
+  const created=await h.post('/api/users',{...fields,password:PASSWORD},owner.session);assert.equal(created.status,201);
+  const login=await h.post('/api/auth/login',{storeCode:'main',username:fields.username,password:PASSWORD}),session={cookie:login.cookie,csrf:login.j.csrf};assert.equal(login.status,200);
+  for(const password of ['12345','x'.repeat(129)]){
+    assert.equal((await h.request(`/api/users/${created.j.id}`,{method:'PATCH',body:{password},session:owner.session})).status,400);
+    assert.equal((await h.request('/api/state',{session})).status,200);
+  }
+  const maximum='x'.repeat(128);
+  assert.equal((await h.request(`/api/users/${created.j.id}`,{method:'PATCH',body:{password:maximum},session:owner.session})).status,200);
+  assert.equal((await h.request('/api/state',{session})).status,401);
+  assert.equal((await h.post('/api/auth/login',{storeCode:'main',username:fields.username,password:maximum})).status,200);
+  assert.equal((await h.request(`/api/users/${created.j.id}`,{method:'PATCH',body:{password:NEW_PASSWORD},session:owner.session})).status,200);
+  assert.equal((await h.post('/api/auth/login',{storeCode:'main',username:fields.username,password:NEW_PASSWORD})).status,200);
 });
 
 test('existing members bind an email only with their current password and authenticated proof',async t=>{
@@ -153,6 +191,7 @@ test('new-store owners also require email proof and keep the original store sess
   const h=await harness(t),owner=await h.signup();
   assert.equal((await h.post('/api/stores',{...h.fields('second'),email:'second@fixture.example'},owner.session)).status,400);
   const body=await h.fixture.signup((route,body)=>h.post(route,body,owner.session),{...h.fields('second'),email:'second@fixture.example'});
+  for(const password of ['12345','x'.repeat(129)])assert.equal((await h.post('/api/stores',{...body,password},owner.session)).status,400);
   assert.equal((await h.post('/api/stores',body,owner.session)).status,201);
   const current=await h.request('/api/state',{session:owner.session});assert.equal(current.j.store.code,'main');
   const login=await h.post('/api/auth/login',{storeCode:'second',username:'owner',password:PASSWORD});assert.equal(login.j.user.emailVerified,true);

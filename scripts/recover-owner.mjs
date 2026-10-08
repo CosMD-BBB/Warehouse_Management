@@ -24,7 +24,7 @@ function targetFields({storeCode,username,confirmation}){
   return {storeCode,username};
 }
 export function validateRecoveryPassword(password){
-  if(typeof password!=='string'||password.length<12||password.length>128||/[\u0000-\u001f\u007f]/.test(password))fail('กำหนดรหัสผ่านใหม่ 12–128 ตัวอักษร โดยไม่มีอักขระควบคุม');
+  if(typeof password!=='string'||password.length<6||password.length>128||/[\u0000-\u001f\u007f]/.test(password))fail('กำหนดรหัสผ่านใหม่ 6–128 ตัวอักษร โดยไม่มีอักขระควบคุม');
   return password;
 }
 export async function recoveryPasswordHash(password){

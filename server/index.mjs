@@ -25,7 +25,7 @@ async function hashPassword(password){const salt=randomBytes(16).toString('hex')
 let dummyPasswordHash;
 const getDummyPasswordHash=()=>dummyPasswordHash||=hashPassword(randomBytes(32).toString('hex'));
 async function verifyPassword(password,stored){const [salt,hex]=stored.split(':');const actual=await scryptAsync(password,salt,64,{N:32768,r:8,p:1,maxmem:64*1024*1024}),expected=Buffer.from(hex,'hex');return actual.length===expected.length&&timingSafeEqual(actual,expected)}
-function passwordValid(value){if(typeof value!=='string'||value.length<12||value.length>128)fault('ใช้รหัสผ่าน 12–128 ตัวอักษร');return value}
+function passwordValid(value){if(typeof value!=='string'||value.length<6||value.length>128)fault('ใช้รหัสผ่าน 6–128 ตัวอักษร');return value}
 function accountFields(b){const username=String(b.username||'').trim().toLowerCase(),name=String(b.name||'').trim();if(!/^[a-z0-9._-]{3,40}$/.test(username))fault('ชื่อผู้ใช้ต้องเป็น a-z, 0-9, จุด ขีด หรือขีดล่าง 3–40 ตัว');if(!name||name.length>80)fault('กรุณาระบุชื่อผู้ใช้ 1–80 ตัวอักษร');return {username,name}}
 
 function configuredOrigin(value){
