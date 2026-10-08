@@ -2,7 +2,7 @@
 FROM node:24-bookworm-slim
 
 WORKDIR /app
-RUN mkdir -p /data && chown node:node /data
+RUN mkdir -p /app /data && chown node:node /app /data
 
 COPY --chown=node:node package.json package-lock.json ./
 RUN --mount=type=secret,id=proxy_ca \

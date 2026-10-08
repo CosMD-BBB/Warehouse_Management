@@ -38,6 +38,7 @@ async function bootAuth(){if(location.protocol==='file:'){document.getElementByI
 
 // Store context is always established by the authenticated server response.
 let currentStore=null,sessionEpoch=0;
+const accountArea=/^\/account\/?$/.test(location.pathname);
 const initialStoreHint=(new URLSearchParams(location.search).get('store')||'').trim().toLowerCase();
 let loginStoreHint=/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(initialStoreHint)&&initialStoreHint.length>=3&&initialStoreHint.length<=40?initialStoreHint:'';
 allowedViews.admin.push('store');
@@ -48,7 +49,7 @@ function guardForm(form){if(!form||!form.onsubmit)return;const submit=form.onsub
 const originalClearSession=clearSession;
 clearSession=function(){sessionEpoch++;if(currentStore?.code)loginStoreHint=currentStore.code;originalClearSession();currentStore=null;syncCount=0;stockRevision=1;stockEvents=[];blockedChannel='';lastStock={};for(const key of Object.keys(publishedStock))delete publishedStock[key];const range=typeof dateRange==='function'?dateRange('7days'):['',TODAY];Object.assign(state,{view:'overview',from:range[0],to:range[1],channel:'',product:'',province:'',status:'all',q:'',page:1,report:'sales',packId:null,detailId:null,mobile:false});state.selected.clear();if(typeof activePreset!=='undefined')activePreset='7days';document.getElementById('toast').textContent='';document.getElementById('dialog-content').innerHTML=''};
 function storeSessionChanged(message='บัญชีหรือร้านค้าเปลี่ยนแล้ว กรุณาเข้าสู่ระบบใหม่'){clearSession();showLogin(message)}
-api=async function(path,method='GET',body){const epoch=sessionEpoch,headers=method==='GET'?{}:{'Content-Type':'application/json','X-CSRF-Token':csrfToken};if(currentStore?.id&&!['/auth/status','/auth/login','/auth/setup'].includes(path))headers['X-Store-Id']=currentStore.id;const response=await fetch('/api'+path,{method,credentials:'same-origin',headers,body:body===undefined?undefined:JSON.stringify(body)});const out=await response.json();if(epoch!==sessionEpoch)throw Error('เซสชันเปลี่ยนแล้ว กรุณาทำรายการใหม่');if(!response.ok){if(out.code==='SESSION_CHANGED'){storeSessionChanged()}else if(response.status===401&&currentAuth){storeSessionChanged('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่')}throw Error(out.error||'ไม่สามารถดำเนินการได้')}return out};
+api=async function(path,method='GET',body){const epoch=sessionEpoch,headers=method==='GET'?{}:{'Content-Type':'application/json','X-CSRF-Token':csrfToken};if(currentStore?.id&&!['/auth/status','/auth/login','/auth/setup'].includes(path))headers['X-Store-Id']=currentStore.id;const response=await fetch((accountArea?'/api/account':'/api')+path,{method,credentials:'same-origin',headers,body:body===undefined?undefined:JSON.stringify(body)});const out=await response.json();if(epoch!==sessionEpoch)throw Error('เซสชันเปลี่ยนแล้ว กรุณาทำรายการใหม่');if(!response.ok){if(out.code==='SESSION_CHANGED'){storeSessionChanged()}else if(response.status===401&&currentAuth){storeSessionChanged('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่')}throw Object.assign(Error(out.error||'ไม่สามารถดำเนินการได้'),{status:response.status,code:out.code,retryAfter:Number(out.retryAfter||response.headers.get('Retry-After'))||0})}return out};
 refreshData=async function(){const epoch=sessionEpoch,expectedStoreId=currentStore?.id,expectedUserId=currentAuth?.id,out=await api('/state');if(epoch!==sessionEpoch)return;if(!out.store||expectedStoreId&&out.store.id!==expectedStoreId||expectedUserId&&out.user?.id!==expectedUserId){storeSessionChanged();throw Error('กรุณาเข้าสู่ระบบร้านที่ต้องการ')}currentAuth=out.user;acceptStore(out.store);authPermissions=out.permissions;const d=out.data;PRODUCTS.splice(0,PRODUCTS.length,...d.products);orders.splice(0,orders.length,...d.orders);payouts.splice(0,payouts.length,...(d.payouts||[]));expenses.splice(0,expenses.length,...(d.expenses||[]));audit=d.audit;syncCount=d.syncCount;stockRevision=d.stockRevision;stockEvents=d.stockEvents;blockedChannel=d.blockedChannel;lastStock=centralSnapshot();for(const key of Object.keys(publishedStock))delete publishedStock[key];Object.assign(publishedStock,d.publishedStock);if(currentAuth.role==='admin'){const c=await api('/connections');if(epoch!==sessionEpoch)return;connectionDrafts=c.drafts}else connectionDrafts=[];if(!canView(state.view))state.view=currentAuth.role==='warehouse'?'orders':'overview'};
 showLogin=function(error=''){
 document.getElementById('app').innerHTML=`<div class="auth-layout"><section class="auth-art"><img src="brand-logo.jpeg" alt="มาสคอต Order Hub ถือกล่องพัสดุ"><div class="auth-art-caption"><strong>ทุกออเดอร์<br>พร้อมไปต่อ</strong><span>รวมงานขาย สต๊อก และจัดส่งไว้ที่เดียว</span></div></section><main class="auth-main"><div class="auth-form-wrap">${mark()}<div class="auth-heading"><div class="eyebrow">${isSetup?'WELCOME TO YOUR WORKSPACE':'YOUR WORKSPACE, CONNECTED'}</div><h1>${isSetup?'สร้างร้านและบัญชี Admin':'เข้าสู่ระบบร้านค้า'}</h1><p>${isSetup?'เริ่มจากร้านแรก แล้วเพิ่มทีม Warehouse และ Finance ภายในร้านได้':'ระบุรหัสร้านและบัญชีของคุณ เพื่อเข้าพื้นที่ทำงานของร้านนั้น'}</p></div><form id="login-form" class="auth-form">${isSetup?'<label class="field">ชื่อร้าน<input name="storeName" required maxlength="80" autocomplete="organization" placeholder="เช่น ร้านหลักของบริษัท"></label>':''}<label class="field">รหัสร้าน<input name="storeCode" required minlength="3" maxlength="40" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value="${esc(loginStoreHint)}" autocapitalize="none" spellcheck="false" autocomplete="off" placeholder="เช่น main-store"><span class="form-help">${isSetup?'ใช้ตัวอักษรอังกฤษเล็ก ตัวเลข และขีดกลาง 3–40 ตัว เปลี่ยนภายหลังไม่ได้':'ใช้รหัสร้านที่ Admin แจ้ง หรือเปิดจากลิงก์เข้าสู่ระบบของร้าน'}</span></label>${isSetup?'<label class="field">ชื่อผู้ดูแลร้าน<input name="name" required maxlength="80" autocomplete="name" placeholder="เช่น ผู้ดูแลระบบ"></label>':''}<label class="field">ชื่อผู้ใช้<input name="username" required minlength="3" maxlength="40" autocomplete="username" pattern="(?:[a-zA-Z0-9._]|-){3,40}" placeholder="${isSetup?'เช่น admin':'กรอกชื่อผู้ใช้'}"></label><label class="field">รหัสผ่าน<div class="password-input"><input name="password" id="login-password" type="password" required ${isSetup?'minlength="12"':''} maxlength="128" autocomplete="${isSetup?'new-password':'current-password'}" placeholder="${isSetup?'อย่างน้อย 12 ตัวอักษร':'กรอกรหัสผ่าน'}"><button type="button" id="show-password">แสดง</button></div></label>${isSetup?'<label class="field">ยืนยันรหัสผ่าน<input name="confirm" type="password" minlength="12" maxlength="128" required autocomplete="new-password" placeholder="กรอกรหัสผ่านอีกครั้ง"></label>':''}<div class="auth-error" id="auth-error" role="alert">${esc(error)}</div><button class="btn primary" type="submit">${isSetup?'สร้างร้านและเริ่มใช้งาน':'เข้าสู่ระบบ'}</button></form><div class="auth-role-row"><span>Admin</span><span>Warehouse</span><span>Finance</span></div><p class="auth-footer">บัญชีและข้อมูลแยกตามร้าน<br>ทุกช่องทางของแต่ละร้านใช้สต๊อกกลางของร้านนั้น</p></div></main></div>`;
@@ -186,7 +187,7 @@ shell=function(){
   authenticatedShell();
   document.body.classList.toggle('public-demo-mode',publicDemo&&!!currentAuth);
   if(!publicDemo||!currentAuth)return;
-  document.querySelector('.top-right').innerHTML='<span class="demo-badge">โหมดทดลอง</span><button class="btn small demo-reset-button" id="demo-reset">เริ่มใหม่</button>';
+  document.querySelector('.top-right').innerHTML='<span class="demo-badge">โหมดทดลอง</span><a class="demo-account-link" href="/account?screen=login">เข้าสู่ระบบ</a><a class="btn small primary demo-signup-link" href="/account?screen=register">สมัครใช้บริการ</a><button class="btn small demo-reset-button" id="demo-reset">เริ่มใหม่</button>';
   document.getElementById('demo-reset').onclick=showPublicDemoReset;
   const banner=document.createElement('aside');
   banner.className='public-demo-banner';
@@ -197,3 +198,269 @@ shell=function(){
   const footer=document.querySelector('.page-foot');
   footer.innerHTML='<span>Order Hub · ข้อมูลตัวอย่างสมมติ · ยังไม่เชื่อมร้านค้าจริง</span><span>พื้นที่ทดลองของคุณแยกจากผู้เข้าชมคนอื่น</span>';
 };
+
+// Email challenges and proof tokens stay in this flow's memory. Only the
+// server can mark an email as verified or create an account with its proof.
+function authPage(title,description,body){
+  document.body.classList.remove('public-demo-mode');
+  document.getElementById('app').innerHTML=`<div class="auth-layout"><section class="auth-art"><img src="brand-logo.jpeg" alt="มาสคอต Order Hub ถือกล่องพัสดุ"><div class="auth-art-caption"><strong>ทุกออเดอร์<br>พร้อมไปต่อ</strong><span>รวมงานขาย สต๊อก และจัดส่งไว้ที่เดียว</span></div></section><main class="auth-main"><div class="auth-form-wrap">${mark()}<div class="auth-heading"><div class="eyebrow">YOUR WORKSPACE, CONNECTED</div><h1>${esc(title)}</h1><p>${esc(description)}</p></div>${body}<p class="auth-footer">บัญชีและข้อมูลแยกตามร้าน<br>ทุกช่องทางของแต่ละร้านใช้สต๊อกกลางของร้านนั้น</p>${accountArea?'<a class="auth-demo-back" href="/">กลับไปลองเว็บไซต์ตัวอย่าง</a>':''}</div></main></div>`;
+}
+function setAuthScreen(screen){
+  const url=new URL(location.href);
+  url.searchParams.set('screen',screen);
+  history.replaceState(null,'',url);
+}
+function passwordControl(id,label='รหัสผ่านใหม่',name='password'){
+  return `<label class="field">${label}<div class="password-input"><input name="${name}" id="${id}" type="password" minlength="12" maxlength="128" required autocomplete="new-password" placeholder="อย่างน้อย 12 ตัวอักษร"><button type="button" data-password-toggle="${id}" aria-label="แสดง${label}" aria-pressed="false">แสดง</button></div></label>`;
+}
+function bindPasswordToggles(root){
+  root.querySelectorAll('[data-password-toggle]').forEach(button=>button.onclick=()=>{
+    const input=root.querySelector('#'+button.dataset.passwordToggle);
+    input.type=input.type==='password'?'text':'password';
+    button.textContent=input.type==='password'?'แสดง':'ซ่อน';
+    button.setAttribute('aria-pressed',String(input.type==='text'));
+  });
+}
+async function enterAuthenticatedWorkspace(out){
+  clearSession();
+  currentAuth=out.user;
+  acceptStore(out.store);
+  csrfToken=out.csrf;
+  authPermissions=out.permissions;
+  isSetup=false;
+  state.view=currentAuth.role==='warehouse'?'orders':'overview';
+  await refreshData();
+  shell();
+}
+showLogin=function(error='',forceLogin=false){
+  if(publicDemo){publicDemoRecovery(error||undefined);return}
+  const initialScreen=new URLSearchParams(location.search).get('screen');
+  if(!forceLogin&&(initialScreen==='register'||isSetup&&initialScreen!=='login')){showRegistration(error);return}
+  setAuthScreen('login');
+  authPage('เข้าสู่ระบบร้านค้า','ระบุรหัสร้านและบัญชีของคุณ เพื่อเข้าพื้นที่ทำงานของร้านนั้น',`<form id="login-form" class="auth-form"><label class="field">รหัสร้าน<input name="storeCode" required minlength="3" maxlength="40" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value="${esc(loginStoreHint)}" autocapitalize="none" spellcheck="false" autocomplete="off" placeholder="เช่น main-store"></label><label class="field">ชื่อผู้ใช้<input name="username" required minlength="3" maxlength="40" autocomplete="username" pattern="(?:[a-zA-Z0-9._]|-){3,40}" placeholder="กรอกชื่อผู้ใช้"></label><label class="field">รหัสผ่าน<div class="password-input"><input name="password" id="login-password" type="password" required maxlength="128" autocomplete="current-password" placeholder="กรอกรหัสผ่าน"><button type="button" data-password-toggle="login-password" aria-label="แสดงรหัสผ่าน" aria-pressed="false">แสดง</button></div></label><div class="auth-error" id="auth-error" role="alert">${esc(error)}</div><button class="btn primary" type="submit">เข้าสู่ระบบ</button></form><div class="auth-navigation"><button class="text-btn" id="forgot-password" type="button">ลืมรหัสผ่าน</button><button class="text-btn" id="register-account" type="button">สมัครร้านใหม่</button></div><div class="auth-role-row"><span>Admin</span><span>Warehouse</span><span>Finance</span></div>`);
+  bindPasswordToggles(document.getElementById('app'));
+  document.getElementById('register-account').onclick=()=>showRegistration();
+  document.getElementById('forgot-password').onclick=showPasswordRecovery;
+  const form=document.getElementById('login-form');
+  form.onsubmit=async event=>{
+    event.preventDefault();
+    if(form.dataset.pending==='true')return;
+    const values=new FormData(form),errorBox=document.getElementById('auth-error');
+    errorBox.textContent='';
+    setPending(form,true);
+    loginStoreHint=String(values.get('storeCode')).trim().toLowerCase();
+    try{
+      const out=await api('/auth/login','POST',{storeCode:loginStoreHint,username:values.get('username'),password:values.get('password')});
+      if(!form.isConnected)return;
+      form.reset();
+      await enterAuthenticatedWorkspace(out);
+    }catch(err){if(form.isConnected){errorBox.textContent=err.message;setPending(form,false)}}
+  };
+};
+function showRegistration(error=''){
+  if(publicDemo){location.assign('/account?screen=register');return}
+  setAuthScreen('register');
+  authPage('สมัครร้านใหม่','ยืนยันอีเมลด้วย OTP ก่อนสร้างร้านและบัญชีผู้ดูแล',`<div id="email-flow"></div>`);
+  startEmailFlow(document.getElementById('email-flow'),{kind:'signup',error});
+}
+function showPasswordRecovery(){
+  if(publicDemo)return;
+  setAuthScreen('reset');
+  authPage('ลืมรหัสผ่าน','รับ OTP ผ่านอีเมลที่เคยยืนยันไว้ แล้วตั้งรหัสผ่านใหม่',`<div id="email-flow"></div>`);
+  startEmailFlow(document.getElementById('email-flow'),{kind:'reset'});
+}
+function startEmailFlow(root,{kind,error='',modalFlow=false}={}){
+  const epoch=sessionEpoch;
+  const flow={identity:null,challengeId:'',verificationToken:'',currentPassword:'',pending:false,resendAt:0,expiresAt:0,timer:0};
+  const creating=kind==='signup'||kind==='store';
+  const binding=kind==='bind';
+  const active=()=>root.isConnected&&epoch===sessionEpoch&&(!modalFlow||document.getElementById('dialog').open);
+  const dispose=()=>{clearTimeout(flow.timer);flow.verificationToken='';flow.currentPassword='';flow.challengeId='';root.querySelectorAll('input[type=password],input[autocomplete="one-time-code"]').forEach(input=>input.value='')};
+  const back=()=>{dispose();if(modalFlow){if(binding)showAccount();else document.getElementById('dialog').close()}else showLogin('',true)};
+  const errorMarkup=message=>`<div class="auth-error" id="email-flow-error" role="alert">${esc(message||'')}</div>`;
+  const stepMarkup=step=>`<ol class="auth-steps" aria-label="ขั้นตอน${creating?'สมัคร':'ยืนยัน'}บัญชี"><li ${step===1?'aria-current="step"':''}>1. ข้อมูลบัญชี</li><li ${step===2?'aria-current="step"':''}>2. ยืนยัน OTP</li>${binding?'':`<li ${step===3?'aria-current="step"':''}>3. ${creating?'สร้างบัญชี':'รหัสผ่านใหม่'}</li>`}</ol>`;
+  const identitySummary=()=>`<div class="auth-verified"><span aria-hidden="true">✓</span><div><strong>ยืนยันอีเมลแล้ว</strong><small>${esc(flow.identity.email)}</small><small>ร้าน ${esc(flow.identity.storeCode)} · ${esc(flow.identity.username)}</small></div></div>`;
+  const showError=err=>{if(active()){const box=root.querySelector('#email-flow-error');if(box)box.textContent=err.message||String(err)}};
+  function lock(pending){
+    flow.pending=pending;
+    root.querySelectorAll('button').forEach(button=>button.disabled=pending);
+    updateCountdown();
+  }
+  function updateCountdown(){
+    if(!active()){dispose();return}
+    const resend=root.querySelector('#email-resend');
+    const verify=root.querySelector('#email-verify-submit');
+    if(!resend)return;
+    const seconds=Math.max(0,Math.ceil((flow.resendAt-Date.now())/1000));
+    resend.disabled=flow.pending||seconds>0;
+    resend.textContent=seconds>0?`ส่ง OTP อีกครั้ง (${seconds} วินาที)`:'ส่ง OTP อีกครั้ง';
+    const expired=!flow.verificationToken&&flow.expiresAt>0&&Date.now()>=flow.expiresAt;
+    if(verify)verify.disabled=flow.pending||expired;
+    root.querySelector('#email-expiry').textContent=binding&&flow.verificationToken?'ยืนยัน OTP แล้ว กดบันทึกอีเมลอีกครั้งได้ หรือขอ OTP ใหม่':expired?'OTP หมดอายุแล้ว กรุณากดส่ง OTP อีกครั้ง':'OTP ใช้ได้ภายใน 10 นาที ใช้รหัสจากอีเมลล่าสุด';
+  }
+  function tick(){updateCountdown();if(active()&&root.querySelector('#email-resend'))flow.timer=setTimeout(tick,1000)}
+  async function requestCode(){
+    const out=await api('/auth/email/request','POST',{purpose:creating?'signup':binding?'bind':'reset',...flow.identity,...(binding?{currentPassword:flow.currentPassword}:{})});
+    if(!active())return false;
+    flow.challengeId=out.challengeId;
+    flow.verificationToken='';
+    flow.resendAt=Date.now()+Math.max(1,Number(out.resendAfter)||60)*1000;
+    flow.expiresAt=Date.now()+Math.max(1,Number(out.expiresIn)||600)*1000;
+    return true;
+  }
+  function startIdentity(message=''){
+    dispose();
+    flow.identity=null;
+    flow.pending=false;
+    root.innerHTML=`${stepMarkup(1)}<form id="email-request-form" class="auth-form"><label class="field">อีเมล<input name="email" type="email" required maxlength="254" autocomplete="email" autocapitalize="none" spellcheck="false" value="${esc(binding?currentAuth.email||'':'')}" placeholder="you@example.com"><span class="form-help">${kind==='reset'?'ใช้อีเมลที่ยืนยันไว้กับบัญชีนี้':'ใช้รับ OTP และกู้คืนบัญชีเมื่อคุณลืมรหัสผ่าน'}</span></label>${binding?`<label class="field">รหัสผ่านปัจจุบัน<input name="currentPassword" type="password" required maxlength="128" autocomplete="current-password" placeholder="ยืนยันว่าเป็นบัญชีของคุณ"></label>`:`<label class="field">${kind==='store'?'รหัสร้านใหม่':'รหัสร้าน'}<input name="storeCode" required minlength="3" maxlength="40" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value="${esc(kind==='store'?'':loginStoreHint)}" autocapitalize="none" spellcheck="false" autocomplete="off" placeholder="เช่น my-store"><span class="form-help">${creating?'อังกฤษเล็ก ตัวเลข และขีดกลาง 3–40 ตัว เปลี่ยนไม่ได้':'รหัสร้านเดียวกับที่ใช้เข้าสู่ระบบ'}</span></label><label class="field">${kind==='store'?'ชื่อผู้ใช้ Admin ของร้านใหม่':'ชื่อผู้ใช้'}<input name="username" required minlength="3" maxlength="40" pattern="(?:[a-zA-Z0-9._]|-){3,40}" autocomplete="username" placeholder="เช่น admin"></label>`}${errorMarkup(message)}<button type="submit" class="btn primary">ส่ง OTP ไปยังอีเมล</button><button type="button" id="email-flow-back" class="text-btn auth-back">${modalFlow?'ย้อนกลับ':'กลับไปเข้าสู่ระบบ'}</button></form>`;
+    root.querySelector('#email-flow-back').onclick=back;
+    const form=root.querySelector('form');
+    form.onsubmit=async event=>{
+      event.preventDefault();
+      if(flow.pending)return;
+      const values=new FormData(form);
+      flow.identity={email:String(values.get('email')).trim(),storeCode:binding?currentStore.code:String(values.get('storeCode')).trim().toLowerCase(),username:binding?currentAuth.username:String(values.get('username')).trim().toLowerCase()};
+      if(binding)flow.currentPassword=String(values.get('currentPassword'));
+      root.querySelector('#email-flow-error').textContent='';
+      lock(true);
+      try{if(await requestCode()){form.reset();showCode()}}catch(err){showError(err);if(active())lock(false)}
+    };
+  }
+  function showCode(){
+    clearTimeout(flow.timer);
+    flow.pending=false;
+    root.innerHTML=`${stepMarkup(2)}<div class="auth-notice" role="status">${kind==='reset'?'หากข้อมูลตรงกับบัญชีที่ยืนยันอีเมลแล้ว เราจะส่ง OTP ไปยังอีเมลนี้':`ส่ง OTP ไปยัง ${esc(flow.identity.email)} แล้ว`}</div><form id="email-verify-form" class="auth-form"><label class="field">รหัส OTP 6 หลัก<input class="auth-otp" name="code" id="email-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required placeholder="000000" aria-describedby="email-expiry" autocapitalize="none" spellcheck="false"></label><p class="form-help" id="email-expiry"></p>${errorMarkup()}<button type="submit" class="btn primary" id="email-verify-submit">${binding?'ยืนยันอีเมล':'ยืนยัน OTP และไปต่อ'}</button><button type="button" class="text-btn auth-back" id="email-resend">ส่ง OTP อีกครั้ง</button><button type="button" class="text-btn auth-back" id="email-change">แก้ไขอีเมลหรือข้อมูลบัญชี</button></form>`;
+    root.querySelector('#email-change').onclick=()=>startIdentity();
+    root.querySelector('#email-resend').onclick=async()=>{
+      if(flow.pending||Date.now()<flow.resendAt)return;
+      root.querySelector('#email-flow-error').textContent='';
+      lock(true);
+      try{if(await requestCode())showCode()}catch(err){if(err.retryAfter)flow.resendAt=Date.now()+err.retryAfter*1000;showError(err);if(active())lock(false)}
+    };
+    const form=root.querySelector('form');
+    form.onsubmit=async event=>{
+      event.preventDefault();
+      if(flow.pending)return;
+      root.querySelector('#email-flow-error').textContent='';
+      lock(true);
+      try{
+        if(!flow.verificationToken){
+          const out=await api('/auth/email/verify','POST',{challengeId:flow.challengeId,code:new FormData(form).get('code')});
+          if(!active())return;
+          flow.verificationToken=out.verificationToken;
+          form.reset();
+          clearTimeout(flow.timer);
+        }
+        if(binding){
+          const result=await api('/auth/email','POST',{email:flow.identity.email,verificationToken:flow.verificationToken,currentPassword:flow.currentPassword});
+          if(!active())return;
+          if(result.user)currentAuth=result.user;
+          dispose();
+          showAccount('ยืนยันอีเมลแล้ว ใช้กู้คืนบัญชีเมื่อคุณลืมรหัสผ่านได้');
+        }else if(creating)showDetails();else showNewPassword();
+      }catch(err){showError(err);if(active()){
+        if(binding&&flow.verificationToken){root.querySelector('#email-code').disabled=true;root.querySelector('#email-verify-submit').textContent='บันทึกอีเมลอีกครั้ง';clearTimeout(flow.timer);tick()}
+        lock(false);
+        if(!flow.verificationToken)root.querySelector('#email-code')?.focus();
+      }}
+    };
+    updateCountdown();
+    tick();
+    root.querySelector('#email-code').focus();
+  }
+  function showDetails(){
+    flow.pending=false;
+    root.innerHTML=`${stepMarkup(3)}${identitySummary()}<form id="email-details-form" class="auth-form"><label class="field">${kind==='store'?'ชื่อร้านใหม่':'ชื่อร้าน'}<input name="storeName" required maxlength="80" autocomplete="organization" placeholder="เช่น ร้านหลักของบริษัท"></label><label class="field">ชื่อผู้ดูแลร้าน<input name="name" required maxlength="80" autocomplete="name" placeholder="ชื่อที่แสดง"></label>${passwordControl('signup-password','รหัสผ่าน')}${passwordControl('signup-confirm','ยืนยันรหัสผ่าน','confirm')}${errorMarkup()}<button type="submit" class="btn primary">${kind==='store'?'สร้างร้านและบัญชี Admin':'สร้างร้านและเริ่มใช้งาน'}</button><button type="button" class="text-btn auth-back" id="email-change">เปลี่ยนอีเมลหรือข้อมูลบัญชี</button></form>`;
+    bindPasswordToggles(root);
+    root.querySelector('#email-change').onclick=()=>startIdentity();
+    const form=root.querySelector('form');
+    form.onsubmit=async event=>{
+      event.preventDefault();
+      if(flow.pending)return;
+      const values=new FormData(form);
+      root.querySelector('#email-flow-error').textContent='';
+      if(values.get('password')!==values.get('confirm')){showError(Error('รหัสผ่านยืนยันไม่ตรงกัน'));return}
+      lock(true);
+      try{
+        const endpoint=kind==='store'?'/stores':isSetup&&!accountArea?'/auth/setup':'/auth/register';
+        const out=await api(endpoint,'POST',{...flow.identity,verificationToken:flow.verificationToken,storeName:values.get('storeName'),name:values.get('name'),password:values.get('password')});
+        if(!active())return;
+        const username=flow.identity.username;
+        form.reset();
+        dispose();
+        if(kind==='store')showCreatedVerifiedStore(out.store,username);else await enterAuthenticatedWorkspace(out);
+      }catch(err){showError(err);if(active())lock(false)}
+    };
+  }
+  function showNewPassword(){
+    flow.pending=false;
+    root.innerHTML=`${stepMarkup(3)}${identitySummary()}<form id="email-reset-form" class="auth-form">${passwordControl('reset-password')}${passwordControl('reset-confirm','ยืนยันรหัสผ่านใหม่','confirm')}<p class="form-help">เมื่อเปลี่ยนแล้ว ทุกอุปกรณ์ต้องเข้าสู่ระบบใหม่</p>${errorMarkup()}<button type="submit" class="btn primary">บันทึกรหัสผ่านใหม่</button><button type="button" class="text-btn auth-back" id="email-flow-back">กลับไปเข้าสู่ระบบ</button></form>`;
+    bindPasswordToggles(root);
+    root.querySelector('#email-flow-back').onclick=back;
+    const form=root.querySelector('form');
+    form.onsubmit=async event=>{
+      event.preventDefault();
+      if(flow.pending)return;
+      const values=new FormData(form);
+      root.querySelector('#email-flow-error').textContent='';
+      if(values.get('password')!==values.get('confirm')){showError(Error('รหัสผ่านยืนยันไม่ตรงกัน'));return}
+      lock(true);
+      try{
+        await api('/auth/reset','POST',{...flow.identity,verificationToken:flow.verificationToken,password:values.get('password')});
+        if(!active())return;
+        loginStoreHint=flow.identity.storeCode;
+        form.reset();
+        dispose();
+        showLogin('เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่',true);
+      }catch(err){showError(err);if(active())lock(false)}
+    };
+  }
+  startIdentity(error);
+  if(modalFlow)document.getElementById('dialog').addEventListener('close',dispose,{once:true});
+}
+showCreateStore=function(){
+  if(publicDemo){toast('คุณมีร้านตัวอย่างของตัวเองแล้ว ลองแก้ชื่อร้านได้');return}
+  if(currentAuth?.role!=='admin')return;
+  modal('สร้างร้านใหม่','ยืนยันอีเมลของผู้ดูแลร้านใหม่ก่อนสร้างบัญชี',`<p class="form-help auth-flow-intro">ร้านใหม่เริ่มด้วยสต๊อก 0 และไม่มีออเดอร์ บัญชีปัจจุบันยังอยู่ในร้าน ${esc(currentStore.name)}</p><div id="email-flow"></div>`);
+  startEmailFlow(document.getElementById('email-flow'),{kind:'store',modalFlow:true});
+};
+function showCreatedVerifiedStore(store,username){
+  modal('สร้างร้านใหม่แล้ว',esc(store.name),`<div class="store-created"><span class="badge packed">สร้างบัญชี Admin และยืนยันอีเมลแล้ว</span><div class="stat-line"><span>ชื่อร้าน</span><strong>${esc(store.name)}</strong></div><div class="stat-line"><span>รหัสร้าน</span><strong>${esc(store.code)}</strong></div><div class="stat-line"><span>ชื่อผู้ใช้ Admin</span><strong>${esc(username)}</strong></div><label class="field" style="margin-top:20px">ลิงก์เข้าสู่ระบบร้านใหม่<input id="created-store-link" class="store-link-input" readonly value="${esc(storeLoginUrl(store.code))}"></label><div class="actions" style="margin-top:13px"><button class="btn" id="copy-created-store-link">คัดลอกลิงก์ร้านใหม่</button></div><p class="form-help" style="margin-top:19px">คุณยังอยู่ในร้าน ${esc(currentStore.name)} หากต้องการเปิดร้านใหม่ ให้ออกจากระบบแล้วใช้บัญชีที่เพิ่งสร้าง</p><div class="modal-actions"><button class="btn primary" id="close-created-store">กลับร้านปัจจุบัน</button></div></div>`);
+  document.getElementById('copy-created-store-link').onclick=()=>copyStoreLoginLink(document.getElementById('created-store-link'));
+  document.getElementById('close-created-store').onclick=()=>document.getElementById('dialog').close();
+}
+showAccount=function(message=''){
+  if(publicDemo){showPublicDemoReset();return}
+  if(!currentAuth)return;
+  const verified=currentAuth.emailVerified&&currentAuth.email;
+  modal('บัญชีของคุณ',`${esc(currentAuth.username)} · ${roleLabels[currentAuth.role]} · ${esc(currentStore.code)}`,`<p>${esc(currentAuth.name)}</p><section class="account-email-card" aria-labelledby="account-email-title"><div><h3 id="account-email-title">อีเมลสำหรับกู้คืนบัญชี</h3><p>${verified?`${esc(currentAuth.email)} <span class="email-verified-badge">ยืนยันแล้ว</span>`:'ยังไม่มีอีเมลที่ยืนยัน'}</p><small>ยืนยันอีเมลไว้ เพื่อรับ OTP เมื่อลืมรหัสผ่าน</small></div><button type="button" class="btn small" id="bind-account-email">${verified?'เปลี่ยนอีเมล':'เพิ่มและยืนยันอีเมล'}</button></section>${message?`<div class="auth-notice" role="status">${esc(message)}</div>`:''}<form id="password-form"><div class="wizard-fields"><label class="field">รหัสผ่านปัจจุบัน<input name="currentPassword" type="password" autocomplete="current-password" required maxlength="128"></label>${passwordControl('account-new-password')}${passwordControl('account-confirm-password','ยืนยันรหัสผ่านใหม่','confirm')}</div><p class="form-help" style="margin-top:12px">เมื่อเปลี่ยนรหัสผ่านแล้ว จะต้องเข้าสู่ระบบใหม่ทุกอุปกรณ์</p><div class="auth-error" id="password-error" role="alert"></div><div class="modal-actions"><button class="btn primary" type="submit">เปลี่ยนรหัสผ่าน</button></div></form>`);
+  const body=document.getElementById('dialog-content');
+  bindPasswordToggles(body);
+  document.getElementById('bind-account-email').onclick=()=>{
+    modal('ยืนยันอีเมลของคุณ','รับ OTP เพื่อเชื่อมอีเมลกับบัญชีนี้',`<div id="email-flow"></div>`);
+    startEmailFlow(document.getElementById('email-flow'),{kind:'bind',modalFlow:true});
+  };
+  const form=document.getElementById('password-form');
+  form.onsubmit=async event=>{
+    event.preventDefault();
+    if(form.dataset.pending==='true')return;
+    const values=new FormData(form),error=document.getElementById('password-error');
+    error.textContent='';
+    if(values.get('password')!==values.get('confirm')){error.textContent='รหัสผ่านยืนยันไม่ตรงกัน';return}
+    setPending(form,true);
+    try{
+      await api('/auth/password','POST',{currentPassword:values.get('currentPassword'),password:values.get('password')});
+      form.reset();
+      clearSession();
+      showLogin('เปลี่ยนรหัสผ่านแล้ว กรุณาเข้าสู่ระบบใหม่',true);
+    }catch(err){if(form.isConnected){error.textContent=err.message;setPending(form,false)}}
+  };
+};
+const emailAwareUserForm=showUserForm;
+showUserForm=function(user){
+  emailAwareUserForm(user);
+  if(publicDemo||currentAuth?.role!=='admin')return;
+  const help=document.querySelector('#user-form .form-help');
+  if(help)help.textContent='สมาชิกเปลี่ยนรหัสผ่านและยืนยันอีเมลสำหรับกู้คืนบัญชีเองได้ จากชื่อบัญชีมุมขวาบน';
+};
+logout=async function(){if(publicDemo){showPublicDemoReset();return}try{await api('/auth/logout','POST',{})}catch{}clearSession();showLogin('',true)};

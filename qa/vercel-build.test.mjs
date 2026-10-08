@@ -10,7 +10,7 @@ const projectRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'
 function fixture(t){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'order-hub-vercel-build-'));
   t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
-  const files=[...REQUIRED_PUBLIC_ASSETS.map(asset=>'dist/'+asset),'package-lock.json','api/order-hub.mjs','server/index.mjs','server/model.mjs','server/storage.mjs','server/seed.json','server/vercel-demo.mjs','server/demo-postgres.mjs'];
+  const files=[...REQUIRED_PUBLIC_ASSETS.map(asset=>'dist/'+asset),'package-lock.json','api/order-hub.mjs','server/index.mjs','server/model.mjs','server/storage.mjs','server/seed.json','server/vercel-demo.mjs','server/demo-postgres.mjs','server/email-auth.mjs','server/migration-backup.mjs'];
   for(const relative of files){const file=path.join(root,relative);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,'fixture: '+relative)}
   return root;
 }

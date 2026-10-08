@@ -100,6 +100,14 @@ export function createPostgresSnapshotStore(options){
           attempts JSONB NOT NULL DEFAULT '[]'::jsonb,
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )`);
+        await client.query(`CREATE TABLE IF NOT EXISTS order_hub_demo_schema_backups (
+          namespace TEXT NOT NULL,
+          to_version INTEGER NOT NULL,
+          from_version INTEGER NOT NULL,
+          snapshot BYTEA NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          PRIMARY KEY(namespace,to_version)
+        )`);
         await client.query(`CREATE TABLE IF NOT EXISTS order_hub_public_demo_snapshots (
           project_key TEXT NOT NULL,
           visitor_hash TEXT NOT NULL,
@@ -157,6 +165,12 @@ export function createPostgresSnapshotStore(options){
         const row=selected.rows[0];
         const output=await callback({snapshot:snapshotValue(row.snapshot,{nullable:true}),attempts:attemptValues(row.attempts)});
         if(!output||typeof output!=='object')throw new Error('Demo database callback must return its updated state');
+        if(output.migrationBackup!==undefined){
+          const saved=output.migrationBackup;
+          if(!saved||saved.toVersion!==4||!Number.isInteger(saved.fromVersion)||saved.fromVersion<0||saved.fromVersion>=saved.toVersion||row.snapshot===null)throw new Error('Invalid migration backup');
+          const previous=snapshotValue(saved.snapshot);
+          await client.query('INSERT INTO order_hub_demo_schema_backups(namespace,to_version,from_version,snapshot) VALUES($1,$2,$3,$4) ON CONFLICT(namespace,to_version) DO NOTHING',[config.namespace,saved.toVersion,saved.fromVersion,previous]);
+        }
         const nextSnapshot=snapshotValue(output.snapshot),nextAttempts=attemptValues(output.attempts);
         const updated=await client.query('UPDATE order_hub_demo_snapshots SET snapshot=$2,attempts=$3::jsonb,updated_at=NOW() WHERE namespace=$1',[config.namespace,nextSnapshot,JSON.stringify(nextAttempts)]);
         if(updated.rowCount!==1)throw new Error('Demo database snapshot could not be saved');

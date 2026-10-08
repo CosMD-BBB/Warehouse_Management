@@ -9,6 +9,7 @@ import {DatabaseSync,backup} from 'node:sqlite';
 import {Pool} from 'pg';
 import {createPostgresSnapshotStore} from '../server/demo-postgres.mjs';
 import {createVercelDemoHandler} from '../server/vercel-demo.mjs';
+import {createEmailFixture} from './email-fixture.mjs';
 
 const connectionString=process.env.ORDER_HUB_TEST_POSTGRES_URL;
 const integration={skip:!connectionString&&'Set ORDER_HUB_TEST_POSTGRES_URL to an isolated loopback PostgreSQL fixture.'};
@@ -58,8 +59,8 @@ test('real PostgreSQL cold-start stores serialize row updates and roll back fail
 });
 
 test('Vercel API persists sessions, stock and tenant permissions through independent real PostgreSQL connections',integration,async t=>{
-  const {values,pools,namespace}=await stores(t);
-  let handlers=values.map(store=>createVercelDemoHandler({store,environment:{ORDER_HUB_PUBLIC_ORIGIN:origin}}));
+  const {values,pools,namespace}=await stores(t),email=createEmailFixture();
+  let handlers=values.map(store=>createVercelDemoHandler({store,environment:{ORDER_HUB_PUBLIC_ORIGIN:origin},emailAuth:email.emailAuth}));
   const server=http.createServer((req,res)=>handlers[Number(req.headers['x-qa-instance'])===1?1:0](req,res));
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
   t.after(()=>new Promise(resolve=>server.close(resolve)));
@@ -79,11 +80,11 @@ test('Vercel API persists sessions, stock and tenant permissions through indepen
   const asSession=r=>({cookie:r.cookie.split(';')[0],csrf:r.data.csrf,store:r.data.store});
   const password=randomBytes(24).toString('hex');
   const owner=code=>({storeName:'Fixture '+code,storeCode:code,username:'fixture_owner',name:'Fixture owner',password});
-  let r=await request('/api/auth/setup',{method:'POST',body:owner('alpha')});assert.equal(r.status,201);assert.match(r.cookie,/; Secure/);const alpha=asSession(r);
-  handlers=values.map(store=>createVercelDemoHandler({store,environment:{ORDER_HUB_PUBLIC_ORIGIN:origin}}));
+  let r=await request('/api/auth/setup',{method:'POST',body:await email.signup(async(route,body)=>{const reply=await request(route,{method:'POST',body});return {...reply,json:reply.data}},owner('alpha'))});assert.equal(r.status,201);assert.match(r.cookie,/; Secure/);const alpha=asSession(r);
+  handlers=values.map(store=>createVercelDemoHandler({store,environment:{ORDER_HUB_PUBLIC_ORIGIN:origin},emailAuth:email.emailAuth}));
   assert.equal((await request('/api/state',{session:alpha,instance:1})).status,200);
   assert.equal((await request('/api/auth/setup',{method:'POST',body:owner('rogue'),instance:1})).status,409);
-  r=await request('/api/stores',{method:'POST',body:owner('beta'),session:alpha,instance:1});assert.equal(r.status,201);
+  r=await request('/api/stores',{method:'POST',body:await email.signup(async(route,body)=>{const reply=await request(route,{method:'POST',body,session:alpha,instance:1});return {...reply,json:reply.data}},owner('beta')),session:alpha,instance:1});assert.equal(r.status,201);
   r=await request('/api/auth/login',{method:'POST',body:{storeCode:'beta',username:'fixture_owner',password},instance:1});assert.equal(r.status,200);const beta=asSession(r);
   const state=async(session,instance=0)=>(await request('/api/state',{session,instance})).data.data;
   const empty=await state(beta);assert.deepEqual(empty.orders,[]);assert.ok(empty.products.every(p=>p.stock===0));

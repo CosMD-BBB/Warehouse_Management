@@ -7,10 +7,12 @@ import {randomBytes,scrypt,timingSafeEqual,createHash} from 'node:crypto';
 import {promisify} from 'node:util';
 import {ROLES,createSeed,perform,projectData,fault} from './model.mjs';
 import {initializeStorage,insertStore,transaction} from './storage.mjs';
+import {createEmailAuthService,createResendEmailAuth,deliverEmailJobs,normalizeEmail} from './email-auth.mjs';
+import {backupStorageBeforeMigration} from './migration-backup.mjs';
 
 const scryptAsync=promisify(scrypt),root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const digest=s=>createHash('sha256').update(s).digest('hex');
-const safeUser=u=>({id:u.id,storeId:u.tenant_id,username:u.username,name:u.name,role:u.role,active:!!u.active});
+const safeUser=u=>({id:u.id,storeId:u.tenant_id,username:u.username,name:u.name,role:u.role,active:!!u.active,email:u.email||null,emailVerified:!!u.email_verified_at});
 const storeOf=u=>({id:u.tenant_id,name:u.store_name,code:u.store_code,active:true});
 const storeFields=(b,initial=false)=>{
   const name=String(b.storeName??(initial?'ร้านหลัก':'')).trim();
@@ -33,11 +35,12 @@ function configuredOrigin(value){
   return url;
 }
 
-export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.local','order-hub.sqlite'),publicOrigin=process.env.ORDER_HUB_PUBLIC_ORIGIN||'',attempts=new Map(),publicDemo=false}={}){
+export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.local','order-hub.sqlite'),publicOrigin=process.env.ORDER_HUB_PUBLIC_ORIGIN||'',attempts=new Map(),publicDemo=false,emailAuth=createResendEmailAuth(),deferEmailDelivery=false}={}){
   const external=configuredOrigin(publicOrigin),cookieFlags=`HttpOnly; SameSite=Strict; Path=/${external?'; Secure':''}`;
   if(!(attempts instanceof Map))throw new Error('Authentication attempt storage must be a Map');
   if(typeof publicDemo!=='boolean'||publicDemo&&!external)throw new Error('Public demo requires an explicit HTTPS origin');
-  const clearedCookie=`oh_session=; ${cookieFlags}; Max-Age=0`;
+  if(typeof deferEmailDelivery!=='boolean')throw new Error('Invalid email delivery mode');
+  const cookieName=publicDemo?'__Host-oh_demo_session':'oh_session',clearedCookie=`${cookieName}=; ${cookieFlags}; Max-Age=0`;
   fs.mkdirSync(path.dirname(dbPath),{recursive:true,mode:0o700});
   const db=new DatabaseSync(dbPath);try{fs.chmodSync(dbPath,0o600)}catch{}
   try{
@@ -50,13 +53,16 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
     initializeStorage(db);
     if(publicDemo&&!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='public_demo_meta'").get())db.exec("CREATE TABLE public_demo_meta(marker TEXT PRIMARY KEY); INSERT INTO public_demo_meta VALUES('synthetic-guest-v1');");
   }catch(error){db.close();throw error}
+  let emailService;try{emailService=createEmailAuthService({db,configuration:publicDemo?null:emailAuth,now:emailAuth?.now})}catch(error){db.close();throw error}
+  const emailJobs=[];
+  const takeEmailJobs=()=>emailJobs.splice(0);
   const ttl=8*60*60*1000;
   const transact=fn=>transaction(db,fn);
   const lookupUser=id=>db.prepare('SELECT u.*,t.name store_name,t.code store_code FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE u.id=? AND t.active=1').get(id);
   const record=(actor,action,target)=>db.prepare('INSERT INTO security_audit(at,tenant_id,actor_id,action,target_id) VALUES(?,?,?,?,?)').run(new Date().toISOString(),actor.tenant_id,actor.id,action,target||null);
   function send(res,status,data,headers={}){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...headers});res.end(JSON.stringify(data))}
   function session(req){
-    const token=(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('oh_session='))?.slice(11);
+    const token=(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName+'='))?.slice(cookieName.length+1);
     if(!token||!/^[a-f0-9]{64}$/.test(token))return null;
     return db.prepare('SELECT u.*,t.name store_name,t.code store_code,s.csrf,s.token_hash,s.expires_at FROM sessions s JOIN users u ON u.id=s.user_id JOIN tenants t ON t.id=u.tenant_id WHERE s.token_hash=? AND s.expires_at>? AND u.active=1 AND t.active=1').get(digest(token),Date.now())||null;
   }
@@ -75,12 +81,12 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
     db.prepare('DELETE FROM sessions WHERE expires_at<=?').run(Date.now());
     if(publicDemo)db.prepare('DELETE FROM sessions WHERE user_id=? AND token_hash NOT IN (SELECT token_hash FROM sessions WHERE user_id=? ORDER BY expires_at DESC LIMIT 15)').run(user.id,user.id);
     db.prepare('INSERT INTO sessions VALUES(?,?,?,?)').run(digest(token),user.id,csrf,Date.now()+ttl);
-    return {csrf,cookie:`oh_session=${token}; ${cookieFlags}; Max-Age=${ttl/1000}`};
+    return {csrf,cookie:`${cookieName}=${token}; ${cookieFlags}; Max-Age=${ttl/1000}`};
   }
   function authReply(res,status,u){const s=issue(u);send(res,status,{user:safeUser(u),store:storeOf(u),csrf:s.csrf,permissions:ROLES[u.role]},{'Set-Cookie':s.cookie})}
-  function addOwner(store,fields,hash){
+  function addOwner(store,fields,hash,verified){
     const u={id:randomBytes(16).toString('hex'),tenant_id:store.id,...fields,role:'admin',active:1};
-    db.prepare('INSERT INTO users VALUES(?,?,?,?,?,?,?,?)').run(u.id,u.tenant_id,u.username,u.name,hash,u.role,1,new Date().toISOString());
+    db.prepare('INSERT INTO users(id,tenant_id,username,name,password_hash,role,active,created_at,email,email_verified_at) VALUES(?,?,?,?,?,?,?,?,?,?)').run(u.id,u.tenant_id,u.username,u.name,hash,u.role,1,new Date().toISOString(),verified?.email||null,verified?.verifiedAt||null);
     return lookupUser(u.id);
   }
   async function body(req){
@@ -103,7 +109,7 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
         if(current)return lookupUser(current.id);
         if(db.prepare('SELECT COUNT(*) n FROM users').get().n)throw new Error('Invalid public demo owner');
       }
-      if(reset)for(const table of ['sessions','action_requests','security_audit','connection_drafts','tenant_state','users','tenants'])db.exec('DELETE FROM '+table);
+      if(reset)for(const table of ['sessions','email_challenges','email_rate_limits','action_requests','security_audit','connection_drafts','tenant_state','users','tenants'])db.exec('DELETE FROM '+table);
       const store=insertStore(db,{name:'ร้านตัวอย่างของคุณ',code:'demo'},createSeed());
       const owner=addOwner(store,{username:'demo_guest',name:'ผู้ทดลองใช้งาน'},hash);
       record(owner,'public_demo_start',owner.id);return owner;
@@ -128,18 +134,61 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
         if(route==='/api/auth/status'&&req.method==='GET'){
           if(publicDemo){if(!user)demoReply(res,await demoOwner(),{fresh:true});else demoReply(res,user);return}
           const stores=db.prepare('SELECT code FROM tenants WHERE active=1 LIMIT 2').all();
-          send(res,200,{needsSetup:db.prepare('SELECT COUNT(*) n FROM users').get().n===0,legacyStoreCode:stores.length===1?stores[0].code:'',user:user?safeUser(user):null,store:user?storeOf(user):null,csrf:user?.csrf||null,permissions:user?ROLES[user.role]:null});return;
+          send(res,200,{needsSetup:db.prepare('SELECT COUNT(*) n FROM users').get().n===0,emailEnabled:emailService.configured,legacyStoreCode:stores.length===1?stores[0].code:'',user:user?safeUser(user):null,store:user?storeOf(user):null,csrf:user?.csrf||null,permissions:user?ROLES[user.role]:null});return;
         }
-        if(publicDemo&&(route==='/api/auth/setup'||route==='/api/auth/login'||route==='/api/auth/password'||route==='/api/auth/logout'||route==='/api/stores'||route==='/api/users'&&req.method==='POST'||route.startsWith('/api/users/')&&req.method==='PATCH'))fault('โหมดทดลองใช้ข้อมูลตัวอย่างและไม่รับข้อมูลบัญชีจริง',403);
-        if(route==='/api/auth/setup'&&req.method==='POST'){
-          if(db.prepare('SELECT COUNT(*) n FROM users').get().n)fault('สร้าง Admin เริ่มต้นแล้ว',409);
-          const b=await body(req),fields=accountFields(b),storeFieldsValue=storeFields(b,true),hash=await hashPassword(passwordValid(b.password));
+        if(publicDemo&&(route.startsWith('/api/auth/')&&route!=='/api/auth/demo-reset'||route==='/api/stores'||route==='/api/users'&&req.method==='POST'||route.startsWith('/api/users/')&&req.method==='PATCH'))fault('โหมดทดลองใช้ข้อมูลตัวอย่างและไม่รับข้อมูลบัญชีจริง',403);
+        if(route==='/api/auth/email/request'&&req.method==='POST'){
+          emailService.requireEnabled();
+          const b=await body(req),purpose=b.purpose,email=normalizeEmail(b.email);
+          let target,storeCode,username;
+          if(purpose==='bind'){
+            user=freshSession(req);const initialHash=user.password_hash;
+            if(typeof b.currentPassword!=='string'||b.currentPassword.length>128||!await verifyPassword(b.currentPassword,initialHash))fault('รหัสผ่านปัจจุบันไม่ถูกต้อง');
+            user=freshSession(req);if(user.password_hash!==initialHash)fault('ข้อมูลบัญชีเปลี่ยนแล้ว กรุณาลองใหม่',409);
+            target=user;storeCode=user.store_code;username=user.username;
+          }else{
+            storeCode=String(b.storeCode||'').trim().toLowerCase();username=String(b.username||'').trim().toLowerCase();
+            if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(storeCode)||storeCode.length<3||storeCode.length>40||!/^[a-z0-9._-]{3,40}$/.test(username))fault('กรุณาระบุรหัสร้านและชื่อผู้ใช้ให้ถูกต้อง');
+            if(purpose==='reset')target=db.prepare('SELECT u.* FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE t.code=? AND t.active=1 AND u.username=? AND u.active=1 AND u.email=? AND u.email_verified_at IS NOT NULL').get(storeCode,username,email);
+          }
+          const result=emailService.request({purpose,email,storeCode,username,user:target,ip:req.socket.remoteAddress||''});
+          if(result.job)emailJobs.push(result.job);
+          if(!deferEmailDelivery)await deliverEmailJobs(takeEmailJobs());
+          send(res,200,result.data);return;
+        }
+        if(route==='/api/auth/email/verify'&&req.method==='POST'){
+          const b=await body(req),challenge=db.prepare('SELECT purpose FROM email_challenges WHERE id=?').get(typeof b.challengeId==='string'?b.challengeId:'');
+          if(challenge?.purpose==='bind')user=freshSession(req);
+          send(res,200,emailService.verify({challengeId:b.challengeId,code:b.code,actor:user}));return;
+        }
+        if((route==='/api/auth/setup'||route==='/api/auth/register')&&req.method==='POST'){
+          const initial=route==='/api/auth/setup';
+          if(initial&&db.prepare('SELECT COUNT(*) n FROM users').get().n)fault('สร้าง Admin เริ่มต้นแล้ว',409);
+          emailService.requireEnabled();
+          const b=await body(req),fields=accountFields(b),storeFieldsValue=storeFields(b,initial);
+          emailService.checkProof({purpose:'signup',email:b.email,verificationToken:b.verificationToken,storeCode:storeFieldsValue.code,username:fields.username});
+          const hash=await hashPassword(passwordValid(b.password));
           const u=transact(()=>{
-            if(db.prepare('SELECT COUNT(*) n FROM users').get().n)fault('สร้าง Admin เริ่มต้นแล้ว',409);
-            const store=insertStore(db,storeFieldsValue,createSeed()),owner=addOwner(store,fields,hash);
+            if(initial&&db.prepare('SELECT COUNT(*) n FROM users').get().n)fault('สร้าง Admin เริ่มต้นแล้ว',409);
+            if(db.prepare('SELECT id FROM tenants WHERE code=?').get(storeFieldsValue.code))fault('รหัสร้านนี้ถูกใช้แล้ว',409);
+            const verified=emailService.consume({purpose:'signup',email:b.email,verificationToken:b.verificationToken,storeCode:storeFieldsValue.code,username:fields.username});
+            const store=initial?insertStore(db,storeFieldsValue,createSeed()):insertStore(db,storeFieldsValue),owner=addOwner(store,fields,hash,verified);
             record(owner,'setup_store_admin',owner.id);return owner;
           });
           authReply(res,201,u);return;
+        }
+        if(route==='/api/auth/reset'&&req.method==='POST'){
+          emailService.requireEnabled();
+          const b=await body(req),storeCode=String(b.storeCode||'').trim().toLowerCase(),username=String(b.username||'').trim().toLowerCase(),email=normalizeEmail(b.email);
+          emailService.checkProof({purpose:'reset',email,storeCode,username,verificationToken:b.verificationToken});
+          const hash=await hashPassword(passwordValid(b.password));
+          transact(()=>{
+            const verified=emailService.consume({purpose:'reset',email,storeCode,username,verificationToken:b.verificationToken});
+            const target=lookupUser(verified.userId);if(!target?.active||target.tenant_id!==verified.tenantId||target.email!==email)fault('การยืนยันอีเมลไม่ถูกต้องหรือหมดอายุ กรุณาขอ OTP ใหม่');
+            db.prepare('UPDATE users SET password_hash=? WHERE id=? AND tenant_id=?').run(hash,target.id,target.tenant_id);
+            db.prepare('DELETE FROM sessions WHERE user_id=?').run(target.id);emailService.revokeUser(target.id);record(target,'reset_password_email',target.id);
+          });
+          send(res,200,{ok:true},{'Set-Cookie':clearedCookie});return;
         }
         if(route==='/api/auth/login'&&req.method==='POST'){
           const b=await body(req),username=String(b.username||'').trim().toLowerCase();
@@ -169,10 +218,22 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
           send(res,200,{ok:true},{'Set-Cookie':clearedCookie});return;
         }
         if(route==='/api/auth/password'&&req.method==='POST'){
-          const b=await body(req);if(typeof b.currentPassword!=='string'||b.currentPassword.length>128||!await verifyPassword(b.currentPassword,user.password_hash))fault('รหัสผ่านปัจจุบันไม่ถูกต้อง',400);
+          const b=await body(req),initialHash=user.password_hash;if(typeof b.currentPassword!=='string'||b.currentPassword.length>128||!await verifyPassword(b.currentPassword,initialHash))fault('รหัสผ่านปัจจุบันไม่ถูกต้อง',400);
           const hash=await hashPassword(passwordValid(b.password));user=freshSession(req);
-          transact(()=>{db.prepare('UPDATE users SET password_hash=? WHERE id=? AND tenant_id=?').run(hash,user.id,user.tenant_id);db.prepare('DELETE FROM sessions WHERE user_id=?').run(user.id);record(user,'change_password',user.id)});
+          if(user.password_hash!==initialHash)fault('ข้อมูลบัญชีเปลี่ยนแล้ว กรุณาลองใหม่',409);
+          transact(()=>{db.prepare('UPDATE users SET password_hash=? WHERE id=? AND tenant_id=?').run(hash,user.id,user.tenant_id);db.prepare('DELETE FROM sessions WHERE user_id=?').run(user.id);emailService.revokeUser(user.id);record(user,'change_password',user.id)});
           send(res,200,{ok:true},{'Set-Cookie':clearedCookie});return;
+        }
+        if(route==='/api/auth/email'&&req.method==='POST'){
+          const b=await body(req),initialHash=user.password_hash;
+          if(typeof b.currentPassword!=='string'||b.currentPassword.length>128||!await verifyPassword(b.currentPassword,initialHash))fault('รหัสผ่านปัจจุบันไม่ถูกต้อง');
+          user=freshSession(req);if(user.password_hash!==initialHash)fault('ข้อมูลบัญชีเปลี่ยนแล้ว กรุณาลองใหม่',409);
+          const verified=transact(()=>{
+            const verified=emailService.consume({purpose:'bind',email:b.email,verificationToken:b.verificationToken,actor:user});
+            db.prepare('UPDATE users SET email=?,email_verified_at=? WHERE id=? AND tenant_id=?').run(verified.email,verified.verifiedAt,user.id,user.tenant_id);
+            emailService.revokeUser(user.id);record(user,'verify_account_email',user.id);return verified;
+          });
+          send(res,200,{ok:true,user:safeUser({...user,email:verified.email,email_verified_at:verified.verifiedAt})});return;
         }
         if(route==='/api/state'&&req.method==='GET'){
           send(res,200,{data:projectData(readStoreState(user),user.role),user:safeUser(user),store:storeOf(user),permissions:ROLES[user.role],...(publicDemo?{publicDemo:true}:{})});return;
@@ -200,11 +261,14 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
         }
         if(route==='/api/stores'&&req.method==='POST'){
           if(user.role!=='admin')fault('เฉพาะ Admin ของร้านนี้เท่านั้น',403);
-          const b=await body(req),fields=accountFields(b),storeFieldsValue=storeFields(b),hash=await hashPassword(passwordValid(b.password));
+          const b=await body(req),fields=accountFields(b),storeFieldsValue=storeFields(b);
+          emailService.checkProof({purpose:'signup',email:b.email,verificationToken:b.verificationToken,storeCode:storeFieldsValue.code,username:fields.username});
+          const hash=await hashPassword(passwordValid(b.password));
           user=freshSession(req,'admin');
           const store=transact(()=>{
             if(db.prepare('SELECT id FROM tenants WHERE code=?').get(storeFieldsValue.code))fault('รหัสร้านนี้ถูกใช้แล้ว',409);
-            const store=insertStore(db,storeFieldsValue),owner=addOwner(store,fields,hash);
+            const verified=emailService.consume({purpose:'signup',email:b.email,verificationToken:b.verificationToken,storeCode:storeFieldsValue.code,username:fields.username});
+            const store=insertStore(db,storeFieldsValue),owner=addOwner(store,fields,hash,verified);
             record(user,'provision_store',store.id);record(owner,'setup_store_admin',owner.id);return store;
           });send(res,201,{ok:true,store,ownerCreated:true});return;
         }
@@ -218,7 +282,7 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
           const hash=await hashPassword(passwordValid(b.password));user=freshSession(req,'admin');
           const id=transact(()=>{
             if(db.prepare('SELECT id FROM users WHERE tenant_id=? AND username=?').get(user.tenant_id,fields.username))fault('ชื่อผู้ใช้นี้มีแล้วในร้านนี้',409);
-            const id=randomBytes(16).toString('hex');db.prepare('INSERT INTO users VALUES(?,?,?,?,?,?,?,?)').run(id,user.tenant_id,fields.username,fields.name,hash,b.role,1,new Date().toISOString());record(user,'create_user',id);return id;
+            const id=randomBytes(16).toString('hex');db.prepare('INSERT INTO users(id,tenant_id,username,name,password_hash,role,active,created_at) VALUES(?,?,?,?,?,?,?,?)').run(id,user.tenant_id,fields.username,fields.name,hash,b.role,1,new Date().toISOString());record(user,'create_user',id);return id;
           });send(res,201,{ok:true,id});return;
         }
         if(route.startsWith('/api/users/')&&req.method==='PATCH'){
@@ -235,7 +299,7 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
             const adminCount=db.prepare("SELECT COUNT(*) n FROM users WHERE tenant_id=? AND active=1 AND role='admin'").get(user.tenant_id).n;
             if(current.role==='admin'&&current.active&&(!active||role!=='admin')&&adminCount<=1)fault('ต้องเหลือ Admin ที่ใช้งานได้อย่างน้อย 1 คนในร้านนี้',409);
             db.prepare('UPDATE users SET name=?,role=?,active=?,password_hash=COALESCE(?,password_hash) WHERE id=? AND tenant_id=?').run(name,role,active?1:0,hash,id,user.tenant_id);
-            const revoke=role!==current.role||active!==!!current.active||!!hash;if(revoke)db.prepare('DELETE FROM sessions WHERE user_id=?').run(id);
+            const revoke=role!==current.role||active!==!!current.active||!!hash;if(revoke){db.prepare('DELETE FROM sessions WHERE user_id=?').run(id);emailService.revokeUser(id)};
             sessionRevoked=id===user.id&&revoke;record(user,'update_user',id);
           });send(res,200,{ok:true,sessionRevoked});return;
         }
@@ -260,18 +324,20 @@ export function createApp({dbPath=process.env.ORDER_HUB_DB||path.join(root,'.loc
       const file=path.join(root,'dist',asset);if(!fs.existsSync(file))fault('Not found',404);
       const types={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.ttf':'font/ttf','.svg':'image/svg+xml','.png':'image/png','.jpeg':'image/jpeg','.webp':'image/webp'};
       res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'});res.end(req.method==='HEAD'?undefined:fs.readFileSync(file));
-    }catch(e){const status=e.status||500;if(status===500)console.error('Order Hub request failed:',e.message);send(res,status,{error:status===500?'ระบบขัดข้อง กรุณาลองใหม่':e.message,...(e.code==='SESSION_CHANGED'?{code:e.code}:{})})}
+    }catch(e){const status=e.status||500;if(status===500)console.error('Order Hub request failed:',e.message);send(res,status,{error:status===500?'ระบบขัดข้อง กรุณาลองใหม่':e.message,...(['SESSION_CHANGED','EMAIL_NOT_CONFIGURED'].includes(e.code)?{code:e.code}:{})})}
   };
   const server=http.createServer(handler);
   let closed=false;
   const close=()=>{if(!closed){db.close();closed=true}};
-  server.on('close',close);return {server,db,handler,close};
+  server.on('close',close);return {server,db,handler,close,takeEmailJobs};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const host=process.env.ORDER_HUB_HOST||'127.0.0.1',port=Number(process.env.ORDER_HUB_PORT||process.env.PORT||4180);
   if(!['127.0.0.1','0.0.0.0'].includes(host))throw new Error('ORDER_HUB_HOST must be 127.0.0.1 or 0.0.0.0');
   if(!Number.isInteger(port)||port<1||port>65535)throw new Error('Server port must be an integer from 1 to 65535');
   if(host!=='127.0.0.1'&&!process.env.ORDER_HUB_PUBLIC_ORIGIN)throw new Error('Set ORDER_HUB_PUBLIC_ORIGIN to the exact HTTPS origin before binding publicly');
+  const migrationBackup=await backupStorageBeforeMigration(process.env.ORDER_HUB_DB||path.join(root,'.local','order-hub.sqlite'));
+  if(migrationBackup)console.log(`Order Hub migration backup saved: ${migrationBackup.path}`);
   const {server}=createApp();
   server.listen(port,host,()=>console.log(`Order Hub ready: ${process.env.ORDER_HUB_PUBLIC_ORIGIN||`http://127.0.0.1:${server.address().port}`}`));
 }

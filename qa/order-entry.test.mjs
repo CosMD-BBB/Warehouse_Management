@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {createApp} from '../server/index.mjs';
+import {createEmailFixture} from './email-fixture.mjs';
 import {available, reserved} from '../server/model.mjs';
 
 const PASSWORD = 'Order-entry-fixture-password-001';
@@ -26,9 +27,10 @@ const stock = (data, sku) => data.products.find(product => product.sku === sku).
 async function fixture(t) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'order-hub-entry-'));
   const dbPath = path.join(dir, 'fixture.sqlite');
+  const email=createEmailFixture();
   let app, origin, admin;
   const start = async () => {
-    app = createApp({dbPath});
+    app = createApp({dbPath,emailAuth:email.emailAuth});
     await new Promise((resolve, reject) => { app.server.once('error', reject); app.server.listen(0, '127.0.0.1', resolve); });
     origin = `http://127.0.0.1:${app.server.address().port}`;
   };
@@ -54,7 +56,7 @@ async function fixture(t) {
     assert.equal(response.status, 200, JSON.stringify(response.j));
     return asSession(response);
   };
-  const setup = await post('/api/auth/setup', {storeCode: 'entry', storeName: 'Order entry test', username: 'entry_owner', name: 'Order entry owner', password: PASSWORD}, null);
+  const setup = await post('/api/auth/setup', await email.signup((route,body)=>post(route,body,null),{storeCode: 'entry', storeName: 'Order entry test', username: 'entry_owner', name: 'Order entry owner', password: PASSWORD}), null);
   assert.equal(setup.status, 201, JSON.stringify(setup.j));
   admin = asSession(setup);
   const state = async (session = admin) => {
@@ -70,7 +72,7 @@ async function fixture(t) {
     return response.j.result.orderId;
   };
   const newStore = async (code = 'other') => {
-    const response = await post('/api/stores', {storeCode: code, storeName: code + ' shop', username: 'entry_owner', name: code + ' owner', password: PASSWORD});
+    const response = await post('/api/stores', await email.signup((route,body)=>post(route,body),{storeCode: code, storeName: code + ' shop', username: 'entry_owner', name: code + ' owner', password: PASSWORD}));
     assert.equal(response.status, 201, JSON.stringify(response.j));
     return login(code);
   };

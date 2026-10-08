@@ -6,11 +6,12 @@ import path from 'node:path';
 import http from 'node:http';
 import {randomUUID} from 'node:crypto';
 import {createApp} from '../server/index.mjs';
+import {createEmailFixture} from './email-fixture.mjs';
 import {available,reserved} from '../server/model.mjs';
 
 test('fulfillment, shared stock, retries and authorization races',async()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'order-hub-workflow-'));
-  const dbPath=path.join(dir,'test.sqlite');let app=createApp({dbPath});
+  const dbPath=path.join(dir,'test.sqlite'),email=createEmailFixture();let app=createApp({dbPath,emailAuth:email.emailAuth});
   await new Promise(r=>app.server.listen(0,'127.0.0.1',r));
   let origin='http://127.0.0.1:'+app.server.address().port,admin;
   const checks=[];const ok=(v,m)=>{assert.ok(v,m);checks.push(m)};
@@ -25,7 +26,8 @@ test('fulfillment, shared stock, retries and authorization races',async()=>{
   const make=async(channel,qty=1)=>{const r=await act('create-order',{channel,sku:'CLN-100',qty,customer:'ผู้รับทดสอบ',province:'กรุงเทพมหานคร',phone:'0812345678',shippingAddress:{addressLine:'123 ถนนทดสอบ',subdistrict:'ปทุมวัน',district:'ปทุมวัน',province:'กรุงเทพมหานคร',postalCode:'10330'}});assert.equal(r.status,200);return r.j.result.orderId};
   const get=(d,id)=>d.orders.find(o=>o.id===id);
   try{
-    let r=await request('/api/auth/setup',{name:'QA Admin',username:'qa_admin',password:'Workflow-admin-strong-001'},null);
+    let r=await request('/api/auth/setup',await email.signup((route,body)=>request(route,body,null),{name:'QA Admin',username:'qa_admin',password:'Workflow-admin-strong-001'}),null);
+    assert.equal(r.status,201,JSON.stringify(r.j));
     admin={cookie:r.cookie,csrf:r.j.csrf};
     let d=await state(),initial=d.products[0].stock,initialAvailable=available(d,'CLN-100');
     const id=await make('Offline sales',2);d=await state();
@@ -85,7 +87,7 @@ test('fulfillment, shared stock, retries and authorization races',async()=>{
     ok([get(d,left),get(d,right)].filter(o=>o.status==='ready').length===1&&[get(d,left),get(d,right)].filter(o=>o.status==='hold').length===1,'competing orders can reserve the last unit only once');
     ok(available(d,'CLN-100')===0,'competing reservations cannot make stock negative');
     const snapshot=JSON.stringify(d.products),shippedId=id;
-    await new Promise(r=>app.server.close(r));app=createApp({dbPath});await new Promise(r=>app.server.listen(0,'127.0.0.1',r));origin='http://127.0.0.1:'+app.server.address().port;
+    await new Promise(r=>app.server.close(r));app=createApp({dbPath,emailAuth:email.emailAuth});await new Promise(r=>app.server.listen(0,'127.0.0.1',r));origin='http://127.0.0.1:'+app.server.address().port;
     r=await request('/api/auth/login',{username:'qa_admin',password:'Workflow-admin-strong-001'},null);admin={cookie:r.cookie,csrf:r.j.csrf};d=await state();
     ok(JSON.stringify(d.products)===snapshot&&get(d,shippedId).status==='shipped','stock and fulfillment state survive server restart');
     fs.writeFileSync('qa/workflow-results.json',JSON.stringify({passed:checks.length,checks,errors:[]},null,2));console.log(JSON.stringify({passed:checks.length,errors:[]}));

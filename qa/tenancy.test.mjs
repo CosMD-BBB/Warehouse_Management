@@ -6,6 +6,7 @@ import path from 'node:path';
 import {createHash, randomUUID, scryptSync} from 'node:crypto';
 import {DatabaseSync} from 'node:sqlite';
 import {createApp} from '../server/index.mjs';
+import {createEmailFixture} from './email-fixture.mjs';
 import {available, createSeed, projectData} from '../server/model.mjs';
 
 const PASSWORD = 'Tenant-test-password-001';
@@ -19,6 +20,8 @@ const sessionOf = response => ({cookie: response.cookie, csrf: response.j.csrf, 
 async function fixture(t, prepare) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'order-hub-tenancy-'));
   const dbPath = path.join(dir, 'fixture.sqlite');
+  let emailNow=Date.now();
+  const email=createEmailFixture({now:()=>emailNow});
   let app, origin;
   const stop = async () => {
     if (!app) return;
@@ -31,7 +34,7 @@ async function fixture(t, prepare) {
   });
   if (prepare) await prepare(dbPath);
   const start = async () => {
-    app = createApp({dbPath});
+    app = createApp({dbPath,emailAuth:email.emailAuth});
     await new Promise((resolve, reject) => {
       app.server.once('error', reject);
       app.server.listen(0, '127.0.0.1', resolve);
@@ -53,6 +56,7 @@ async function fixture(t, prepare) {
     return {status: response.status, j: await response.json(), cookie: response.headers.get('set-cookie')?.split(';')[0]};
   };
   const post = (route, body, session) => request(route, {method: 'POST', body, session});
+  const provision = async (route,fields,session) => post(route,await email.signup((otpRoute,body)=>post(otpRoute,body,session),fields),session);
   const patch = (route, body, session) => request(route, {method: 'PATCH', body, session});
   const state = async session => {
     const response = await request('/api/state', {session});
@@ -66,12 +70,12 @@ async function fixture(t, prepare) {
     return sessionOf(response);
   };
   const pair = async () => {
-    const setup = await post('/api/auth/setup', account('alpha', 'Alpha shop'));
+    const setup = await provision('/api/auth/setup', account('alpha', 'Alpha shop'));
     assert.equal(setup.status, 201, JSON.stringify(setup.j));
     const alpha = sessionOf(setup);
     assert.ok(alpha.store?.id, 'setup returns its store context');
     assert.equal(alpha.user.storeId, alpha.store.id);
-    const created = await post('/api/stores', account('beta', 'Beta shop'), alpha);
+    const created = await provision('/api/stores', account('beta', 'Beta shop'), alpha);
     assert.equal(created.status, 201, JSON.stringify(created.j));
     const beta = await login(credentials('beta'));
     return {alpha, beta, created};
@@ -84,12 +88,12 @@ async function fixture(t, prepare) {
     assert.ok(response.j.result.orderId);
     return response.j.result.orderId;
   };
-  return {request, post, patch, state, action, login, pair, makeOrder, restart: async () => { await stop(); await start(); }, get db() { return app.db; }, get server() { return app.server; }};
+  return {request, post, provision, patch, state, action, login, pair, makeOrder, advanceEmailClock:milliseconds=>{emailNow+=milliseconds}, restart: async () => { await stop(); await start(); }, get db() { return app.db; }, get server() { return app.server; }};
 }
 
 test('store context separates identical usernames and passwords and permits legacy login only for one store', async t => {
   const f = await fixture(t);
-  const setup = await f.post('/api/auth/setup', account('alpha', 'Alpha shop'));
+  const setup = await f.provision('/api/auth/setup', account('alpha', 'Alpha shop'));
   assert.equal(setup.status, 201);
   const alpha = sessionOf(setup);
   assert.equal(alpha.store.name, 'Alpha shop');
@@ -99,7 +103,7 @@ test('store context separates identical usernames and passwords and permits lega
   const legacyLogin = await f.login(credentials(undefined));
   assert.equal(legacyLogin.store.id, alpha.store.id, 'single-store login remains backward compatible');
 
-  const created = await f.post('/api/stores', account('beta', 'Beta shop'), alpha);
+  const created = await f.provision('/api/stores', account('beta', 'Beta shop'), alpha);
   assert.equal(created.status, 201);
   const beta = await f.login(credentials('beta'));
   assert.equal(created.j.store.id, beta.store.id);
@@ -112,7 +116,9 @@ test('store context separates identical usernames and passwords and permits lega
   assert.equal(current.j.store.id, alpha.store.id, 'creating a store does not switch the owner session');
   assert.equal(current.j.user.id, alpha.user.id);
   assert.equal((await f.request('/api/auth/status', {session: beta})).j.store.id, beta.store.id);
-  assert.equal((await f.post('/api/stores', account('beta', 'Duplicate shop'), alpha)).status, 409);
+  f.advanceEmailClock(60_001);
+  assert.equal((await f.provision('/api/stores', account('beta', 'Duplicate shop'), alpha)).status, 409, 'a freshly verified owner still cannot reuse an existing store code');
+  assert.equal(f.db.prepare('SELECT COUNT(*) n FROM tenants').get().n,2,'a duplicate-store conflict must not create another tenant');
   assert.equal((await f.post('/api/stores', account('contains spaces!', 'Invalid shop code'), alpha)).status, 400);
 
   const missingCode = await f.post('/api/auth/login', credentials(undefined));

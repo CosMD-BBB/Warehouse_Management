@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS tenant_state(tenant_id TEXT PRIMARY KEY REFERENCES te
 CREATE TABLE IF NOT EXISTS action_requests(tenant_id TEXT NOT NULL REFERENCES tenants(id),actor_id TEXT NOT NULL,request_id TEXT NOT NULL,fingerprint TEXT NOT NULL,result TEXT NOT NULL,PRIMARY KEY(tenant_id,actor_id,request_id));
 CREATE TABLE IF NOT EXISTS security_audit(id INTEGER PRIMARY KEY,at TEXT NOT NULL,tenant_id TEXT NOT NULL REFERENCES tenants(id),actor_id TEXT,action TEXT NOT NULL,target_id TEXT);
 CREATE TABLE IF NOT EXISTS connection_drafts(tenant_id TEXT NOT NULL REFERENCES tenants(id),channel TEXT NOT NULL,data TEXT NOT NULL,updated_at TEXT NOT NULL,actor_id TEXT NOT NULL,PRIMARY KEY(tenant_id,channel));
+CREATE TABLE IF NOT EXISTS email_challenges(id TEXT PRIMARY KEY,purpose TEXT NOT NULL CHECK(purpose IN ('signup','reset','bind')),scope_hash TEXT NOT NULL,email TEXT NOT NULL,tenant_id TEXT,user_id TEXT,account_version TEXT,code_hash TEXT,proof_hash TEXT,expires_at INTEGER NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,verified_at INTEGER,used_at INTEGER);
+CREATE INDEX IF NOT EXISTS idx_email_challenges_scope ON email_challenges(purpose,scope_hash,created_at);
+CREATE TABLE IF NOT EXISTS email_rate_limits(key TEXT PRIMARY KEY,count INTEGER NOT NULL,started_at INTEGER NOT NULL);
 `;
 const exists=(db,name)=>!!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(name);
 export function transaction(db,fn){db.exec('BEGIN IMMEDIATE');try{const out=fn();db.exec('COMMIT');return out}catch(e){db.exec('ROLLBACK');throw e}}
@@ -53,7 +56,7 @@ export function initializeStorage(db){
           let code=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
           if(code.length<3||code.length>40)code='main';
           const store=insertStore(db,{name,code},state?JSON.parse(state):createSeed());
-          const addUser=db.prepare('INSERT INTO users VALUES(?,?,?,?,?,?,?,?)');
+          const addUser=db.prepare('INSERT INTO users(id,tenant_id,username,name,password_hash,role,active,created_at) VALUES(?,?,?,?,?,?,?,?)');
           for(const u of users)addUser.run(u.id,store.id,u.username,u.name,u.password_hash,u.role,u.active,u.created_at);
           for(const d of drafts)db.prepare('INSERT INTO connection_drafts VALUES(?,?,?,?,?)').run(store.id,d.channel,d.data,d.updated_at,d.actor_id);
           for(const a of actions)db.prepare('INSERT INTO action_requests VALUES(?,?,?,?,?)').run(store.id,a.actor_id,a.request_id,a.fingerprint,a.result);
@@ -63,8 +66,12 @@ export function initializeStorage(db){
         for(const name of names)if(exists(db,'legacy_'+name))db.exec(`DROP TABLE legacy_${name};`);
         db.exec(schema);
       }else db.exec(schema);
+      const columns=db.prepare('PRAGMA table_info(users)').all();
+      if(!columns.some(c=>c.name==='email'))db.exec('ALTER TABLE users ADD COLUMN email TEXT;');
+      if(!columns.some(c=>c.name==='email_verified_at'))db.exec('ALTER TABLE users ADD COLUMN email_verified_at INTEGER;');
       db.prepare('INSERT OR IGNORE INTO schema_migrations VALUES(3,?)').run(new Date().toISOString());
-      db.exec('PRAGMA user_version=3;');
+      db.prepare('INSERT OR IGNORE INTO schema_migrations VALUES(4,?)').run(new Date().toISOString());
+      db.exec('PRAGMA user_version=4;');
       if(db.prepare('PRAGMA foreign_key_check').all().length)throw Error('Store migration failed foreign key verification');
     });
   }finally{db.exec('PRAGMA foreign_keys=ON;')}

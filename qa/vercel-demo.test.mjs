@@ -6,6 +6,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {createVercelDemoHandler,vercelDemoNamespace} from '../server/vercel-demo.mjs';
+import {createEmailFixture} from './email-fixture.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const origin='https://order-hub-demo.example';
@@ -30,7 +31,8 @@ function durableFixtureStore(){
 }
 
 async function fixture(t,{store=durableFixtureStore(),env=environment,parsed=false}={}){
-  let handlers=[createVercelDemoHandler({store,environment:env}),createVercelDemoHandler({store,environment:env})];
+  const email=createEmailFixture();
+  let handlers=[createVercelDemoHandler({store,environment:env,emailAuth:email.emailAuth}),createVercelDemoHandler({store,environment:env,emailAuth:email.emailAuth})];
   const server=http.createServer(async(req,res)=>{
     if(parsed&&['POST','PATCH'].includes(req.method)){
       const chunks=[];for await(const chunk of req)chunks.push(chunk);const bytes=Buffer.concat(chunks);
@@ -58,7 +60,7 @@ async function fixture(t,{store=durableFixtureStore(),env=environment,parsed=fal
       req.on('error',reject);req.end(body===undefined?undefined:typeof body==='string'||Buffer.isBuffer(body)?body:JSON.stringify(body));
     });
   };
-  return {store,request,restart(){handlers=[createVercelDemoHandler({store,environment:env}),createVercelDemoHandler({store,environment:env})]}};
+  return {store,request,signup:(fields,options={})=>email.signup((route,body)=>request(route,{method:'POST',body,...options}),fields),restart(){handlers=[createVercelDemoHandler({store,environment:env,emailAuth:email.emailAuth}),createVercelDemoHandler({store,environment:env,emailAuth:email.emailAuth})]}};
 }
 const account=(password,storeCode='alpha')=>({storeName:'Vercel fixture '+storeCode,storeCode,username:'demo_owner',name:'Fixture owner',password});
 const sessionOf=r=>({cookie:r.cookie,csrf:r.json.csrf,store:r.json.store,user:r.json.user});
@@ -116,11 +118,11 @@ test('misconfigured or unavailable demo persistence fails closed without creatin
 test('accounts, Secure sessions, CSRF, tenant scope and warehouse redaction survive independent Vercel cold starts',async t=>{
   const f=await fixture(t),password=randomBytes(24).toString('hex');
   assert.equal((await f.request('/api/auth/status')).json.needsSetup,true);
-  let r=await f.request('/api/auth/setup',{method:'POST',body:account(password)});assert.equal(r.status,201,JSON.stringify(r.json));assert.match(r.setCookie,/; Secure(?:;|$)/);const alpha=sessionOf(r);
+  let r=await f.request('/api/auth/setup',{method:'POST',body:await f.signup(account(password))});assert.equal(r.status,201,JSON.stringify(r.json));assert.match(r.setCookie,/; Secure(?:;|$)/);const alpha=sessionOf(r);
   f.restart();assert.equal((await f.request('/api/auth/status',{session:alpha,instance:1})).json.user.id,alpha.user.id);
   assert.equal((await f.request('/api/state',{session:alpha,instance:1})).status,200);
   assert.equal((await f.request('/api/store',{method:'PATCH',body:{name:'Blocked'},session:alpha,headers:{'X-CSRF-Token':undefined},instance:1})).status,403);
-  r=await f.request('/api/stores',{method:'POST',body:account(password,'beta'),session:alpha,instance:1});assert.equal(r.status,201,JSON.stringify(r.json));
+  r=await f.request('/api/stores',{method:'POST',body:await f.signup(account(password,'beta'),{session:alpha,instance:1}),session:alpha,instance:1});assert.equal(r.status,201,JSON.stringify(r.json));
   r=await f.request('/api/auth/login',{method:'POST',body:{storeCode:'beta',username:'demo_owner',password}});assert.equal(r.status,200);const beta=sessionOf(r);
   const betaState=(await f.request('/api/state',{session:beta,instance:1})).json.data;assert.deepEqual(betaState.orders,[]);assert.ok(betaState.products.every(product=>product.stock===0));
   r=await f.request('/api/state?storeId='+beta.store.id,{session:alpha,instance:1});assert.equal(r.status,200);assert.equal(r.json.store.id,alpha.store.id);assert.ok(r.json.data.orders.length>0);
@@ -136,8 +138,8 @@ test('accounts, Secure sessions, CSRF, tenant scope and warehouse redaction surv
 });
 
 test('serial durable snapshots preserve concurrent inventory changes and atomic multi-product edits across instances',async t=>{
-  const f=await fixture(t),password=randomBytes(24).toString('hex');let r=await f.request('/api/auth/setup',{method:'POST',body:account(password)});assert.equal(r.status,201);const owner=sessionOf(r);
-  await f.request('/api/stores',{method:'POST',body:account(password,'beta'),session:owner});r=await f.request('/api/auth/login',{method:'POST',body:{storeCode:'beta',username:'demo_owner',password},instance:1});assert.equal(r.status,200);const beta=sessionOf(r);
+  const f=await fixture(t),password=randomBytes(24).toString('hex');let r=await f.request('/api/auth/setup',{method:'POST',body:await f.signup(account(password))});assert.equal(r.status,201);const owner=sessionOf(r);
+  await f.request('/api/stores',{method:'POST',body:await f.signup(account(password,'beta'),{session:owner}),session:owner});r=await f.request('/api/auth/login',{method:'POST',body:{storeCode:'beta',username:'demo_owner',password},instance:1});assert.equal(r.status,200);const beta=sessionOf(r);
   const action=(action,input={},instance=0)=>f.request('/api/actions',{method:'POST',body:{action,...input},session:beta,instance});
   const received=await Promise.all([action('stock-receive',{sku:'CLN-100',qty:3,requestId:randomUUID()},0),action('stock-receive',{sku:'CLN-100',qty:4,requestId:randomUUID()},1),action('stock-receive',{sku:'SUN-050',qty:5,requestId:randomUUID()},1)]);for(const response of received)assert.equal(response.status,200);
   const input={channel:'Offline sales',customer:'Vercel fixture recipient',phone:'0812345678',shippingAddress:{addressLine:'1 ถนนทดสอบ',subdistrict:'ปทุมวัน',district:'ปทุมวัน',province:'กรุงเทพมหานคร',postalCode:'10330'},items:[{sku:'CLN-100',qty:2,price:100,discount:0},{sku:'SUN-050',qty:3,price:50,discount:0}],payment:{method:'unpaid',status:'pending',amount:0}};
@@ -152,7 +154,7 @@ test('serial durable snapshots preserve concurrent inventory changes and atomic 
 
 test('Vercel-parsed object, string and Buffer bodies use the real validation and retain the 64KiB limit',async t=>{
   const f=await fixture(t,{parsed:true}),password=randomBytes(24).toString('hex');
-  let r=await f.request('/api/auth/setup',{method:'POST',body:account(password)});assert.equal(r.status,201,JSON.stringify(r.json));const session=sessionOf(r);
+  let r=await f.request('/api/auth/setup',{method:'POST',body:await f.signup(account(password))});assert.equal(r.status,201,JSON.stringify(r.json));const session=sessionOf(r);
   for(const kind of ['string','buffer']){r=await f.request('/api/store',{method:'PATCH',body:{name:'Parsed '+kind},session,headers:{'X-Fixture-Body':kind},instance:1});assert.equal(r.status,200,kind);assert.equal(r.json.store.name,'Parsed '+kind)}
   for(const body of ['{','null','[]','"text"'])assert.equal((await f.request('/api/store',{method:'PATCH',body,session,headers:{'X-Fixture-Body':'string'}})).status,400);
   let calls=f.store.calls;r=await f.request('/api/store',{method:'PATCH',body:{name:'x'.repeat(66000)},session});assert.equal(r.status,413);assert.equal(f.store.calls,calls,'oversized parsed body is rejected before opening persistence');
@@ -162,10 +164,10 @@ test('Vercel-parsed object, string and Buffer bodies use the real validation and
 
 test('failed COMMIT never releases success or session cookies and leaves the persisted setup unchanged',async t=>{
   const f=await fixture(t),password=randomBytes(24).toString('hex');
-  assert.equal((await f.request('/api/auth/status')).json.needsSetup,true);const before=Buffer.from(f.store.snapshot);
-  f.store.failCommit=true;const failed=await f.request('/api/auth/setup',{method:'POST',body:account(password),instance:1});assert.equal(failed.status,503);assert.equal(failed.setCookie,undefined);assert.doesNotMatch(failed.text,/private-credential|demo_owner|csrf|oh_session/);assert.deepEqual(f.store.snapshot,before);
+  assert.equal((await f.request('/api/auth/status')).json.needsSetup,true);const verifiedAccount=await f.signup(account(password));const before=Buffer.from(f.store.snapshot);
+  f.store.failCommit=true;const failed=await f.request('/api/auth/setup',{method:'POST',body:verifiedAccount,instance:1});assert.equal(failed.status,503);assert.equal(failed.setCookie,undefined);assert.doesNotMatch(failed.text,/private-credential|demo_owner|csrf|oh_session/);assert.deepEqual(f.store.snapshot,before);
   f.store.failCommit=false;f.restart();assert.equal((await f.request('/api/auth/status')).json.needsSetup,true);
-  const setup=await f.request('/api/auth/setup',{method:'POST',body:account(password)});assert.equal(setup.status,201);const session=sessionOf(setup);
+  const setup=await f.request('/api/auth/setup',{method:'POST',body:verifiedAccount});assert.equal(setup.status,201);const session=sessionOf(setup);
   f.store.failCommit=true;const logout=await f.request('/api/auth/logout',{method:'POST',body:{},session,instance:1});assert.equal(logout.status,503);assert.equal(logout.setCookie,undefined);
   f.store.failCommit=false;assert.equal((await f.request('/api/state',{session})).status,200,'rolled-back logout must preserve the existing durable session');
 });

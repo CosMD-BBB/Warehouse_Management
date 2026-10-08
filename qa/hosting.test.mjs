@@ -6,12 +6,14 @@ import os from 'node:os';
 import path from 'node:path';
 import {randomBytes} from 'node:crypto';
 import {createApp} from '../server/index.mjs';
+import {createEmailFixture} from './email-fixture.mjs';
 
 const publicOrigin='https://order-hub.example';
 
 async function fixture(t,{origin=publicOrigin}={}){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'order-hub-hosting-'));
-  const {server}=createApp({dbPath:path.join(dir,'test.sqlite'),publicOrigin:origin});
+  const email=createEmailFixture();
+  const {server}=createApp({dbPath:path.join(dir,'test.sqlite'),publicOrigin:origin,emailAuth:email.emailAuth});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   t.after(async()=>{await new Promise(resolve=>server.close(resolve));fs.rmSync(dir,{recursive:true,force:true})});
   const port=server.address().port,localOrigin=`http://127.0.0.1:${port}`,allowedOrigin=origin||localOrigin;
@@ -32,7 +34,7 @@ async function fixture(t,{origin=publicOrigin}={}){
       req.on('error',reject);req.end(body===undefined?undefined:JSON.stringify(body));
     });
   }
-  return {request,localOrigin};
+  return {request,localOrigin,signup:fields=>email.signup((route,body)=>request(route,{method:'POST',body}),fields)};
 }
 
 test('public origin configuration fails before opening SQLite for malformed or unsafe URLs',()=>{
@@ -49,7 +51,7 @@ test('HTTPS proxy configuration keeps authentication and CSRF, and sets Secure o
   const f=await fixture(t),password=randomBytes(24).toString('hex'),changedPassword=randomBytes(24).toString('hex');
   let r=await f.request('/api/auth/status');assert.equal(r.status,200);assert.equal(r.json.needsSetup,true);
   assert.equal((await f.request('/api/state')).status,401);
-  r=await f.request('/api/auth/setup',{method:'POST',body:{storeName:'ร้านทดสอบ HTTPS',storeCode:'hosting-test',username:'testadmin',name:'Fixture Admin',password}});
+  r=await f.request('/api/auth/setup',{method:'POST',body:await f.signup({storeName:'ร้านทดสอบ HTTPS',storeCode:'hosting-test',username:'testadmin',name:'Fixture Admin',password})});
   assert.equal(r.status,201);assert.match(r.setCookie,/; HttpOnly;/);assert.match(r.setCookie,/; SameSite=Strict;/);assert.match(r.setCookie,/; Secure(?:;|$)/);
   let session={cookie:r.cookie,csrf:r.json.csrf};
   assert.equal((await f.request('/api/state',{session})).status,200);
@@ -80,7 +82,7 @@ test('only the configured public Host and mutation Origin are accepted; forwarde
 
 test('default loopback requests remain usable without Secure cookies and still reject external authority',async t=>{
   const f=await fixture(t,{origin:''});
-  const r=await f.request('/api/auth/setup',{method:'POST',body:{username:'testadmin',name:'Fixture Admin',password:randomBytes(24).toString('hex')}});
+  const r=await f.request('/api/auth/setup',{method:'POST',body:await f.signup({username:'testadmin',name:'Fixture Admin',password:randomBytes(24).toString('hex')})});
   assert.equal(r.status,201);assert.doesNotMatch(r.setCookie,/; Secure(?:;|$)/);
   assert.equal((await f.request('/api/auth/status',{headers:{Host:'order-hub.example','X-Forwarded-Host':new URL(f.localOrigin).host}})).status,403);
   assert.equal((await f.request('/api/auth/login',{method:'POST',body:{},headers:{Origin:publicOrigin,'X-Forwarded-Proto':'https'}})).status,403);

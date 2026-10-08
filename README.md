@@ -1,5 +1,7 @@
 # Order Hub 0.3
 
+**สมัครและกู้รหัสผ่าน:** หน้า `/account` มี Register ยืนยันอีเมลด้วย OTP และลืมรหัสผ่าน บัญชีเดิมผูกอีเมลได้หลังยืนยันรหัสผ่านปัจจุบัน ต้องเชื่อม Resend ก่อนส่ง OTP จริงตาม [EMAIL_SETUP.md](EMAIL_SETUP.md) Admin คนเดียวที่ยังไม่เคยยืนยันอีเมลต้องกู้ผ่านผู้ดูแลฐานข้อมูลตาม [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md)
+
 **ตัวอย่างบน Vercel:** Preview สาขา `vercel-demo` เปิด Dashboard ให้ลองเล่นได้ทันทีด้วยข้อมูลตัวอย่างแยกต่อผู้เข้าชม มีปุ่มเริ่มใหม่ ใช้ backend จริงกับ Neon/Postgres ตาม [VERCEL_SETUP.md](VERCEL_SETUP.md) การเปิดให้ทุกคนเข้าถึงต้องปิด Vercel Authentication ใน Deployment Protection ของโปรเจกต์ด้วย การตั้งค่านี้ยังไม่ได้เปลี่ยนจากแชต และการเปิดบน Vercel จริงยังต้องยืนยัน deployment ส่วน Local และ Production ยังคงใช้ Login เดิม
 
 **เปิดตัวอย่างในเบราว์เซอร์โดยไม่ต้องติดตั้งบนเครื่อง:**

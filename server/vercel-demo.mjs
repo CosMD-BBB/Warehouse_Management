@@ -6,6 +6,8 @@ import {Readable} from 'node:stream';
 import {backup} from 'node:sqlite';
 import {createHash,randomBytes} from 'node:crypto';
 import {createApp} from './index.mjs';
+import {createResendEmailAuth,deliverEmailJobs} from './email-auth.mjs';
+import {backupStorageBeforeMigration} from './migration-backup.mjs';
 
 const projectRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const maxSnapshotBytes=10*1024*1024,maxBodyBytes=65536;
@@ -16,7 +18,7 @@ const securityHeaders={
 };
 const assetAllow=/^(index\.html|brand-logo\.jpeg|brand-icon\.png|styles\.css|auth\.css|order-editor\.css|app\.js|features\.js|stock-sync\.js|auth-client\.js|order-editor\.js|connections\.js|fonts\/[A-Za-z0-9._-]+\.(ttf|woff2)|channels\/[A-Za-z0-9._-]+\.(svg|png|webp))$/;
 const assetTypes={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.ttf':'font/ttf','.woff2':'font/woff2','.svg':'image/svg+xml','.png':'image/png','.jpeg':'image/jpeg','.webp':'image/webp'};
-const apiAllow=/^\/api\/(?:auth\/(?:status|setup|login|logout|password|demo-reset)|state|actions|store|stores|users(?:\/[a-f0-9]{32})?|connections)$/;
+const apiAllow=/^\/api\/(?:auth\/(?:status|setup|register|login|logout|password|reset|email(?:\/(?:request|verify))?|demo-reset)|state|actions|store|stores|users(?:\/[a-f0-9]{32})?|connections)$/;
 const failed=(status,message)=>Object.assign(new Error(message),{status});
 
 function exactOrigin(value){
@@ -118,7 +120,7 @@ function normalizedRequest(req){
   return replay;
 }
 
-export function createVercelDemoHandler({store,environment=process.env,root=projectRoot}={}){
+export function createVercelDemoHandler({store,environment=process.env,root=projectRoot,emailAuth=createResendEmailAuth(environment)}={}){
   const publicDemo=publicDemoEnabled(environment);
   let storePromise;
   async function durableStore(){
@@ -140,48 +142,61 @@ export function createVercelDemoHandler({store,environment=process.env,root=proj
       if(!origin)throw failed(403,'Host not allowed');
       if(!['GET','HEAD','POST','PATCH'].includes(req.method))throw failed(405,'Method not allowed');
       if(typeof req.url!=='string'||!req.url.startsWith('/')||req.url.startsWith('//'))throw failed(404,'Not found');
-      const url=new URL(req.url,origin),rawPath=req.url.split('?')[0],route=url.pathname;
+      const url=new URL(req.url,origin),rawPath=req.url.split('?')[0];let route=url.pathname;
       if(rawPath!==route||/[\\%\0]/.test(rawPath)||rawPath.includes('//'))throw failed(404,'Not found');
       if(!['GET','HEAD'].includes(req.method)&&req.headers.origin!==origin)throw failed(403,'Origin not allowed');
       if(!route.startsWith('/api/')){
         if(!['GET','HEAD'].includes(req.method))throw failed(405,'Method not allowed');
-        const asset=route==='/'?'index.html':route.slice(1);
+        if(route==='/account/'){
+          res.writeHead(308,{...securityHeaders,Location:'/account'+url.search,'Cache-Control':'no-store'});res.end();return;
+        }
+        const asset=route==='/'||route==='/account'?'index.html':route.slice(1);
         if(!assetAllow.test(asset))throw failed(404,'Not found');
         let bytes;try{bytes=await fs.readFile(path.join(root,'dist',asset))}catch(error){if(error.code==='ENOENT')throw failed(404,'Not found');throw error}
         res.writeHead(200,{...securityHeaders,'Content-Type':assetTypes[path.extname(asset)]||'application/octet-stream','Cache-Control':'no-store'});
         res.end(req.method==='HEAD'?undefined:bytes);return;
       }
+      const accountArea=route.startsWith('/api/account/'),guestDemo=publicDemo&&!accountArea;
+      if(accountArea)route='/api/'+route.slice('/api/account/'.length);
       if(!apiAllow.test(route))throw failed(404,'Not found');
-      if(route==='/api/auth/demo-reset'&&!publicDemo)throw failed(404,'Not found');
-      const starting=publicDemo&&route==='/api/auth/status'&&req.method==='GET';
-      let visitor=publicDemo?publicVisitor(req):null;
-      if(publicDemo&&!visitor){
+      if(route==='/api/auth/demo-reset'&&!guestDemo)throw failed(404,'Not found');
+      const starting=guestDemo&&route==='/api/auth/status'&&req.method==='GET';
+      let visitor=guestDemo?publicVisitor(req):null;
+      if(guestDemo&&!visitor){
         if(!starting)throw failed(401,'กรุณาเปิดหน้าเว็บเพื่อเริ่มทดลองใช้งาน');
         visitor=randomBytes(32).toString('hex');
       }
       const request=normalizedRequest(req),persistence=await durableStore();
+      if(accountArea)request.url=route+url.search;
       const reply=await persistence.transaction(async({snapshot,attempts})=>{
         validateSnapshot(snapshot);const limits=attemptsMap(attempts),directory=await fs.mkdtemp(path.join(os.tmpdir(),'order-hub-vercel-'));let app;
         try{
           await fs.chmod(directory,0o700);const dbPath=path.join(directory,'request.sqlite');
           if(snapshot!==null)await fs.writeFile(dbPath,snapshot,{mode:0o600,flag:'wx'});
-          app=createApp({dbPath,publicOrigin:origin,attempts:limits,publicDemo});
+          const beforeMigration=!guestDemo&&snapshot!==null?await backupStorageBeforeMigration(dbPath):null;
+          const migrationBackup=beforeMigration?{snapshot:await fs.readFile(beforeMigration.path),fromVersion:beforeMigration.fromVersion,toVersion:beforeMigration.toVersion}:undefined;
+          app=createApp({dbPath,publicOrigin:origin,attempts:limits,publicDemo:guestDemo,emailAuth,deferEmailDelivery:true});
           const response=bufferedResponse();await app.handler(request,response);const result=response.result();
-          if(result.status>=500)throw Error('Demo backend failed');
+          let expectedEmailUnavailable=false;
+          if(result.status===503){try{expectedEmailUnavailable=JSON.parse(result.body.toString()).code==='EMAIL_NOT_CONFIGURED'}catch{}}
+          if(result.status>=500&&!expectedEmailUnavailable)throw Error('Demo backend failed');
+          result.emailJobs=app.takeEmailJobs();
           const snapshotPath=path.join(directory,'committed.sqlite');await backup(app.db,snapshotPath);
           await fs.chmod(snapshotPath,0o600);const nextSnapshot=await fs.readFile(snapshotPath);validateSnapshot(nextSnapshot);
           const nextAttempts=Array.from(limits);attemptsMap(nextAttempts);
-          return {snapshot:nextSnapshot,attempts:nextAttempts,result};
+          return {snapshot:nextSnapshot,attempts:nextAttempts,result,...(migrationBackup?{migrationBackup}:{})};
         }finally{try{app?.close()}finally{await fs.rm(directory,{recursive:true,force:true})}}
-      },publicDemo?{visitor:createHash('sha256').update(visitor).digest('hex'),allowCreate:starting}:{});
+      },guestDemo?{visitor:createHash('sha256').update(visitor).digest('hex'),allowCreate:starting}:{});
       // Session cookies and successful replies must not escape before COMMIT.
+      // OTP messages must also wait until their challenges are durably committed.
+      await deliverEmailJobs(reply.emailJobs||[]);
       if(starting&&reply.status===200){
         const value=reply.headers['set-cookie'];
         reply.headers['set-cookie']=[...(value===undefined?[]:Array.isArray(value)?value:[value]),`__Host-oh_demo=${visitor}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`];
       }
       res.writeHead(reply.status,reply.headers);res.end(req.method==='HEAD'?undefined:reply.body);
     }catch(error){
-      const status=error.status&&[400,401,403,404,405,413,415].includes(error.status)?error.status:503;
+      const status=error.status&&[400,401,403,404,405,413,415,424,429].includes(error.status)?error.status:503;
       const unavailable=error.code==='PUBLIC_DEMO_CAPACITY'?'มีผู้ทดลองใช้งานเต็มแล้ว กรุณาลองใหม่ภายหลัง':error.code==='PUBLIC_DEMO_SIZE'?'ข้อมูลทดลองเต็มแล้ว กรุณากดเริ่มทดลองใหม่':error.code==='DEMO_CONFIGURATION'?'กรุณาเชื่อมต่อฐานข้อมูล Neon/Postgres ใน Vercel แล้ว Deploy อีกครั้ง เพื่อเปิดระบบสาธิต':'ระบบสาธิตยังไม่พร้อมใช้งาน กรุณาตรวจการเชื่อมต่อฐานข้อมูลใน Vercel';
       sendJSON(res,status,status===503?unavailable:error.message);
     }

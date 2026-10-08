@@ -9,6 +9,8 @@ import {randomBytes} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {DatabaseSync} from 'node:sqlite';
 import {codespacesConfig,startDemo,demoStatus} from '../scripts/start-codespaces.mjs';
+import {createApp} from '../server/index.mjs';
+import {createEmailFixture} from './email-fixture.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const codespacesEnvironment={CODESPACE_NAME:'sample-demo-abc123',GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:'app.github.dev'};
@@ -47,7 +49,7 @@ async function fixture(t){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'order-hub-codespaces-')),port=await freePort();
   const config={...codespacesConfig(codespacesEnvironment,root),port,publicOrigin:`https://sample-demo-abc123-${port}.app.github.dev`,dbPath:path.join(dir,'.local','demo.sqlite'),markerPath:path.join(dir,'.local','process.json'),logPath:path.join(dir,'.local','demo.log')};
   const pids=new Set();t.after(async()=>{for(const pid of pids)await stop(pid);fs.rmSync(dir,{recursive:true,force:true})});
-  async function start(){const result=await startDemo(config);pids.add(result.pid);return result}
+  async function start(){const environment={...process.env};delete environment.RESEND_API_KEY;delete environment.ORDER_HUB_EMAIL_FROM;delete environment.ORDER_HUB_EMAIL_OTP_SECRET;const result=await startDemo(config,{environment});pids.add(result.pid);return result}
   async function halt(pid){await stop(pid);pids.delete(pid)}
   return {config,dir,start,halt};
 }
@@ -88,8 +90,22 @@ test('real Codespaces backend serializes concurrent starts, enforces auth and or
   assert.equal((await request(config,'/api/auth/status',{headers:{Host:'attacker.example','X-Forwarded-Host':new URL(config.publicOrigin).host}})).status,403);
   assert.equal((await request(config,'/api/auth/setup',{method:'POST',body:{},headers:{Origin:'https://attacker.example','X-Forwarded-Proto':'https'}})).status,403);
   const password=randomBytes(24).toString('hex');
-  const owner=await request(config,'/api/auth/setup',{method:'POST',body:{storeName:'ร้านสาธิต Codespaces',storeCode:'demo-space',username:'fixtureadmin',name:'Fixture Admin',password}});
-  assert.equal(owner.status,201);assert.match(owner.setCookie,/; HttpOnly;/);assert.match(owner.setCookie,/; Secure(?:;|$)/);
+  const fields={storeName:'ร้านสาธิต Codespaces',storeCode:'demo-space',username:'fixtureadmin',name:'Fixture Admin',password};
+  assert.equal((await request(config,'/api/auth/setup',{method:'POST',body:fields})).status,503,'unconfigured mail must not admit an unverified owner');
+  const stillEmpty=new DatabaseSync(config.dbPath,{readOnly:true});assert.equal(stillEmpty.prepare('SELECT COUNT(*) n FROM users').get().n,0);stillEmpty.close();
+  await f.halt(started.pid);
+  // Provision chosen fixture credentials via actual OTP endpoints, using an
+  // injected sender in a temporary app. The launcher retains production auth.
+  const email=createEmailFixture(),setupApp=createApp({dbPath:config.dbPath,publicOrigin:config.publicOrigin,emailAuth:email.emailAuth});
+  await new Promise((resolve,reject)=>{setupApp.server.once('error',reject);setupApp.server.listen(0,'127.0.0.1',resolve)});
+  let owner;
+  try{
+    const provisioningConfig={...config,port:setupApp.server.address().port};
+    const verified=await email.signup((route,body)=>request(provisioningConfig,route,{method:'POST',body}),fields);
+    owner=await request(provisioningConfig,'/api/auth/setup',{method:'POST',body:verified});
+    assert.equal(owner.status,201);assert.match(owner.setCookie,/; HttpOnly;/);assert.match(owner.setCookie,/; Secure(?:;|$)/);
+  }finally{await new Promise(resolve=>setupApp.server.close(resolve))}
+  started=await f.start();assert.equal(started.reused,false);assert.equal(started.needsSetup,false);
   const repeated=await f.start();assert.equal(repeated.reused,true);assert.equal(repeated.pid,started.pid);assert.equal(repeated.needsSetup,false);
   await f.halt(started.pid);started=await f.start();assert.equal(started.reused,false);assert.equal(started.needsSetup,false);
   const login=await request(config,'/api/auth/login',{method:'POST',body:{storeCode:'demo-space',username:'fixtureadmin',password}});assert.equal(login.status,200);

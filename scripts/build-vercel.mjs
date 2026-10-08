@@ -10,7 +10,7 @@ export const REQUIRED_PUBLIC_ASSETS=Object.freeze([
   'fonts/Manrope-Variable.ttf','fonts/SukhumvitThai-400.ttf','fonts/SukhumvitThai-600.ttf','fonts/SukhumvitThai-700.ttf',
   'channels/facebook.svg','channels/shopee.svg','channels/tiktok.svg','channels/lazada.svg','channels/line.png'
 ]);
-const requiredBackendFiles=['package-lock.json','api/order-hub.mjs','server/index.mjs','server/model.mjs','server/storage.mjs','server/seed.json','server/vercel-demo.mjs','server/demo-postgres.mjs'];
+const requiredBackendFiles=['package-lock.json','api/order-hub.mjs','server/index.mjs','server/model.mjs','server/storage.mjs','server/seed.json','server/vercel-demo.mjs','server/demo-postgres.mjs','server/email-auth.mjs','server/migration-backup.mjs'];
 const sensitiveName=/^(?:\.env(?:\..*)?|(?:secrets?|credentials?|sessions?)(?:\..*)?)$|\.(?:sqlite(?:3)?|db)(?:-(?:wal|shm))?$|\.(?:pem|key)$/i;
 
 function directory(file){

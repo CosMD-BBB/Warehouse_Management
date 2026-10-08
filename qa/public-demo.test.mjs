@@ -8,6 +8,7 @@ import {randomBytes,randomUUID,createHash} from 'node:crypto';
 import {DatabaseSync,backup} from 'node:sqlite';
 import {Readable} from 'node:stream';
 import {createApp} from '../server/index.mjs';
+import {createEmailFixture} from './email-fixture.mjs';
 import {Pool} from 'pg';
 import {createVercelDemoHandler,publicDemoEnabled} from '../server/vercel-demo.mjs';
 import {createPostgresSnapshotStore} from '../server/demo-postgres.mjs';
@@ -37,7 +38,8 @@ function fixtureStore(){
 }
 
 async function fixture(t,{store=fixtureStore(),environment=publicEnvironment}={}){
-  let handlers=[0,1].map(()=>createVercelDemoHandler({store,environment}));
+  const email=createEmailFixture();
+  let handlers=[0,1].map(()=>createVercelDemoHandler({store,environment,emailAuth:email.emailAuth}));
   const server=http.createServer((req,res)=>handlers[req.headers['x-instance']==='1'?1:0](req,res));
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
   t.after(()=>new Promise(resolve=>server.close(resolve)));
@@ -55,7 +57,7 @@ async function fixture(t,{store=fixtureStore(),environment=publicEnvironment}={}
       });req.on('error',reject);req.end(body===undefined?undefined:JSON.stringify(body));
     });
   };
-  return {store,request,restart(){handlers=[0,1].map(()=>createVercelDemoHandler({store,environment}))}};
+  return {store,request,signup:fields=>email.signup((route,body)=>request(route,{method:'POST',body}),fields),restart(){handlers=[0,1].map(()=>createVercelDemoHandler({store,environment,emailAuth:email.emailAuth}))}};
 }
 function asSession(reply,previous){
   const cookies=new Map((previous?.cookie||'').split('; ').filter(Boolean).map(value=>value.split('=')));
@@ -89,12 +91,14 @@ test('login-free mode is gated to the exact trusted Vercel preview branch; other
 test('public visitors receive durable private guest sandboxes, exact authority and real CSRF protection',async t=>{
   const store=fixtureStore(),normal=await fixture(t,{store,environment:configured});
   const password=randomBytes(24).toString('hex');
-  const owner=await normal.request('/api/auth/setup',{method:'POST',body:{storeName:'Private existing shop',storeCode:'private',username:'owner',name:'Private owner',password}});
+  const owner=await normal.request('/api/auth/setup',{method:'POST',body:await normal.signup({storeName:'Private existing shop',storeCode:'private',username:'owner',name:'Private owner',password})});
   assert.equal(owner.status,201);const normalSession=asSession(owner),privateBefore=Buffer.from(store.rows.get('private').snapshot);
   const f=await fixture(t,{store});let r=await f.request('/api/auth/status');
   assert.equal(r.status,200);assert.equal(r.json.publicDemo,true);assert.equal(r.json.needsSetup,false);assert.equal(r.json.user.role,'admin');assert.equal(r.json.store.code,'demo');
   assert.equal(r.cookies.length,2);assert.ok(r.cookies.every(cookie=>/; Secure(?:;|$)/.test(cookie)&&/HttpOnly/.test(cookie)&&/SameSite=Strict/.test(cookie)&&/Path=\//.test(cookie)));
   assert.match(r.cookies.find(cookie=>cookie.startsWith('__Host-oh_demo=')),/^__Host-oh_demo=[a-f0-9]{64};/);
+  assert.match(r.cookies.find(cookie=>cookie.startsWith('__Host-oh_demo_session=')),/^__Host-oh_demo_session=[a-f0-9]{64};/);
+  assert.equal(r.cookies.some(cookie=>cookie.startsWith('oh_session=')),false,'public guest cookies cannot overwrite the private account cookie');
   const alpha=asSession(r),initial=await stateOf(f,alpha);assert.ok(initial.orders.length>0);assert.ok(initial.products.every(product=>product.stock>=0));
   const beta=asSession(await f.request('/api/auth/status',{instance:1}));assert.notEqual(alpha.cookie,beta.cookie);assert.notEqual(alpha.store.id,beta.store.id);
   assert.equal((await action(f,alpha,'stock-receive',{sku:'CLN-100',qty:2,requestId:randomUUID()},1)).status,200);
@@ -148,7 +152,7 @@ test('public demo retains atomic inventory and rejects authenticated snapshots m
   assert.equal((await action(f,alpha,'reserve',{id},1)).status,200);const reserved=await stateOf(f,alpha);
   r=await action(f,alpha,'update-order',{...input,id,items:[{sku:'CLN-100',qty:4,price:100,discount:0},{sku:'SUN-050',qty:100,price:50,discount:0}]},1);assert.equal(r.status,409);assert.deepEqual(await stateOf(f,alpha),reserved);
   const privateStore=fixtureStore(),normal=await fixture(t,{store:privateStore,environment:configured});
-  assert.equal((await normal.request('/api/auth/setup',{method:'POST',body:{storeName:'Private',storeCode:'private',username:'owner',name:'Private owner',password:randomBytes(24).toString('hex')}})).status,201);
+  assert.equal((await normal.request('/api/auth/setup',{method:'POST',body:await normal.signup({storeName:'Private',storeCode:'private',username:'owner',name:'Private owner',password:randomBytes(24).toString('hex')})})).status,201);
   const poisoned={transaction:async callback=>(await callback(copy(privateStore.rows.get('private')))).result};
   const rejected=await fixture(t,{store:poisoned});r=await rejected.request('/api/auth/status');assert.equal(r.status,503);assert.equal(r.cookies.length,0);assert.doesNotMatch(r.text,/Private owner|password_hash|csrf/);
 });
@@ -190,7 +194,7 @@ test('real PostgreSQL public allocation serializes capacity, cleans expired rows
 test('real PostgreSQL guest cookies, cold starts and reset are separate from authenticated database and other visitors',integration,async t=>{
   const {values}=await postgres(t);const multiplex={transaction:(callback,options)=>values[options?.visitor?.at(-1).charCodeAt(0)%2||0].transaction(callback,options)};
   const f=await fixture(t,{store:multiplex}),normal=await fixture(t,{store:values[0],environment:configured});
-  const ownerReply=await normal.request('/api/auth/setup',{method:'POST',body:{storeName:'Unchanged private',storeCode:'private',username:'owner',name:'Private owner',password:randomBytes(24).toString('hex')}});assert.equal(ownerReply.status,201);const owner=asSession(ownerReply);
+  const ownerReply=await normal.request('/api/auth/setup',{method:'POST',body:await normal.signup({storeName:'Unchanged private',storeCode:'private',username:'owner',name:'Private owner',password:randomBytes(24).toString('hex')})});assert.equal(ownerReply.status,201);const owner=asSession(ownerReply);
   const alpha=asSession(await f.request('/api/auth/status')),beta=asSession(await f.request('/api/auth/status'));const initial=await stateOf(f,alpha);
   assert.equal((await action(f,alpha,'stock-receive',{sku:'CLN-100',qty:5,requestId:randomUUID()})).status,200);
   f.restart();assert.equal(seedStock(await stateOf(f,alpha,1)),seedStock(initial)+5);assert.equal(seedStock(await stateOf(f,beta)),seedStock(initial));
